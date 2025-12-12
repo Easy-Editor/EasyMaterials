@@ -1,0 +1,51 @@
+{
+  "name": "@easy-editor/materials",
+  "private": true,
+  "description": "Official materials library for EasyEditor",
+  "homepage": "https://github.com/Easy-Editor/EasyMaterials",
+  "license": "MIT",
+  "version": "1.0.0",
+  "author": "JinSo <kimjinso@qq.com>",
+  "keywords": [
+    "easy-editor",
+    "low-code",
+    "materials",
+    "dashboard",
+    "form"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Easy-Editor/EasyMaterials"
+  },
+  "bugs": {
+    "url": "https://github.com/Easy-Editor/EasyMaterials/issues"
+  },
+  "scripts": {
+    "prepare": "husky",
+    "preinstall": "npx only-allow pnpm",
+    "check": "pnpm dlx ultracite check",
+    "fix": "pnpm dlx ultracite fix",
+    "pub:changeset": "pnpm changeset",
+    "pub:version": "pnpm changeset version",
+    "pub:release": "pnpm changeset publish"
+  },
+  "packageManager": "pnpm@9.12.2",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=9.12.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.8",
+    "@changesets/cli": "^2.29.8",
+    "@commitlint/cli": "^20.2.0",
+    "@commitlint/config-conventional": "^20.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "ultracite": "6.4.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,jsonc,css,scss,md,mdx}": [
+      "pnpm dlx ultracite fix"
+    ]
+  }
+}
