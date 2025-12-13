@@ -1,0 +1,25 @@
+# 源文件（发布时只包含 dist）
+src/
+
+# 配置文件
+tsconfig.*.json
+rollup.config.js
+biome.json
+
+# 测试文件
+**/*.test.*
+**/*.spec.*
+__tests__/
+coverage/
+
+# 开发文件
+.DS_Store
+.vscode/
+.idea/
+*.log
+node_modules/
+
+# 其他
+.git/
+.github/
+.npmignore

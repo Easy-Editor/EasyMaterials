@@ -11,8 +11,23 @@
       "!!**/node_modules"
     ]
   },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "off"
+      }
+    }
+  },
   "linter": {
-    "enabled": true
+    "enabled": true,
+    "rules": {
+      "performance": {
+        "noBarrelFile": "off"
+      },
+      "style": {
+        "useConsistentTypeDefinitions": "off"
+      }
+    }
   },
   "formatter": {
     "enabled": true,
