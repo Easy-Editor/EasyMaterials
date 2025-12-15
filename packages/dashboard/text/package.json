@@ -1,6 +1,6 @@
 {
   "name": "@easy-editor/materials-dashboard-text",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Text component for EasyEditor dashboard",
   "type": "module",
   "main": "src/index.tsx",
@@ -50,6 +50,7 @@
     "build": "npm-run-all -nl build:*",
     "build:clean": "rimraf dist/",
     "build:js": "rollup -c",
+    "build:types": "pnpm types",
     "types": "npm-run-all -nl types:*",
     "types:src": "tsc --project tsconfig.build.json",
     "test-types": "tsc --project tsconfig.test.json"

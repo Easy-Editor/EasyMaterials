@@ -44,7 +44,7 @@ export default [
       {
         file: 'dist/index.js',
         format: 'umd',
-        name: 'EasyEditor_Materials_Dashboard_Text',
+        name: 'EasyEditorMaterialsText',
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
@@ -93,7 +93,7 @@ export default [
       {
         file: 'dist/index.min.js',
         format: 'umd',
-        name: 'EasyEditor_Materials_Dashboard_Text',
+        name: 'EasyEditorMaterialsText',
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',

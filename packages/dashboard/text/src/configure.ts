@@ -59,7 +59,7 @@ const configure: Configure = {
             {
               name: 'text',
               title: '文本内容',
-              setter: 'TextAreaSetter',
+              setter: 'StringSetter',
             },
             {
               type: 'group',
