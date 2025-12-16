@@ -9,7 +9,7 @@ const snippets: Snippet[] = [
       props: {
         text: 'Text Text Text',
         fontSize: 14,
-        color: '#000000',
+        color: '#ffffff',
         textAlign: 'left',
       },
       $dashboard: {
@@ -28,7 +28,7 @@ const snippets: Snippet[] = [
       props: {
         text: 'Heading',
         fontSize: 24,
-        color: '#000000',
+        color: '#ffffff',
         fontWeight: 'bold',
         textAlign: 'center',
       },

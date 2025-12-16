@@ -17,7 +17,7 @@ const Text = (props: TextProps) => {
     ref,
     text = 'Text',
     fontSize = 14,
-    color = '#000000',
+    color = '#ffffff',
     fontWeight = 'normal',
     textAlign = 'left',
     lineHeight = 1.5,
@@ -41,7 +41,7 @@ const Text = (props: TextProps) => {
   const mergedStyle = { ...internalStyle, ...externalStyle }
 
   return (
-    <div className={className} ref={ref} style={mergedStyle} {...rest}>
+    <div className={className} ref={ref} style={mergedStyle}>
       {text}
     </div>
   )

@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-text
 
+## 0.0.4
+
+### Patch Changes
+
+- perf: adjust structure
+
 ## 0.0.3
 
 ### Patch Changes

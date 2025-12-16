@@ -4,7 +4,7 @@ import configure from './configure'
 import snippets from './snippets'
 
 const meta: ComponentMetadata = {
-  componentName: 'Text',
+  componentName: 'EasyEditorMaterialsText',
   title: 'Text',
   group: MaterialGroup.BASIC,
   snippets,

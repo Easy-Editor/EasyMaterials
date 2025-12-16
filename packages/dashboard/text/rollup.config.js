@@ -6,8 +6,17 @@ import { terser } from 'rollup-plugin-terser'
 import cleanup from 'rollup-plugin-cleanup'
 import pkg from './package.json' with { type: 'json' }
 
+const GLOBAL_NAME = 'EasyEditorMaterialsText'
+
 // 外部依赖（不打包进组件）
 const external = ['react', 'react-dom', 'react/jsx-runtime', '@easy-editor/core']
+
+const globals = {
+  react: 'React',
+  'react-dom': 'ReactDOM',
+  'react/jsx-runtime': 'jsxRuntime',
+  '@easy-editor/core': 'EasyEditorCore',
+}
 
 const plugins = [
   nodeResolve({
@@ -37,6 +46,79 @@ const plugins = [
 ]
 
 export default [
+  /* ---------------------------------- 元数据构建 --------------------------------- */
+  // 元数据 UMD 构建
+  {
+    input: 'src/meta.ts',
+    output: [
+      {
+        file: 'dist/meta.js',
+        format: 'umd',
+        name: `${GLOBAL_NAME}Meta`,
+        globals,
+        sourcemap: true,
+        banner: `/* @easy-editor/materials-dashboard-text v${pkg.version} (meta) */`,
+        exports: 'named',
+      },
+    ],
+    plugins,
+    external,
+  },
+  // 元数据压缩版本
+  {
+    input: 'src/meta.ts',
+    output: [
+      {
+        file: 'dist/meta.min.js',
+        format: 'umd',
+        name: `${GLOBAL_NAME}Meta`,
+        globals,
+        sourcemap: true,
+        banner: `/* @easy-editor/materials-dashboard-text v${pkg.version} (meta, minified) */`,
+        exports: 'named',
+      },
+    ],
+    plugins: [...plugins, terser()],
+    external,
+  },
+
+  /* ---------------------------------- 组件构建 ---------------------------------- */
+  // 组件 UMD 构建
+  {
+    input: 'src/component.tsx',
+    output: [
+      {
+        file: 'dist/component.js',
+        format: 'umd',
+        name: `${GLOBAL_NAME}Component`,
+        globals,
+        sourcemap: true,
+        banner: `/* @easy-editor/materials-dashboard-text v${pkg.version} (component) */`,
+        exports: 'named',
+      },
+    ],
+    plugins,
+    external,
+  },
+  // 组件压缩版本
+  {
+    input: 'src/component.tsx',
+    output: [
+      {
+        file: 'dist/component.min.js',
+        format: 'umd',
+        name: `${GLOBAL_NAME}Component`,
+        globals,
+        sourcemap: true,
+        banner: `/* @easy-editor/materials-dashboard-text v${pkg.version} (component, minified) */`,
+        exports: 'named',
+      },
+    ],
+    plugins: [...plugins, terser()],
+    external,
+  },
+
+  /* ---------------------------------- 完整构建 ---------------------------------- */
   // UMD 构建（用于 CDN 和浏览器）
   {
     input: 'src/index.tsx',
@@ -44,13 +126,8 @@ export default [
       {
         file: 'dist/index.js',
         format: 'umd',
-        name: 'EasyEditorMaterialsText',
-        globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
-          'react/jsx-runtime': 'jsxRuntime',
-          '@easy-editor/core': 'EasyEditorCore',
-        },
+        name: GLOBAL_NAME,
+        globals,
         sourcemap: true,
         banner: `/* @easy-editor/materials-dashboard-text v${pkg.version} */`,
         exports: 'named',
@@ -93,13 +170,8 @@ export default [
       {
         file: 'dist/index.min.js',
         format: 'umd',
-        name: 'EasyEditorMaterialsText',
-        globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
-          'react/jsx-runtime': 'jsxRuntime',
-          '@easy-editor/core': 'EasyEditorCore',
-        },
+        name: GLOBAL_NAME,
+        globals,
         sourcemap: true,
         banner: `/* @easy-editor/materials-dashboard-text v${pkg.version} (minified) */`,
         exports: 'named',
