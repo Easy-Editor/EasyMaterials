@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-text
 
+## 0.0.7
+
+### Patch Changes
+
+- fix: change componentName
+
 ## 0.0.6
 
 ### Patch Changes

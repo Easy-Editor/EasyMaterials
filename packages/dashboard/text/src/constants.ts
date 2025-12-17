@@ -10,7 +10,7 @@
  * - 组件：${GLOBAL_NAME}Component (例如: EasyEditorMaterialsTextComponent)
  * - 完整构建：${GLOBAL_NAME} (例如: EasyEditorMaterialsText)
  */
-export const GLOBAL_NAME = 'EasyEditorMaterialsText'
+export const COMPONENT_NAME = 'EasyEditorMaterialsText'
 
 /**
  * 包名

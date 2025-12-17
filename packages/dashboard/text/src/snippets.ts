@@ -1,11 +1,12 @@
 import type { Snippet } from '@easy-editor/core'
+import { COMPONENT_NAME } from './constants'
 
 const snippets: Snippet[] = [
   {
     title: 'Text',
     screenshot: 'https://img.alicdn.com/imgextra/i3/O1CN01n5wpxc1bi862KuXFz_!!6000000003498-55-tps-50-50.svg',
     schema: {
-      componentName: 'Text',
+      componentName: COMPONENT_NAME,
       props: {
         text: 'Text Text Text',
         fontSize: 14,
@@ -24,7 +25,7 @@ const snippets: Snippet[] = [
     title: 'Heading',
     screenshot: 'https://img.alicdn.com/imgextra/i3/O1CN01n5wpxc1bi862KuXFz_!!6000000003498-55-tps-50-50.svg',
     schema: {
-      componentName: 'Text',
+      componentName: COMPONENT_NAME,
       props: {
         text: 'Heading',
         fontSize: 24,
