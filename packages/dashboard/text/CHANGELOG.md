@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-text
 
+## 0.0.8
+
+### Patch Changes
+
+- fix: react build error
+
 ## 0.0.7
 
 ### Patch Changes

@@ -9,12 +9,11 @@ import pkg from './package.json' with { type: 'json' }
 const GLOBAL_NAME = 'EasyEditorMaterialsText'
 
 // 外部依赖（不打包进组件）
-const external = ['react', 'react-dom', 'react/jsx-runtime', '@easy-editor/core']
+const external = ['react', 'react-dom', '@easy-editor/core']
 
 const globals = {
   react: 'React',
   'react-dom': 'ReactDOM',
-  'react/jsx-runtime': 'jsxRuntime',
   '@easy-editor/core': 'EasyEditorCore',
 }
 
@@ -30,7 +29,7 @@ const plugins = [
     babelrc: false,
     babelHelpers: 'bundled',
     presets: [
-      ['@babel/preset-react', { runtime: 'automatic' }],
+      ['@babel/preset-react', { runtime: 'classic' }],
       [
         '@babel/preset-typescript',
         {
