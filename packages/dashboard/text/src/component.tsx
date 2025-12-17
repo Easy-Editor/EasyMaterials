@@ -23,7 +23,6 @@ const Text = (props: TextProps) => {
     lineHeight = 1.5,
     className = '',
     style: externalStyle,
-    ...rest
   } = props
 
   const internalStyle: CSSProperties = {

@@ -7,6 +7,7 @@ const meta: ComponentMetadata = {
   componentName: 'EasyEditorMaterialsText',
   title: 'Text',
   group: MaterialGroup.BASIC,
+  devMode: 'proCode',
   snippets,
   configure,
 }

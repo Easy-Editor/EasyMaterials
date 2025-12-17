@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-text
 
+## 0.0.5
+
+### Patch Changes
+
+- feat: add devMode
+
 ## 0.0.4
 
 ### Patch Changes
