@@ -3,7 +3,6 @@
   "extends": ["ultracite/core", "ultracite/react"],
   "files": {
     "includes": [
-      "**",
       "!**/.changeset",
       "!**/.cursor",
       "!**/.husky",

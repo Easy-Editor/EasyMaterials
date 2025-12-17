@@ -1,6 +1,6 @@
 {
   "name": "@easy-editor/materials-dashboard-text",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Text component for EasyEditor dashboard",
   "type": "module",
   "main": "src/index.tsx",
