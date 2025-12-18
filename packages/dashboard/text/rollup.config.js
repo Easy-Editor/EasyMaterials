@@ -9,11 +9,12 @@ import pkg from './package.json' with { type: 'json' }
 const GLOBAL_NAME = 'EasyEditorMaterialsText'
 
 // 外部依赖（不打包进组件）
-const external = ['react', 'react-dom', '@easy-editor/core']
+const external = ['react', 'react-dom', 'react/jsx-runtime', '@easy-editor/core']
 
 const globals = {
   react: 'React',
   'react-dom': 'ReactDOM',
+  'react/jsx-runtime': 'jsxRuntime',
   '@easy-editor/core': 'EasyEditorCore',
 }
 
@@ -29,7 +30,7 @@ const plugins = [
     babelrc: false,
     babelHelpers: 'bundled',
     presets: [
-      ['@babel/preset-react', { runtime: 'classic' }],
+      ['@babel/preset-react', { runtime: 'automatic' }],
       [
         '@babel/preset-typescript',
         {
@@ -46,7 +47,22 @@ const plugins = [
 
 export default [
   /* ---------------------------------- 元数据构建 --------------------------------- */
-  // 元数据 UMD 构建
+  // 元数据 ESM 构建（用于动态 import）
+  {
+    input: 'src/meta.ts',
+    output: [
+      {
+        file: 'dist/meta.esm.js',
+        format: 'esm',
+        sourcemap: true,
+        banner: `/* @easy-editor/materials-dashboard-text v${pkg.version} (meta, esm) */`,
+        exports: 'named',
+      },
+    ],
+    plugins,
+    external,
+  },
+  // 元数据 UMD 构建（备用方案）
   {
     input: 'src/meta.ts',
     output: [
@@ -63,7 +79,7 @@ export default [
     plugins,
     external,
   },
-  // 元数据压缩版本
+  // 元数据压缩版本（UMD，备用方案）
   {
     input: 'src/meta.ts',
     output: [
@@ -82,7 +98,22 @@ export default [
   },
 
   /* ---------------------------------- 组件构建 ---------------------------------- */
-  // 组件 UMD 构建
+  // 组件 ESM 构建（用于动态 import）
+  {
+    input: 'src/component.tsx',
+    output: [
+      {
+        file: 'dist/component.esm.js',
+        format: 'esm',
+        sourcemap: true,
+        banner: `/* @easy-editor/materials-dashboard-text v${pkg.version} (component, esm) */`,
+        exports: 'named',
+      },
+    ],
+    plugins,
+    external,
+  },
+  // 组件 UMD 构建（备用方案）
   {
     input: 'src/component.tsx',
     output: [
@@ -99,7 +130,7 @@ export default [
     plugins,
     external,
   },
-  // 组件压缩版本
+  // 组件压缩版本（UMD，备用方案）
   {
     input: 'src/component.tsx',
     output: [

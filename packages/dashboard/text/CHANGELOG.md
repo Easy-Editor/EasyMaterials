@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-text
 
+## 0.0.9
+
+### Patch Changes
+
+- build: add esm build
+
 ## 0.0.8
 
 ### Patch Changes
