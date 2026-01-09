@@ -5,7 +5,7 @@
 
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { materialDevPlugin } from './vite-plugin-material-dev'
+import { materialDevPlugin } from './.vite/plugins/vite-plugin-material-dev'
 
 export default defineConfig({
   plugins: [

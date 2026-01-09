@@ -88,54 +88,11 @@ const configure: Configure = {
                   },
                 },
                 {
-                  name: 'fontWeight',
-                  title: '字体粗细',
-                  setter: {
-                    componentName: 'SelectSetter',
-                    props: {
-                      options: [
-                        { label: '正常', value: 'normal' },
-                        { label: '粗体', value: 'bold' },
-                        { label: '100', value: '100' },
-                        { label: '200', value: '200' },
-                        { label: '300', value: '300' },
-                        { label: '400', value: '400' },
-                        { label: '500', value: '500' },
-                        { label: '600', value: '600' },
-                        { label: '700', value: '700' },
-                        { label: '800', value: '800' },
-                        { label: '900', value: '900' },
-                      ],
-                    },
-                  },
-                  extraProps: {
-                    defaultValue: 'normal',
-                  },
-                },
-                {
                   name: 'lineHeight',
                   title: '行高',
                   setter: 'NumberSetter',
                   extraProps: {
                     defaultValue: 1.5,
-                  },
-                },
-                {
-                  name: 'textAlign',
-                  title: '文本对齐',
-                  setter: {
-                    componentName: 'RadioGroupSetter',
-                    props: {
-                      options: [
-                        { label: '左对齐', value: 'left' },
-                        { label: '居中', value: 'center' },
-                        { label: '右对齐', value: 'right' },
-                        { label: '两端对齐', value: 'justify' },
-                      ],
-                    },
-                  },
-                  extraProps: {
-                    defaultValue: 'left',
                   },
                 },
               ],

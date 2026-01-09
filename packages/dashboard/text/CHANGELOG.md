@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-text
 
+## 0.0.10
+
+### Patch Changes
+
+- fix: configure error
+
 ## 0.0.9
 
 ### Patch Changes
