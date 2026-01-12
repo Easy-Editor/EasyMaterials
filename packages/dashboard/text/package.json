@@ -45,6 +45,7 @@
     "url": "https://github.com/Easy-Editor/EasyMaterials/issues"
   },
   "scripts": {
+    "dev": "vite",
     "format": "biome format --write .",
     "lint": "biome check .",
     "build": "npm-run-all -nl build:*",
