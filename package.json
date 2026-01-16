@@ -29,7 +29,6 @@
     "pub:version": "pnpm changeset version",
     "pub:release": "pnpm changeset publish"
   },
-  "packageManager": "pnpm@9.12.2",
   "engines": {
     "node": ">=18.0.0",
     "pnpm": ">=9.12.2"
@@ -54,6 +53,7 @@
     "rimraf": "^6.0.1",
     "rollup": "^4.28.1",
     "rollup-plugin-cleanup": "^3.2.1",
+    "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-terser": "^7.0.2",
     "typescript": "^5.7.2",
     "ultracite": "6.4.0",
@@ -64,5 +64,11 @@
     "*.{js,jsx,ts,tsx,json,jsonc,css,scss,md,mdx}": [
       "pnpm dlx ultracite fix"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "^19.0.0",
+      "react-dom": "^19.0.0"
+    }
   }
 }

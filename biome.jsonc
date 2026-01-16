@@ -7,7 +7,8 @@
       "!**/.cursor",
       "!**/.husky",
       "!!**/dist",
-      "!!**/node_modules"
+      "!!**/node_modules",
+      "!!**/geo"
     ]
   },
   "assist": {
@@ -21,10 +22,31 @@
     "enabled": true,
     "rules": {
       "performance": {
-        "noBarrelFile": "off"
+        "noBarrelFile": "off",
+        "noNamespaceImport": "off"
       },
       "style": {
-        "useConsistentTypeDefinitions": "off"
+        "useConsistentTypeDefinitions": "off",
+        "useNumericSeparators": "off"
+      },
+      "correctness": {
+        "noUndeclaredVariables": "off",
+        "useExhaustiveDependencies": "off"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "off"
+      },
+      "a11y": {
+        "useMediaCaption": "off",
+        "noStaticElementInteractions": "off",
+        "noNoninteractiveElementInteractions": "off",
+        "useKeyWithClickEvents": "off"
+      },
+      "complexity": {
+        "noExcessiveCognitiveComplexity": "off"
+      },
+      "nursery": {
+        "noLeakedRender": "info"
       }
     }
   },
@@ -47,6 +69,7 @@
     },
     "parser": {
       "unsafeParameterDecoratorsEnabled": true
-    }
+    },
+    "globals": ["echartsType"]
   }
 }

@@ -1,0 +1,56 @@
+/**
+ * Number Flip Component Styles
+ * 数字翻牌组件样式
+ */
+
+.container {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  gap: 8px;
+}
+
+.content {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.prefix {
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.prefixDigital {
+  font-family: "Courier New", Courier, monospace;
+}
+
+.value {
+  font-weight: 700;
+}
+
+.valueDigital {
+  font-family: "Courier New", Courier, monospace;
+  letter-spacing: 0.05em;
+}
+
+.suffix {
+  margin-left: 4px;
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+.suffixDigital {
+  font-family: "Courier New", Courier, monospace;
+}
+
+.trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}

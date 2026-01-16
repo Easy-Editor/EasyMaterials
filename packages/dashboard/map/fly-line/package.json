@@ -1,0 +1,72 @@
+{
+  "name": "@easy-editor/materials-dashboard-fly-line",
+  "version": "0.0.2",
+  "description": "Fly Line component for EasyEditor dashboard",
+  "type": "module",
+  "main": "src/index.tsx",
+  "types": "src/index.tsx",
+  "exports": {
+    ".": "./src/index.tsx"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "dist/index.js",
+    "module": "dist/index.esm.js",
+    "unpkg": "dist/index.min.js",
+    "jsdelivr": "dist/index.min.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.esm.js",
+        "require": "./dist/index.cjs"
+      }
+    },
+    "registry": "https://registry.npmjs.org/"
+  },
+  "homepage": "https://github.com/Easy-Editor/EasyMaterials",
+  "license": "MIT",
+  "author": "JinSo <kimjinso@qq.com>",
+  "keywords": [
+    "@easy-editor",
+    "easyeditor",
+    "low-code",
+    "dashboard",
+    "fly-line",
+    "migration-map",
+    "echarts",
+    "component",
+    "react"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Easy-Editor/EasyMaterials",
+    "directory": "packages/dashboard/map/fly-line"
+  },
+  "bugs": {
+    "url": "https://github.com/Easy-Editor/EasyMaterials/issues"
+  },
+  "scripts": {
+    "dev": "vite",
+    "format": "biome format --write .",
+    "lint": "biome check .",
+    "build": "npm-run-all -nl build:*",
+    "build:clean": "rimraf dist/",
+    "build:js": "rollup -c",
+    "build:types": "pnpm types",
+    "types": "npm-run-all -nl types:*",
+    "types:src": "tsc --project tsconfig.build.json",
+    "test-types": "tsc --project tsconfig.test.json"
+  },
+  "peerDependencies": {
+    "@easy-editor/core": "*",
+    "react": "^18 || ^19",
+    "react-dom": "^18 || ^19",
+    "@types/react": "^18 || ^19",
+    "@types/react-dom": "^18 || ^19"
+  },
+  "dependencies": {
+    "@easy-editor/materials-shared": "workspace:*",
+    "echarts": "^5.6.0"
+  }
+}
