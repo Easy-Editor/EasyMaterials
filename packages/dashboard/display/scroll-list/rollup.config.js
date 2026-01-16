@@ -7,7 +7,7 @@ import cleanup from 'rollup-plugin-cleanup'
 import postcss from 'rollup-plugin-postcss'
 import pkg from './package.json' with { type: 'json' }
 
-const GLOBAL_NAME = 'EasyEditorMaterialsRankingList'
+const GLOBAL_NAME = 'EasyEditorMaterialsScrollList'
 
 // 外部依赖（不打包进组件）
 const external = ['react', 'react-dom', 'react/jsx-runtime', '@easy-editor/core']
@@ -64,7 +64,7 @@ export default [
         file: 'dist/meta.esm.js',
         format: 'esm',
         sourcemap: true,
-        banner: `/* @easy-editor/materials-dashboard-ranking-list v${pkg.version} (meta, esm) */`,
+        banner: `/* @easy-editor/materials-dashboard-scroll-list v${pkg.version} (meta, esm) */`,
         exports: 'named',
       },
     ],
@@ -81,7 +81,7 @@ export default [
         name: `${GLOBAL_NAME}Meta`,
         globals,
         sourcemap: true,
-        banner: `/* @easy-editor/materials-dashboard-ranking-list v${pkg.version} (meta) */`,
+        banner: `/* @easy-editor/materials-dashboard-scroll-list v${pkg.version} (meta) */`,
         exports: 'named',
       },
     ],
@@ -98,7 +98,7 @@ export default [
         name: `${GLOBAL_NAME}Meta`,
         globals,
         sourcemap: true,
-        banner: `/* @easy-editor/materials-dashboard-ranking-list v${pkg.version} (meta, minified) */`,
+        banner: `/* @easy-editor/materials-dashboard-scroll-list v${pkg.version} (meta, minified) */`,
         exports: 'named',
       },
     ],
@@ -115,7 +115,7 @@ export default [
         file: 'dist/component.esm.js',
         format: 'esm',
         sourcemap: true,
-        banner: `/* @easy-editor/materials-dashboard-ranking-list v${pkg.version} (component, esm) */`,
+        banner: `/* @easy-editor/materials-dashboard-scroll-list v${pkg.version} (component, esm) */`,
         exports: 'named',
       },
     ],
@@ -132,7 +132,7 @@ export default [
         name: `${GLOBAL_NAME}Component`,
         globals,
         sourcemap: true,
-        banner: `/* @easy-editor/materials-dashboard-ranking-list v${pkg.version} (component) */`,
+        banner: `/* @easy-editor/materials-dashboard-scroll-list v${pkg.version} (component) */`,
         exports: 'named',
       },
     ],
@@ -149,7 +149,7 @@ export default [
         name: `${GLOBAL_NAME}Component`,
         globals,
         sourcemap: true,
-        banner: `/* @easy-editor/materials-dashboard-ranking-list v${pkg.version} (component, minified) */`,
+        banner: `/* @easy-editor/materials-dashboard-scroll-list v${pkg.version} (component, minified) */`,
         exports: 'named',
       },
     ],
@@ -168,7 +168,7 @@ export default [
         name: GLOBAL_NAME,
         globals,
         sourcemap: true,
-        banner: `/* @easy-editor/materials-dashboard-ranking-list v${pkg.version} */`,
+        banner: `/* @easy-editor/materials-dashboard-scroll-list v${pkg.version} */`,
         exports: 'named',
       },
     ],
@@ -212,7 +212,7 @@ export default [
         name: GLOBAL_NAME,
         globals,
         sourcemap: true,
-        banner: `/* @easy-editor/materials-dashboard-ranking-list v${pkg.version} (minified) */`,
+        banner: `/* @easy-editor/materials-dashboard-scroll-list v${pkg.version} (minified) */`,
         exports: 'named',
       },
     ],

@@ -1,6 +1,6 @@
 {
   "name": "@easy-editor/materials-dashboard-number-flip",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Number Flip component for EasyEditor dashboard",
   "type": "module",
   "main": "src/index.tsx",
