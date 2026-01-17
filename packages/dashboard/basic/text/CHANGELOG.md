@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-text
 
+## 0.0.12
+
+### Patch Changes
+
+- fix: remove category
+
 ## 0.0.11
 
 ### Patch Changes

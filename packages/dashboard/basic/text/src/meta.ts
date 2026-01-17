@@ -13,7 +13,6 @@ import pkg from '../package.json'
 export const meta: ComponentMetadata = {
   componentName: COMPONENT_NAME,
   title: '文本',
-  category: 'dashboard',
   group: MaterialGroup.BASIC,
   devMode: 'proCode',
   npm: {
