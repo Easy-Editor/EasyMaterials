@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-text
 
+## 0.0.13
+
+### Patch Changes
+
+- feat: multi-version component
+
 ## 0.0.12
 
 ### Patch Changes
