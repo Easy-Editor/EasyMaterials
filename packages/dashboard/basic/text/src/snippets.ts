@@ -12,6 +12,7 @@ export const snippets: Snippet[] = [
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
+      title: '普通文本',
       props: {
         content: '这是一段普通文本',
         fontSize: 16,
@@ -30,6 +31,7 @@ export const snippets: Snippet[] = [
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
+      title: '标题文本',
       props: {
         content: '标题文本',
         fontSize: 32,
@@ -50,6 +52,7 @@ export const snippets: Snippet[] = [
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
+      title: '发光标题',
       props: {
         content: '发光标题',
         fontSize: 36,
@@ -73,6 +76,7 @@ export const snippets: Snippet[] = [
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
+      title: '链接文本',
       props: {
         content: '点击跳转',
         fontSize: 16,

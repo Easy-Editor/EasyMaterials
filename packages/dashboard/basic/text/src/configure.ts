@@ -27,7 +27,7 @@ export const configure: Configure = {
             {
               name: 'id',
               title: 'ID',
-              setter: 'NodeIdSetter',
+              setter: 'NodeInfoSetter',
               extraProps: {
                 // @ts-expect-error label is not a valid extra prop
                 label: false,
