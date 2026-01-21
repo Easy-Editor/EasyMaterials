@@ -16,17 +16,11 @@ export const configure: Configure = {
           type: 'group',
           key: 'config',
           title: '配置',
-          setter: {
-            componentName: 'CollapseSetter',
-            props: {
-              icon: false,
-            },
-          },
           items: [
             // 基础配置
             {
-              name: 'id',
-              title: 'ID',
+              name: 'nodeInfo',
+              title: '节点信息',
               setter: 'NodeInfoSetter',
               extraProps: {
                 // @ts-expect-error label is not a valid extra prop
@@ -274,6 +268,15 @@ export const configure: Configure = {
           key: 'advanced',
           title: '高级',
           items: [
+            {
+              name: 'nodeInfo',
+              title: '节点信息',
+              setter: 'NodeInfoSetter',
+              extraProps: {
+                // @ts-expect-error label is not a valid extra prop
+                label: false,
+              },
+            },
             {
               name: 'condition',
               title: '显隐控制',

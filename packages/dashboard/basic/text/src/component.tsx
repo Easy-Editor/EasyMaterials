@@ -131,7 +131,7 @@ export const Text: React.FC<TextProps> = ({
   return (
     <div className={containerClass} ref={ref} style={externalStyle}>
       <span className={textClass} style={textStyle}>
-        {content}
+        {content} 新版本!
       </span>
     </div>
   )

@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-text
 
+## 0.0.15
+
+### Patch Changes
+
+- feat: test node upgrade
+
 ## 0.0.14
 
 ### Patch Changes
