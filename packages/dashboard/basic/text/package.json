@@ -45,25 +45,24 @@
     "url": "https://github.com/Easy-Editor/EasyMaterials/issues"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "easypack dev",
     "format": "biome format --write .",
     "lint": "biome check .",
     "build": "npm-run-all -nl build:*",
     "build:clean": "rimraf dist/",
-    "build:js": "rollup -c",
-    "build:types": "pnpm types",
-    "types": "npm-run-all -nl types:*",
-    "types:src": "tsc --project tsconfig.build.json",
-    "test-types": "tsc --project tsconfig.test.json"
+    "build:js": "easypack build"
   },
   "peerDependencies": {
     "@easy-editor/core": "*",
-    "react": "^18 || ^19",
-    "react-dom": "^18 || ^19",
     "@types/react": "^18 || ^19",
-    "@types/react-dom": "^18 || ^19"
+    "@types/react-dom": "^18 || ^19",
+    "react": "^18 || ^19",
+    "react-dom": "^18 || ^19"
   },
   "dependencies": {
     "@easy-editor/materials-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@easy-editor/easypack": "^0.0.2"
   }
 }
