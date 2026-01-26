@@ -36,6 +36,9 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^20.2.0
         version: 20.2.0
+      '@easy-editor/easypack':
+        specifier: ^0.0.2
+        version: 0.0.2(@babel/core@7.28.5)(@babel/preset-react@7.28.5(@babel/core@7.28.5))(@babel/preset-typescript@7.28.5(@babel/core@7.28.5))(@types/babel__core@7.20.5)(@types/node@25.0.1)(jiti@2.6.1)(lightningcss@1.30.2)(postcss@8.5.6)(terser@5.44.1)(yaml@2.8.2)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
         version: 6.1.0(@babel/core@7.28.5)(@types/babel__core@7.20.5)(rollup@4.53.3)
@@ -108,10 +111,6 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
-    devDependencies:
-      '@easy-editor/easypack':
-        specifier: ^0.0.2
-        version: 0.0.2(@babel/core@7.28.5)(@babel/preset-react@7.28.5(@babel/core@7.28.5))(@babel/preset-typescript@7.28.5(@babel/core@7.28.5))(@types/babel__core@7.20.5)(@types/node@25.0.1)(jiti@2.6.1)(lightningcss@1.30.2)(postcss@8.5.6)(terser@5.44.1)(yaml@2.8.2)
 
   packages/dashboard/chart/bar-chart:
     dependencies:
@@ -506,6 +505,9 @@ importers:
 
   packages/shared:
     dependencies:
+      '@easy-editor/core':
+        specifier: ^1.0.2
+        version: 1.0.2(mobx@6.15.0)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
