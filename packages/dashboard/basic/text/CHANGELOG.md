@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-text
 
+## 0.0.16
+
+### Patch Changes
+
+- feat: text add datasource
+
 ## 0.0.15
 
 ### Patch Changes

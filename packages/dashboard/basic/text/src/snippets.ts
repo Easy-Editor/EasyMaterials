@@ -6,6 +6,24 @@
 import type { Snippet } from '@easy-editor/core'
 import { COMPONENT_NAME } from './constants'
 
+// 生成静态数据源
+const generateStaticDataSource = (text: string) => {
+  return {
+    sourceType: "static",
+    staticData: [
+      {
+        text: "发光标题"
+      }
+    ],
+    fieldMappings: [
+      {
+        componentField: "text",
+        sourceField: "text"
+      }
+    ]
+  }
+}
+
 export const snippets: Snippet[] = [
   {
     title: '普通文本',
@@ -14,9 +32,12 @@ export const snippets: Snippet[] = [
       componentName: COMPONENT_NAME,
       title: '普通文本',
       props: {
-        content: '这是一段普通文本',
         fontSize: 16,
         color: '#ffffff',
+        rotation: 0,
+        opacity: 100,
+        background: 'transparent',
+        $data: generateStaticDataSource('普通文本'),
       },
       $dashboard: {
         rect: {
@@ -33,11 +54,14 @@ export const snippets: Snippet[] = [
       componentName: COMPONENT_NAME,
       title: '标题文本',
       props: {
-        content: '标题文本',
         fontSize: 32,
         fontWeight: 'bold',
         color: '#ffffff',
         textAlign: 'center',
+        rotation: 0,
+        opacity: 100,
+        background: 'transparent',
+        $data: generateStaticDataSource('标题文本'),
       },
       $dashboard: {
         rect: {
@@ -54,7 +78,6 @@ export const snippets: Snippet[] = [
       componentName: COMPONENT_NAME,
       title: '发光标题',
       props: {
-        content: '发光标题',
         fontSize: 36,
         fontWeight: 'bold',
         color: '#00d4ff',
@@ -62,6 +85,10 @@ export const snippets: Snippet[] = [
         glowEnable: true,
         glowColor: '#00d4ff',
         glowIntensity: 1.5,
+        rotation: 0,
+        opacity: 100,
+        background: 'transparent',
+        $data: generateStaticDataSource('发光标题')
       },
       $dashboard: {
         rect: {
@@ -78,18 +105,45 @@ export const snippets: Snippet[] = [
       componentName: COMPONENT_NAME,
       title: '链接文本',
       props: {
-        content: '点击跳转',
         fontSize: 16,
         color: '#00d4ff',
         isLink: true,
         href: 'https://easy-editor-docs.vercel.app/',
         target: '_blank',
         underline: true,
+        rotation: 0,
+        opacity: 100,
+        background: 'transparent',
+        $data: generateStaticDataSource('点击跳转'),
       },
       $dashboard: {
         rect: {
           width: 120,
           height: 40,
+        },
+      },
+    },
+  },
+  {
+    title: '标签文本',
+    screenshot: '',
+    schema: {
+      componentName: COMPONENT_NAME,
+      title: '标签文本',
+      props: {
+        content: '标签',
+        fontSize: 14,
+        color: '#ffffff',
+        textAlign: 'center',
+        verticalAlign: 'middle',
+        rotation: 0,
+        opacity: 100,
+        background: 'rgba(0, 212, 255, 0.2)',
+      },
+      $dashboard: {
+        rect: {
+          width: 80,
+          height: 32,
         },
       },
     },
