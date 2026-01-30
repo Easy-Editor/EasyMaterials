@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-text
 
+## 0.0.18
+
+### Patch Changes
+
+- fix: build error
+
 ## 0.0.17
 
 ### Patch Changes
