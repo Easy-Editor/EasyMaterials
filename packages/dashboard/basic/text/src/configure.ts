@@ -319,6 +319,10 @@ const eventConfigGroup: FieldConfig = createCollapseGroup('事件绑定', [
         ],
       },
     },
+    extraProps: {
+      // @ts-ignore
+      label: false,
+    },
   },
 ])
 

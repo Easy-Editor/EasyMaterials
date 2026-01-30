@@ -123,6 +123,11 @@ export interface TextProps {
   condition?: boolean
   /** 外部样式 */
   style?: CSSProperties
+  /** 事件处理 */
+  onClick?: (e: React.MouseEvent) => void
+  onDoubleClick?: (e: React.MouseEvent) => void
+  onMouseEnter?: (e: React.MouseEvent) => void
+  onMouseLeave?: (e: React.MouseEvent) => void
 }
 
 const getAlignClass = (align: TextAlign): string => {
@@ -174,6 +179,10 @@ export const Text: React.FC<TextProps> = ({
   opacity = 100,
   background = 'transparent',
   style: externalStyle,
+  onClick,
+  onDoubleClick,
+  onMouseEnter,
+  onMouseLeave,
 }) => {
   // 解析数据配置，获取实际显示内容
   const resolvedContent = useMemo(() => {
@@ -240,7 +249,15 @@ export const Text: React.FC<TextProps> = ({
   if (isLink && href) {
     const relValue = target === '_blank' ? 'noopener noreferrer' : ''
     return (
-      <div className={containerClass} ref={ref} style={containerStyle}>
+      <div
+        className={containerClass}
+        ref={ref}
+        style={containerStyle}
+        onClick={onClick}
+        onDoubleClick={onDoubleClick}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
         <a className={textClass} href={href} rel={relValue} style={textStyle} target={target}>
           {resolvedContent}
         </a>
@@ -250,7 +267,15 @@ export const Text: React.FC<TextProps> = ({
 
   // 普通文本
   return (
-    <div className={containerClass} ref={ref} style={containerStyle}>
+    <div
+      className={containerClass}
+      ref={ref}
+      style={containerStyle}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       <span className={textClass} style={textStyle}>
         {resolvedContent}
       </span>

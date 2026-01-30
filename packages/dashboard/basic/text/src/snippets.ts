@@ -12,7 +12,7 @@ const generateStaticDataSource = (text: string) => {
     sourceType: "static",
     staticData: [
       {
-        text: "发光标题"
+        text
       }
     ],
     fieldMappings: [
@@ -131,7 +131,6 @@ export const snippets: Snippet[] = [
       componentName: COMPONENT_NAME,
       title: '标签文本',
       props: {
-        content: '标签',
         fontSize: 14,
         color: '#ffffff',
         textAlign: 'center',
@@ -139,6 +138,7 @@ export const snippets: Snippet[] = [
         rotation: 0,
         opacity: 100,
         background: 'rgba(0, 212, 255, 0.2)',
+        $data: generateStaticDataSource('标签'),
       },
       $dashboard: {
         rect: {

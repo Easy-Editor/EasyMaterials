@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-text
 
+## 0.0.17
+
+### Patch Changes
+
+- feat: text add event
+
 ## 0.0.16
 
 ### Patch Changes
