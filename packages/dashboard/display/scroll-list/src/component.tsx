@@ -1,10 +1,10 @@
 /**
  * Scroll List Component
- * 滚动列表组件 - 用于展示排行榜、数据列表等
+ * 滚动列表组件 - 支持数据源绑定和事件交互
  */
 
-import type { CSSProperties, Ref } from 'react'
-import { cn } from '@easy-editor/materials-shared'
+import { useMemo, type CSSProperties } from 'react'
+import { cn, useDataSource, type MaterialComponet } from '@easy-editor/materials-shared'
 import styles from './component.module.css'
 
 export interface ScrollListItem {
@@ -13,10 +13,7 @@ export interface ScrollListItem {
   value: number
 }
 
-export interface ScrollListProps {
-  ref?: Ref<HTMLDivElement>
-  /** 列表数据 */
-  data?: ScrollListItem[]
+export interface ScrollListProps extends MaterialComponet {
   /** 最大显示条数 */
   maxItems?: number
   /** 是否显示排名 */
@@ -49,8 +46,16 @@ export interface ScrollListProps {
   itemBorderColor?: string
   /** 是否显示发光效果 */
   glowEnable?: boolean
-  /** 外部样式 */
-  style?: CSSProperties
+  /** 点击事件 */
+  onClick?: (e: React.MouseEvent) => void
+  /** 双击事件 */
+  onDoubleClick?: (e: React.MouseEvent) => void
+  /** 鼠标进入 */
+  onMouseEnter?: (e: React.MouseEvent) => void
+  /** 鼠标离开 */
+  onMouseLeave?: (e: React.MouseEvent) => void
+  /** 行点击事件 */
+  onItemClick?: (item: ScrollListItem, index: number) => void
 }
 
 const DEFAULT_DATA: ScrollListItem[] = [
@@ -97,7 +102,8 @@ const formatDisplayValue = (value: number, format: string, prefix: string, suffi
 
 export const ScrollList: React.FC<ScrollListProps> = ({
   ref,
-  data = DEFAULT_DATA,
+  $data,
+  __dataSource,
   maxItems = 5,
   showRank = true,
   showMedal = true,
@@ -114,8 +120,24 @@ export const ScrollList: React.FC<ScrollListProps> = ({
   itemBackgroundColor = 'rgba(15, 15, 42, 0.9)',
   itemBorderColor = 'rgba(26, 26, 62, 0.6)',
   glowEnable = false,
+  rotation = 0,
+  opacity = 100,
   style: externalStyle,
+  onClick,
+  onDoubleClick,
+  onMouseEnter,
+  onMouseLeave,
+  onItemClick,
 }) => {
+  // 解析数据源
+  const dataSource = useDataSource($data, __dataSource)
+  const data = useMemo<ScrollListItem[]>(() => {
+    if (dataSource.length > 0) {
+      return dataSource as ScrollListItem[]
+    }
+    return DEFAULT_DATA
+  }, [dataSource])
+
   const displayData = data.slice(0, maxItems)
   const maxValue = Math.max(...displayData.map(item => item.value), 1)
 
@@ -131,9 +153,11 @@ export const ScrollList: React.FC<ScrollListProps> = ({
   }
 
   const containerStyle: CSSProperties = {
-    ...externalStyle,
+    transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
+    opacity: opacity / 100,
     backgroundColor,
     borderColor,
+    ...externalStyle,
   }
 
   const itemStyle: CSSProperties = {
@@ -142,13 +166,21 @@ export const ScrollList: React.FC<ScrollListProps> = ({
   }
 
   return (
-    <div className={styles.container} ref={ref} style={containerStyle}>
+    <div
+      className={styles.container}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      ref={ref}
+      style={containerStyle}
+    >
       <div className={styles.list}>
-        {displayData.map(item => {
+        {displayData.map((item, index) => {
           const isTopThree = item.rank <= 3
 
           return (
-            <div className={styles.item} key={item.rank} style={itemStyle}>
+            <div className={styles.item} key={item.rank} onClick={() => onItemClick?.(item, index)} style={itemStyle}>
               {/* Rank Badge */}
               {showRank ? (
                 <div
@@ -185,5 +217,3 @@ export const ScrollList: React.FC<ScrollListProps> = ({
     </div>
   )
 }
-
-export default ScrollList

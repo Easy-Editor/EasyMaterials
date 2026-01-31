@@ -26,4 +26,11 @@ export type MaterialGroup = (typeof MaterialGroup)[keyof typeof MaterialGroup]
 // 工具函数
 export { cn } from './lib/utils'
 
+// 类型定义
 export * from './types'
+
+// 数据源处理工具
+export * from './datasource'
+
+// 配置项工厂函数
+export * from './configure'

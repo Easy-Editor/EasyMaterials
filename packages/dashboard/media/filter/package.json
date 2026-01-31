@@ -1,6 +1,6 @@
 {
   "name": "@easy-editor/materials-dashboard-filter",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Filter component for EasyEditor dashboard",
   "type": "module",
   "main": "src/index.tsx",
@@ -46,7 +46,7 @@
     "url": "https://github.com/Easy-Editor/EasyMaterials/issues"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "easypack dev",
     "format": "biome format --write .",
     "lint": "biome check .",
     "build": "npm-run-all -nl build:*",

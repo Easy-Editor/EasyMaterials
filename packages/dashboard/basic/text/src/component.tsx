@@ -3,86 +3,14 @@
  * 文本组件 - 支持普通文本、链接、标题、发光效果
  */
 
-import type { CSSProperties, Ref } from 'react'
-import { useMemo } from 'react'
-import { cn } from '@easy-editor/materials-shared'
+import { useMemo, type CSSProperties } from 'react'
+import { cn, type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
 import styles from './component.module.css'
 
 export type TextAlign = 'left' | 'center' | 'right'
 export type VerticalAlign = 'top' | 'middle' | 'bottom'
 
-/** 数据配置类型（来自 DataSetter） */
-interface DataConfig {
-  /** 数据源类型：具体数据 | 数据源 | 全局数据源 */
-  sourceType: 'static' | 'datasource' | 'global'
-  /** 静态数据（sourceType === 'static'） */
-  staticData?: unknown[]
-  /** 数据源 ID（sourceType === 'datasource' | 'global'） */
-  datasourceId?: string
-  /** 字段映射配置 */
-  fieldMappings?: Array<{
-    componentField: string
-    sourceField: string
-  }>
-}
-
-/** 根据路径从对象中获取值 */
-function getValueByPath(obj: unknown, path: string): unknown {
-  if (!path) return obj
-  const keys = path.split('.')
-  let current: unknown = obj
-  for (const key of keys) {
-    if (current === null || current === undefined) return undefined
-    if (typeof current !== 'object') return undefined
-    current = (current as Record<string, unknown>)[key]
-  }
-  return current
-}
-
-/** 从数据源数据中提取数组 */
-function extractDataFromSource(dsData: unknown): unknown[] {
-  if (dsData === undefined) return []
-
-  if (Array.isArray(dsData)) {
-    return dsData
-  }
-
-  if (dsData && typeof dsData === 'object') {
-    return [dsData]
-  }
-
-  return []
-}
-
-/** 应用字段映射 */
-function applyFieldMappings(
-  rawData: unknown[],
-  mappings?: Array<{ componentField: string; sourceField: string }>,
-): Record<string, unknown>[] {
-  if (!mappings || mappings.length === 0) {
-    return rawData as Record<string, unknown>[]
-  }
-
-  return rawData.map(item => {
-    const result: Record<string, unknown> = {}
-    for (const { componentField, sourceField } of mappings) {
-      if (componentField && sourceField) {
-        result[componentField] = getValueByPath(item, sourceField)
-      }
-    }
-    return result
-  })
-}
-
-export interface TextProps {
-  ref?: Ref<HTMLDivElement>
-  /** 数据配置（来自 $data extraProp） */
-  $data?: DataConfig
-  /** 数据源数据（由渲染器 HOC 传递） */
-  __dataSource?: {
-    component: Record<string, unknown>
-    page: Record<string, unknown>
-  }
+export interface TextProps extends MaterialComponet {
   /** 字体大小 */
   fontSize?: number
   /** 字体粗细 */
@@ -113,16 +41,6 @@ export interface TextProps {
   glowColor?: string
   /** 发光强度 */
   glowIntensity?: number
-  /** 旋转角度 */
-  rotation?: number
-  /** 不透明度 (0-100) */
-  opacity?: number
-  /** 背景颜色 */
-  background?: string
-  /** 显隐控制 */
-  condition?: boolean
-  /** 外部样式 */
-  style?: CSSProperties
   /** 事件处理 */
   onClick?: (e: React.MouseEvent) => void
   onDoubleClick?: (e: React.MouseEvent) => void
@@ -184,35 +102,13 @@ export const Text: React.FC<TextProps> = ({
   onMouseEnter,
   onMouseLeave,
 }) => {
-  // 解析数据配置，获取实际显示内容
-  const resolvedContent = useMemo(() => {
-    if (!$data) return ''
-
-    let rawData: unknown[] = []
-
-    if ($data.sourceType === 'static') {
-      // 静态数据：直接使用
-      rawData = Array.isArray($data.staticData) ? $data.staticData : []
-    } else if ($data.sourceType === 'global' && $data.datasourceId) {
-      // 全局数据源：从页面数据源获取
-      const dsData = __dataSource?.page?.[$data.datasourceId]
-      rawData = extractDataFromSource(dsData)
-    } else if ($data.sourceType === 'datasource' && $data.datasourceId) {
-      // 组件数据源：从组件数据源获取
-      const dsData = __dataSource?.component?.[$data.datasourceId]
-      rawData = extractDataFromSource(dsData)
+  const dataSource = useDataSource($data, __dataSource)
+  const data = useMemo<string>(() => {
+    if (dataSource.length > 0 && dataSource[0]?.text) {
+      return String(dataSource[0].text)
     }
-
-    // 应用字段映射
-    const mappedData = applyFieldMappings(rawData, $data.fieldMappings)
-
-    // 取第一条数据的 text 字段作为显示内容
-    if (mappedData.length > 0 && mappedData[0].text !== undefined) {
-      return String(mappedData[0].text)
-    }
-
     return ''
-  }, [$data, __dataSource])
+  }, [dataSource])
 
   // 计算发光效果
   const textShadow = glowEnable
@@ -237,11 +133,7 @@ export const Text: React.FC<TextProps> = ({
     backgroundColor: background,
   }
 
-  const containerClass = cn(
-    styles.container,
-    getAlignClass(textAlign),
-    getValignClass(verticalAlign),
-  )
+  const containerClass = cn(styles.container, getAlignClass(textAlign), getValignClass(verticalAlign))
 
   const textClass = cn(styles.text, isLink && styles.link, underline && styles.underline)
 
@@ -251,15 +143,15 @@ export const Text: React.FC<TextProps> = ({
     return (
       <div
         className={containerClass}
-        ref={ref}
-        style={containerStyle}
         onClick={onClick}
         onDoubleClick={onDoubleClick}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
+        ref={ref}
+        style={containerStyle}
       >
         <a className={textClass} href={href} rel={relValue} style={textStyle} target={target}>
-          {resolvedContent}
+          {data}
         </a>
       </div>
     )
@@ -269,15 +161,15 @@ export const Text: React.FC<TextProps> = ({
   return (
     <div
       className={containerClass}
-      ref={ref}
-      style={containerStyle}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      ref={ref}
+      style={containerStyle}
     >
       <span className={textClass} style={textStyle}>
-        {resolvedContent}
+        {data}
       </span>
     </div>
   )

@@ -1,14 +1,20 @@
-import { useEffect, useRef, type CSSProperties, type Ref } from 'react'
+/**
+ * Radar Chart Component
+ * 雷达图组件 - 支持数据源绑定和事件交互
+ */
+
+import { useEffect, useMemo, useRef, type CSSProperties } from 'react'
 import * as echarts from 'echarts/core'
-import { RadarChart } from 'echarts/charts'
+import { RadarChart as EChartsRadarChart } from 'echarts/charts'
 import { TooltipComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { EChartsOption } from 'echarts'
+import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
 import { DEFAULT_DATA, DEFAULT_SERIES, type RadarDataPoint } from './constants'
 import styles from './component.module.css'
 
 // 按需注册 ECharts 组件
-echarts.use([RadarChart, TooltipComponent, LegendComponent, CanvasRenderer])
+echarts.use([EChartsRadarChart, TooltipComponent, LegendComponent, CanvasRenderer])
 
 interface RadarSeries {
   name: string
@@ -16,17 +22,31 @@ interface RadarSeries {
   color: string
 }
 
-interface RadarChartProps {
-  ref?: Ref<HTMLDivElement>
+export interface RadarChartProps extends MaterialComponet {
+  /** 静态数据（兼容旧版） */
   data?: RadarDataPoint[]
+  /** 维度字段 */
   dimensionKey?: string
+  /** 系列配置 */
   series?: RadarSeries[]
+  /** 显示网格 */
   showGrid?: boolean
+  /** 填充透明度 */
   fillOpacity?: number
+  /** 发光效果 */
   glowEffect?: boolean
+  /** 显示图例 */
   showLegend?: boolean
+  /** 显示提示 */
   showTooltip?: boolean
-  style?: CSSProperties
+  /** 点击事件 */
+  onClick?: (e: React.MouseEvent) => void
+  /** 双击事件 */
+  onDoubleClick?: (e: React.MouseEvent) => void
+  /** 鼠标进入 */
+  onMouseEnter?: (e: React.MouseEvent) => void
+  /** 鼠标离开 */
+  onMouseLeave?: (e: React.MouseEvent) => void
 }
 
 // 构建图表配置
@@ -138,22 +158,38 @@ const buildOption = (
   }
 }
 
-const RadarChartComponent = (props: RadarChartProps) => {
-  const {
-    ref,
-    data = DEFAULT_DATA,
-    dimensionKey = 'dimension',
-    series = DEFAULT_SERIES,
-    showGrid = true,
-    fillOpacity = 0.3,
-    glowEffect = true,
-    showLegend = true,
-    showTooltip = true,
-    style: externalStyle,
-  } = props
-
+export const RadarChart: React.FC<RadarChartProps> = ({
+  ref,
+  $data,
+  __dataSource,
+  data: staticData,
+  dimensionKey = 'dimension',
+  series = DEFAULT_SERIES,
+  showGrid = true,
+  fillOpacity = 0.3,
+  glowEffect = true,
+  showLegend = true,
+  showTooltip = true,
+  rotation = 0,
+  opacity = 100,
+  background = 'transparent',
+  style: externalStyle,
+  onClick,
+  onDoubleClick,
+  onMouseEnter,
+  onMouseLeave,
+}) => {
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstance = useRef<echarts.ECharts | null>(null)
+
+  // 解析数据源
+  const dataSource = useDataSource($data, __dataSource)
+  const data = useMemo<RadarDataPoint[]>(() => {
+    if (dataSource.length > 0) {
+      return dataSource as RadarDataPoint[]
+    }
+    return staticData ?? DEFAULT_DATA
+  }, [dataSource, staticData])
 
   useEffect(() => {
     if (!chartRef.current) {
@@ -186,14 +222,23 @@ const RadarChartComponent = (props: RadarChartProps) => {
   const containerStyle: CSSProperties = {
     width: '100%',
     height: '100%',
+    transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
+    opacity: opacity / 100,
+    backgroundColor: background,
     ...externalStyle,
   }
 
   return (
-    <div className={styles.container} ref={ref} style={containerStyle}>
+    <div
+      className={styles.container}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      ref={ref}
+      style={containerStyle}
+    >
       <div className={styles.chart} ref={chartRef} />
     </div>
   )
 }
-
-export default RadarChartComponent

@@ -1,32 +1,52 @@
-import { useEffect, useRef, type CSSProperties, type Ref } from 'react'
+/**
+ * Pie Chart Component
+ * 饼图组件 - 支持数据源绑定和事件交互
+ */
+
+import { useEffect, useMemo, useRef, type CSSProperties } from 'react'
 import * as echarts from 'echarts/core'
-import { PieChart } from 'echarts/charts'
+import { PieChart as EChartsPieChart } from 'echarts/charts'
 import { TooltipComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
+import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
 import { DEFAULT_COLORS, DEFAULT_DATA } from './constants'
 import styles from './component.module.css'
 
 // 按需注册 ECharts 组件
-echarts.use([PieChart, TooltipComponent, LegendComponent, CanvasRenderer])
+echarts.use([EChartsPieChart, TooltipComponent, LegendComponent, CanvasRenderer])
 
 interface PieDataItem {
   name: string
   value: number
 }
 
-interface PieChartProps {
-  ref?: Ref<HTMLDivElement>
-  data?: PieDataItem[]
+export interface PieChartProps extends MaterialComponet {
+  /** 内半径 */
   innerRadius?: string
+  /** 外半径 */
   outerRadius?: string
+  /** 颜色列表 */
   colors?: string[]
+  /** 显示标签 */
   showLabel?: boolean
+  /** 标签类型 */
   labelType?: 'percent' | 'value' | 'name'
+  /** 显示图例 */
   showLegend?: boolean
+  /** 显示提示 */
   showTooltip?: boolean
+  /** 发光效果 */
   glowEffect?: boolean
+  /** 玫瑰图 */
   roseType?: boolean
-  style?: CSSProperties
+  /** 点击事件 */
+  onClick?: (e: React.MouseEvent) => void
+  /** 双击事件 */
+  onDoubleClick?: (e: React.MouseEvent) => void
+  /** 鼠标进入 */
+  onMouseEnter?: (e: React.MouseEvent) => void
+  /** 鼠标离开 */
+  onMouseLeave?: (e: React.MouseEvent) => void
 }
 
 // 格式化标签
@@ -135,24 +155,39 @@ const buildOption = (
   }
 }
 
-const PieChartComponent = (props: PieChartProps) => {
-  const {
-    ref,
-    data = DEFAULT_DATA,
-    innerRadius = '0%',
-    outerRadius = '70%',
-    colors = DEFAULT_COLORS,
-    showLabel = true,
-    labelType = 'percent',
-    showLegend = true,
-    showTooltip = true,
-    glowEffect = true,
-    roseType = false,
-    style: externalStyle,
-  } = props
-
+export const PieChart: React.FC<PieChartProps> = ({
+  ref,
+  $data,
+  __dataSource,
+  innerRadius = '0%',
+  outerRadius = '70%',
+  colors = DEFAULT_COLORS,
+  showLabel = true,
+  labelType = 'percent',
+  showLegend = true,
+  showTooltip = true,
+  glowEffect = true,
+  roseType = false,
+  rotation = 0,
+  opacity = 100,
+  background = 'transparent',
+  style: externalStyle,
+  onClick,
+  onDoubleClick,
+  onMouseEnter,
+  onMouseLeave,
+}) => {
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstance = useRef<echarts.ECharts | null>(null)
+
+  // 解析数据源
+  const dataSource = useDataSource($data, __dataSource)
+  const data = useMemo<PieDataItem[]>(() => {
+    if (dataSource.length > 0) {
+      return dataSource as PieDataItem[]
+    }
+    return DEFAULT_DATA
+  }, [dataSource])
 
   useEffect(() => {
     if (!chartRef.current) {
@@ -189,14 +224,23 @@ const PieChartComponent = (props: PieChartProps) => {
   const containerStyle: CSSProperties = {
     width: '100%',
     height: '100%',
+    transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
+    opacity: opacity / 100,
+    backgroundColor: background,
     ...externalStyle,
   }
 
   return (
-    <div className={styles.container} ref={ref} style={containerStyle}>
+    <div
+      className={styles.container}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      ref={ref}
+      style={containerStyle}
+    >
       <div className={styles.chart} ref={chartRef} />
     </div>
   )
 }
-
-export default PieChartComponent

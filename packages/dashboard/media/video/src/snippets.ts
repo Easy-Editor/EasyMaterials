@@ -1,19 +1,21 @@
 /**
  * Video Snippets
- * 视频组件代码片段
+ * 视频组件代码片段 - 使用共享数据源生成函数
  */
 
 import type { Snippet } from '@easy-editor/core'
+import { generateStaticDataSource } from '@easy-editor/materials-shared'
 import { COMPONENT_NAME } from './constants'
 
-export const snippets: Snippet[] = [
+const snippets: Snippet[] = [
   {
     title: '视频播放器',
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
+      title: '视频播放器',
       props: {
-        src: '',
+        $data: generateStaticDataSource({ src: '' }),
         poster: '',
         autoPlay: false,
         loop: false,
@@ -21,6 +23,9 @@ export const snippets: Snippet[] = [
         controls: true,
         objectFit: 'contain',
         borderRadius: 8,
+        rotation: 0,
+        opacity: 100,
+        background: 'transparent',
       },
       $dashboard: {
         rect: {
@@ -35,14 +40,18 @@ export const snippets: Snippet[] = [
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
+      title: '背景视频',
       props: {
-        src: '',
+        $data: generateStaticDataSource({ src: '' }),
         autoPlay: true,
         loop: true,
         muted: true,
         controls: false,
         objectFit: 'cover',
         borderRadius: 0,
+        rotation: 0,
+        opacity: 100,
+        background: 'transparent',
       },
       $dashboard: {
         rect: {
@@ -54,4 +63,4 @@ export const snippets: Snippet[] = [
   },
 ]
 
-export default snippets
+export { snippets }

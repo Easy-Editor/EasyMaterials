@@ -4,4 +4,4 @@
  */
 
 export { FlyLine as component } from './component'
-export { default as meta } from './meta'
+export { meta } from './meta'

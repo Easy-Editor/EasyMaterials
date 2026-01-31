@@ -1,16 +1,16 @@
 /**
  * Audio Component
- * 音频播放组件
+ * 音频播放组件 - 支持数据源绑定和事件交互
  */
 
-import { useState, useRef, useEffect, type CSSProperties, type Ref } from 'react'
+import { useState, useRef, useEffect, useMemo, type CSSProperties } from 'react'
+import { useDataSource, type MaterialComponet } from '@easy-editor/materials-shared'
 import styles from './component.module.css'
 
 export type AudioStyle = 'custom' | 'native'
 
-export interface AudioProps {
-  ref?: Ref<HTMLDivElement>
-  /** 音频地址 */
+export interface AudioProps extends MaterialComponet {
+  /** 音频地址（兼容旧版） */
   src?: string
   /** 标题 */
   title?: string
@@ -20,8 +20,24 @@ export interface AudioProps {
   loop?: boolean
   /** 样式类型 */
   audioStyle?: AudioStyle
-  /** 外部样式 */
-  style?: CSSProperties
+  /** 播放速度 */
+  playbackRate?: number
+  /** 音量 (0-100) */
+  volume?: number
+  /** 点击事件 */
+  onClick?: (e: React.MouseEvent) => void
+  /** 双击事件 */
+  onDoubleClick?: (e: React.MouseEvent) => void
+  /** 鼠标进入 */
+  onMouseEnter?: (e: React.MouseEvent) => void
+  /** 鼠标离开 */
+  onMouseLeave?: (e: React.MouseEvent) => void
+  /** 播放事件 */
+  onPlay?: () => void
+  /** 暂停事件 */
+  onPause?: () => void
+  /** 结束事件 */
+  onEnded?: () => void
 }
 
 const formatTime = (seconds: number): string => {
@@ -32,13 +48,36 @@ const formatTime = (seconds: number): string => {
 
 export const Audio: React.FC<AudioProps> = ({
   ref,
-  src = '',
+  $data,
+  __dataSource,
+  src: staticSrc = '',
   title = '音频文件',
   autoPlay = false,
   loop = false,
   audioStyle = 'custom',
+  playbackRate = 1,
+  volume = 100,
+  rotation = 0,
+  opacity = 100,
+  background = 'transparent',
   style: externalStyle,
+  onClick,
+  onDoubleClick,
+  onMouseEnter,
+  onMouseLeave,
+  onPlay,
+  onPause,
+  onEnded,
 }) => {
+  // 解析数据源
+  const dataSource = useDataSource($data, __dataSource)
+  const src = useMemo<string>(() => {
+    if (dataSource.length > 0 && typeof dataSource[0]?.src === 'string') {
+      return dataSource[0].src
+    }
+    return staticSrc
+  }, [dataSource, staticSrc])
+
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -52,18 +91,41 @@ export const Audio: React.FC<AudioProps> = ({
 
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime)
     const handleLoadedMetadata = () => setDuration(audio.duration)
-    const handleEnded = () => setIsPlaying(false)
+    const handleEnded = () => {
+      setIsPlaying(false)
+      onEnded?.()
+    }
+    const handlePlay = () => {
+      setIsPlaying(true)
+      onPlay?.()
+    }
+    const handlePause = () => {
+      setIsPlaying(false)
+      onPause?.()
+    }
 
     audio.addEventListener('timeupdate', handleTimeUpdate)
     audio.addEventListener('loadedmetadata', handleLoadedMetadata)
     audio.addEventListener('ended', handleEnded)
+    audio.addEventListener('play', handlePlay)
+    audio.addEventListener('pause', handlePause)
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate)
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
       audio.removeEventListener('ended', handleEnded)
+      audio.removeEventListener('play', handlePlay)
+      audio.removeEventListener('pause', handlePause)
     }
-  }, [])
+  }, [onEnded, onPlay, onPause])
+
+  // 更新播放速度和音量
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = playbackRate
+      audioRef.current.volume = volume / 100
+    }
+  }, [playbackRate, volume])
 
   const togglePlay = () => {
     if (audioRef.current) {
@@ -72,7 +134,6 @@ export const Audio: React.FC<AudioProps> = ({
       } else {
         audioRef.current.play()
       }
-      setIsPlaying(!isPlaying)
     }
   }
 
@@ -86,10 +147,25 @@ export const Audio: React.FC<AudioProps> = ({
 
   const progress = duration ? (currentTime / duration) * 100 : 0
 
+  const containerStyle: CSSProperties = {
+    transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
+    opacity: opacity / 100,
+    backgroundColor: background,
+    ...externalStyle,
+  }
+
   // 原生样式
   if (audioStyle === 'native') {
     return (
-      <div className={styles.container} ref={ref} style={externalStyle}>
+      <div
+        className={styles.container}
+        onClick={onClick}
+        onDoubleClick={onDoubleClick}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        ref={ref}
+        style={containerStyle}
+      >
         <audio autoPlay={autoPlay} className={styles.nativeAudio} controls loop={loop} ref={audioRef} src={src} />
       </div>
     )
@@ -97,7 +173,15 @@ export const Audio: React.FC<AudioProps> = ({
 
   // 自定义样式
   return (
-    <div className={styles.container} ref={ref} style={externalStyle}>
+    <div
+      className={styles.container}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      ref={ref}
+      style={containerStyle}
+    >
       <audio autoPlay={autoPlay} loop={loop} ref={audioRef} src={src} />
 
       <button
@@ -136,5 +220,3 @@ export const Audio: React.FC<AudioProps> = ({
     </div>
   )
 }
-
-export default Audio

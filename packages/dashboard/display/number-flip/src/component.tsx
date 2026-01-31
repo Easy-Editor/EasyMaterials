@@ -1,18 +1,15 @@
 /**
  * Number Flip Component
- * 数字翻牌组件 - 用于展示 KPI、统计数字等
+ * 数字翻牌组件 - 支持数据源绑定和事件交互
  */
 
-import type { CSSProperties, Ref } from 'react'
-import { cn } from '@easy-editor/materials-shared'
+import { useMemo, type CSSProperties } from 'react'
+import { cn, type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
 import styles from './component.module.css'
 
 export type TrendType = 'up' | 'down' | 'flat'
 
-export interface NumberFlipProps {
-  ref?: Ref<HTMLDivElement>
-  /** 数值 */
-  value?: number
+export interface NumberFlipProps extends MaterialComponet {
   /** 小数位数 */
   decimals?: number
   /** 是否显示千分位分隔符 */
@@ -41,8 +38,14 @@ export interface NumberFlipProps {
   trendUpColor?: string
   /** 趋势下降颜色 */
   trendDownColor?: string
-  /** 外部样式 */
-  style?: CSSProperties
+  /** 点击事件 */
+  onClick?: (e: React.MouseEvent) => void
+  /** 双击事件 */
+  onDoubleClick?: (e: React.MouseEvent) => void
+  /** 鼠标进入 */
+  onMouseEnter?: (e: React.MouseEvent) => void
+  /** 鼠标离开 */
+  onMouseLeave?: (e: React.MouseEvent) => void
 }
 
 const formatNumber = (value: number, decimals: number, separator: boolean): string => {
@@ -100,7 +103,8 @@ const TrendIndicator: React.FC<{
 
 export const NumberFlip: React.FC<NumberFlipProps> = ({
   ref,
-  value = 0,
+  $data,
+  __dataSource,
   decimals = 0,
   separator = true,
   prefix = '',
@@ -115,8 +119,24 @@ export const NumberFlip: React.FC<NumberFlipProps> = ({
   trendSuffix = '%',
   trendUpColor = '#52c41a',
   trendDownColor = '#ff4d4f',
+  rotation = 0,
+  opacity = 100,
+  background = 'transparent',
   style: externalStyle,
+  onClick,
+  onDoubleClick,
+  onMouseEnter,
+  onMouseLeave,
 }) => {
+  // 解析数据源
+  const dataSource = useDataSource($data, __dataSource)
+  const value = useMemo<number>(() => {
+    if (dataSource.length > 0 && typeof dataSource[0]?.value === 'number') {
+      return dataSource[0].value
+    }
+    return 0
+  }, [dataSource])
+
   const isDigital = fontFamily === 'digital'
   const formattedValue = formatNumber(value, decimals, separator)
 
@@ -126,8 +146,23 @@ export const NumberFlip: React.FC<NumberFlipProps> = ({
       ? `0 0 ${10 * glowIntensity}px ${color}, 0 0 ${20 * glowIntensity}px ${color}40, 0 0 ${30 * glowIntensity}px ${color}20`
       : 'none'
 
+  const containerStyle: CSSProperties = {
+    transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
+    opacity: opacity / 100,
+    backgroundColor: background,
+    ...externalStyle,
+  }
+
   return (
-    <div className={styles.container} ref={ref} style={externalStyle}>
+    <div
+      className={styles.container}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      ref={ref}
+      style={containerStyle}
+    >
       <div className={styles.content}>
         {prefix ? (
           <span
@@ -175,5 +210,3 @@ export const NumberFlip: React.FC<NumberFlipProps> = ({
     </div>
   )
 }
-
-export default NumberFlip

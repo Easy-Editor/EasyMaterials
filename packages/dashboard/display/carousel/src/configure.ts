@@ -3,182 +3,78 @@
  * 轮播组件配置
  */
 
-import type { Configure } from '@easy-editor/core'
+import type { FieldConfig } from '@easy-editor/core'
+import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
 
-export const configure: Configure = {
-  props: [
+/** 组件配置 - 轮播独有 */
+const componentConfigGroup: FieldConfig = createCollapseGroup(
+  '组件配置',
+  [
     {
       type: 'group',
-      title: '属性',
-      setter: 'TabSetter',
+      title: '组件配置',
+      setter: 'SubTabSetter',
       items: [
+        // 行为 Tab
         {
           type: 'group',
-          key: 'config',
-          title: '配置',
-          setter: {
-            componentName: 'CollapseSetter',
-            props: {
-              icon: false,
-            },
-          },
-          items: [
-            // 基础配置
-            {
-              name: 'id',
-              title: 'ID',
-              setter: 'NodeIdSetter',
-              extraProps: {
-                // @ts-expect-error label is not a valid extra prop
-                label: false,
-              },
-            },
-            {
-              name: 'title',
-              title: '标题',
-              setter: 'StringSetter',
-              extraProps: {
-                getValue(target) {
-                  return target.getExtraPropValue('title')
-                },
-                setValue(target, value) {
-                  target.setExtraPropValue('title', value)
-                },
-              },
-            },
-            {
-              type: 'group',
-              title: '基础属性',
-              setter: {
-                componentName: 'CollapseSetter',
-                props: {
-                  icon: false,
-                },
-              },
-              items: [
-                {
-                  name: 'rect',
-                  title: '位置尺寸',
-                  setter: 'RectSetter',
-                  extraProps: {
-                    getValue(target) {
-                      return target.getExtraPropValue('$dashboard.rect')
-                    },
-                    setValue(target, value) {
-                      target.setExtraPropValue('$dashboard.rect', value)
-                    },
-                  },
-                },
-              ],
-            },
-            // 组件配置
-            {
-              type: 'group',
-              title: '数据',
-              setter: {
-                componentName: 'CollapseSetter',
-                props: {
-                  icon: false,
-                },
-              },
-              items: [
-                {
-                  name: 'items',
-                  title: '轮播项',
-                  setter: 'JsonSetter',
-                },
-              ],
-            },
-            {
-              type: 'group',
-              title: '行为',
-              setter: {
-                componentName: 'CollapseSetter',
-                props: {
-                  icon: false,
-                },
-              },
-              items: [
-                {
-                  name: 'autoPlay',
-                  title: '自动播放',
-                  setter: 'SwitchSetter',
-                  extraProps: {
-                    defaultValue: true,
-                  },
-                },
-                {
-                  name: 'interval',
-                  title: '播放间隔(ms)',
-                  setter: 'NumberSetter',
-                  extraProps: {
-                    defaultValue: 3000,
-                  },
-                },
-                {
-                  name: 'loop',
-                  title: '循环播放',
-                  setter: 'SwitchSetter',
-                  extraProps: {
-                    defaultValue: true,
-                  },
-                },
-              ],
-            },
-            {
-              type: 'group',
-              title: '显示',
-              setter: {
-                componentName: 'CollapseSetter',
-                props: {
-                  icon: false,
-                },
-              },
-              items: [
-                {
-                  name: 'showNav',
-                  title: '显示导航按钮',
-                  setter: 'SwitchSetter',
-                  extraProps: {
-                    defaultValue: true,
-                  },
-                },
-                {
-                  name: 'showIndicators',
-                  title: '显示指示器',
-                  setter: 'SwitchSetter',
-                  extraProps: {
-                    defaultValue: true,
-                  },
-                },
-              ],
-            },
-          ],
-        },
-        {
-          type: 'group',
-          key: 'data',
-          title: '数据',
+          key: 'behavior',
+          title: '行为',
           items: [
             {
-              name: 'dataBinding',
-              title: '数据绑定',
-              setter: 'DataBindingSetter',
-            },
-          ],
-        },
-        {
-          type: 'group',
-          key: 'advanced',
-          title: '高级',
-          items: [
-            {
-              name: 'condition',
-              title: '显隐控制',
+              name: 'autoPlay',
+              title: '自动播放',
               setter: 'SwitchSetter',
               extraProps: {
                 defaultValue: true,
-                supportVariable: true,
+              },
+            },
+            {
+              name: 'interval',
+              title: '播放间隔',
+              setter: {
+                componentName: 'SliderSetter',
+                props: {
+                  min: 1000,
+                  max: 10000,
+                  step: 500,
+                  suffix: 'ms',
+                },
+              },
+              extraProps: {
+                defaultValue: 3000,
+              },
+            },
+            {
+              name: 'loop',
+              title: '循环播放',
+              setter: 'SwitchSetter',
+              extraProps: {
+                defaultValue: true,
+              },
+            },
+          ],
+        },
+        // 显示 Tab
+        {
+          type: 'group',
+          key: 'display',
+          title: '显示',
+          items: [
+            {
+              name: 'showNav',
+              title: '显示导航按钮',
+              setter: 'SwitchSetter',
+              extraProps: {
+                defaultValue: true,
+              },
+            },
+            {
+              name: 'showIndicators',
+              title: '显示指示器',
+              setter: 'SwitchSetter',
+              extraProps: {
+                defaultValue: true,
               },
             },
           ],
@@ -186,9 +82,16 @@ export const configure: Configure = {
       ],
     },
   ],
-  component: {},
-  supports: {},
-  advanced: {},
-}
+  {
+    padding: '6px 16px 12px',
+  },
+)
 
-export default configure
+/** 数据配置 */
+const dataConfigGroup: FieldConfig = createDataConfigGroup([
+  { name: 'src', label: 'src', type: 'string', required: true, description: '图片地址' },
+  { name: 'alt', label: 'alt', type: 'string', required: false, description: '图片描述' },
+  { name: 'link', label: 'link', type: 'string', required: false, description: '点击链接' },
+])
+
+export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup)

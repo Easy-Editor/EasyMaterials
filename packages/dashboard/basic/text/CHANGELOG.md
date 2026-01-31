@@ -1,5 +1,13 @@
 # @easy-editor/materials-dashboard-text
 
+## 0.0.19
+
+### Patch Changes
+
+- perf: configure & datasource
+- Updated dependencies
+  - @easy-editor/materials-shared@0.0.1
+
 ## 0.0.18
 
 ### Patch Changes

@@ -3,8 +3,9 @@
  * 滤镜效果层组件 - 使用 backdrop-filter 对下层内容应用滤镜效果
  */
 
-import type { CSSProperties, Ref } from 'react'
+import type { CSSProperties } from 'react'
 import styles from './component.module.css'
+import type { MaterialComponet } from '@easy-editor/materials-shared'
 
 export type BlendMode =
   | 'normal'
@@ -24,8 +25,7 @@ export type BlendMode =
   | 'color'
   | 'luminosity'
 
-export interface FilterProps {
-  ref?: Ref<HTMLDivElement>
+export interface FilterProps extends MaterialComponet {
   /** 模糊 (px) */
   blur?: number
   /** 亮度 (0-200, 100为正常) */

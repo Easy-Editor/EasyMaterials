@@ -1,14 +1,15 @@
 /**
  * Fly Line Component
- * 飞线/迁徙图组件 - 基于 ECharts
+ * 飞线/迁徙图组件 - 支持数据源绑定和事件交互
  */
 
-import { useEffect, useRef, useMemo, type Ref, type CSSProperties } from 'react'
+import { useEffect, useRef, useMemo, type CSSProperties } from 'react'
 import * as echarts from 'echarts/core'
 import { LinesChart, EffectScatterChart, MapChart } from 'echarts/charts'
 import { GeoComponent, TooltipComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { EChartsOption } from 'echarts'
+import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
 import {
   DEFAULT_FLY_LINES,
   DEFAULT_SCATTER_POINTS,
@@ -33,15 +34,14 @@ const BUILTIN_MAP_JSON: Record<MapType, object> = {
 // 已注册的地图
 const registeredMaps = new Set<string>()
 
-export interface FlyLineProps {
-  ref?: Ref<HTMLDivElement>
+export interface FlyLineProps extends MaterialComponet {
   /** 地图类型 */
   mapType?: MapType
   /** 地图 GeoJSON 数据 */
   mapJson?: object
-  /** 飞线数据 */
+  /** 飞线数据（兼容旧版） */
   flyLines?: FlyLineData[]
-  /** 散点数据 */
+  /** 散点数据（兼容旧版） */
   scatterPoints?: ScatterPoint[]
   /** 飞线颜色 */
   lineColor?: string
@@ -65,15 +65,23 @@ export interface FlyLineProps {
   showTooltip?: boolean
   /** 是否允许缩放拖拽 */
   roam?: boolean
-  /** 外部样式 */
-  style?: CSSProperties
+  /** 点击事件 */
+  onClick?: (e: React.MouseEvent) => void
+  /** 双击事件 */
+  onDoubleClick?: (e: React.MouseEvent) => void
+  /** 鼠标进入 */
+  onMouseEnter?: (e: React.MouseEvent) => void
+  /** 鼠标离开 */
+  onMouseLeave?: (e: React.MouseEvent) => void
 }
 
 export const FlyLine: React.FC<FlyLineProps> = ({
   ref,
+  $data,
+  __dataSource,
   mapType = 'china',
   mapJson,
-  flyLines = DEFAULT_FLY_LINES,
+  flyLines: staticFlyLines,
   scatterPoints = DEFAULT_SCATTER_POINTS,
   lineColor = DEFAULT_COLORS.lineColor,
   lineGlowColor = DEFAULT_COLORS.lineGlowColor,
@@ -86,10 +94,26 @@ export const FlyLine: React.FC<FlyLineProps> = ({
   curveness = 0.3,
   showTooltip = true,
   roam = false,
+  rotation = 0,
+  opacity = 100,
+  background = 'transparent',
   style: externalStyle,
+  onClick,
+  onDoubleClick,
+  onMouseEnter,
+  onMouseLeave,
 }) => {
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstance = useRef<echarts.ECharts | null>(null)
+
+  // 解析数据源
+  const dataSource = useDataSource($data, __dataSource)
+  const flyLines = useMemo<FlyLineData[]>(() => {
+    if (dataSource.length > 0) {
+      return dataSource as FlyLineData[]
+    }
+    return staticFlyLines ?? DEFAULT_FLY_LINES
+  }, [dataSource, staticFlyLines])
 
   // 转换飞线数据为 ECharts 格式
   const linesData = useMemo(
@@ -267,11 +291,25 @@ export const FlyLine: React.FC<FlyLineProps> = ({
     }
   }, [option])
 
+  const containerStyle: CSSProperties = {
+    transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
+    opacity: opacity / 100,
+    backgroundColor: background,
+    ...externalStyle,
+  }
+
   return (
-    <div className={styles.container} ref={ref} style={externalStyle}>
+    <div
+      className={styles.container}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      ref={ref}
+      style={containerStyle}
+    >
       <div className={styles.chart} ref={chartRef} />
     </div>
   )
 }
 
-export default FlyLine

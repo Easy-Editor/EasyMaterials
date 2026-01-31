@@ -12,8 +12,12 @@ export const snippets: Snippet[] = [
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
+      title: '模糊滤镜',
       props: {
         blur: 5,
+        rotation: 0,
+        opacity: 100,
+        background: 'transparent',
       },
       $dashboard: {
         rect: {
@@ -28,8 +32,12 @@ export const snippets: Snippet[] = [
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
+      title: '灰度滤镜',
       props: {
         grayscale: 100,
+        rotation: 0,
+        opacity: 100,
+        background: 'transparent',
       },
       $dashboard: {
         rect: {
@@ -44,10 +52,14 @@ export const snippets: Snippet[] = [
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
+      title: '复古效果',
       props: {
         sepia: 50,
         contrast: 110,
         brightness: 90,
+        rotation: 0,
+        opacity: 100,
+        background: 'transparent',
       },
       $dashboard: {
         rect: {
@@ -62,9 +74,13 @@ export const snippets: Snippet[] = [
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
+      title: '蓝色叠加',
       props: {
         backgroundColor: 'rgba(0, 100, 255, 0.3)',
         blendMode: 'overlay',
+        rotation: 0,
+        opacity: 100,
+        background: 'transparent',
       },
       $dashboard: {
         rect: {
@@ -75,5 +91,3 @@ export const snippets: Snippet[] = [
     },
   },
 ]
-
-export default snippets

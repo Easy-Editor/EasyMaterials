@@ -3,281 +3,140 @@
  * 飞线组件配置
  */
 
-import type { Configure } from '@easy-editor/core'
+import type { FieldConfig } from '@easy-editor/core'
+import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
 
-export const configure: Configure = {
-  props: [
+/** 组件配置 - 飞线独有 */
+const componentConfigGroup: FieldConfig = createCollapseGroup(
+  '组件配置',
+  [
     {
       type: 'group',
-      title: '属性',
-      setter: 'TabSetter',
+      title: '组件配置',
+      setter: 'SubTabSetter',
       items: [
+        // 地图 Tab
         {
           type: 'group',
-          key: 'config',
-          title: '配置',
-          setter: {
-            componentName: 'CollapseSetter',
-            props: {
-              icon: false,
-            },
-          },
+          key: 'map',
+          title: '地图',
           items: [
-            // 基础配置
             {
-              name: 'id',
-              title: 'ID',
-              setter: 'NodeIdSetter',
+              name: 'mapType',
+              title: '地图类型',
+              setter: {
+                componentName: 'SelectSetter',
+                props: {
+                  options: [
+                    { label: '中国', value: 'china' },
+                    { label: '世界', value: 'world' },
+                  ],
+                },
+              },
               extraProps: {
-                // @ts-expect-error label is not a valid extra prop
-                label: false,
+                defaultValue: 'china',
               },
             },
             {
-              name: 'title',
-              title: '标题',
-              setter: 'StringSetter',
+              name: 'roam',
+              title: '允许缩放拖拽',
+              setter: 'SwitchSetter',
               extraProps: {
-                getValue(target) {
-                  return target.getExtraPropValue('title')
-                },
-                setValue(target, value) {
-                  target.setExtraPropValue('title', value)
-                },
+                defaultValue: false,
               },
-            },
-            {
-              type: 'group',
-              title: '基础属性',
-              setter: {
-                componentName: 'CollapseSetter',
-                props: {
-                  icon: false,
-                },
-              },
-              items: [
-                {
-                  name: 'rect',
-                  title: '位置尺寸',
-                  setter: 'RectSetter',
-                  extraProps: {
-                    getValue(target) {
-                      return target.getExtraPropValue('$dashboard.rect')
-                    },
-                    setValue(target, value) {
-                      target.setExtraPropValue('$dashboard.rect', value)
-                    },
-                  },
-                },
-              ],
-            },
-            // 组件配置
-            {
-              type: 'group',
-              title: '数据',
-              setter: {
-                componentName: 'CollapseSetter',
-                props: {
-                  icon: false,
-                },
-              },
-              items: [
-                {
-                  name: 'mapType',
-                  title: '地图类型',
-                  setter: {
-                    componentName: 'SelectSetter',
-                    props: {
-                      options: [
-                        { label: '中国', value: 'china' },
-                        { label: '世界', value: 'world' },
-                      ],
-                    },
-                  },
-                  extraProps: {
-                    defaultValue: 'china',
-                  },
-                },
-                {
-                  name: 'mapJson',
-                  title: '地图数据',
-                  setter: 'JsonSetter',
-                },
-                {
-                  name: 'flyLines',
-                  title: '飞线数据',
-                  setter: 'JsonSetter',
-                },
-                {
-                  name: 'scatterPoints',
-                  title: '散点数据',
-                  setter: 'JsonSetter',
-                },
-              ],
-            },
-            {
-              type: 'group',
-              title: '视图',
-              setter: {
-                componentName: 'CollapseSetter',
-                props: {
-                  icon: false,
-                },
-              },
-              items: [
-                {
-                  name: 'center',
-                  title: '中心点',
-                  setter: {
-                    componentName: 'ArraySetter',
-                    props: {
-                      itemSetter: 'NumberSetter',
-                      maxItems: 2,
-                    },
-                  },
-                  extraProps: {
-                    defaultValue: [104.114_129, 37.550_339],
-                  },
-                },
-                {
-                  name: 'zoom',
-                  title: '缩放级别',
-                  setter: {
-                    componentName: 'SliderSetter',
-                    props: {
-                      min: 0.5,
-                      max: 10,
-                      step: 0.1,
-                    },
-                  },
-                  extraProps: {
-                    defaultValue: 1,
-                  },
-                },
-              ],
-            },
-            {
-              type: 'group',
-              title: '样式',
-              setter: {
-                componentName: 'CollapseSetter',
-                props: {
-                  icon: false,
-                },
-              },
-              items: [
-                {
-                  name: 'lineColor',
-                  title: '飞线颜色',
-                  setter: 'ColorSetter',
-                  extraProps: {
-                    defaultValue: '#00d4ff',
-                  },
-                },
-                {
-                  name: 'lineGlowColor',
-                  title: '飞线发光颜色',
-                  setter: 'ColorSetter',
-                  extraProps: {
-                    defaultValue: '#00d4ff',
-                  },
-                },
-                {
-                  name: 'scatterColor',
-                  title: '散点颜色',
-                  setter: 'ColorSetter',
-                  extraProps: {
-                    defaultValue: '#ffd700',
-                  },
-                },
-                {
-                  name: 'showScatter',
-                  title: '显示散点',
-                  setter: 'SwitchSetter',
-                  extraProps: {
-                    defaultValue: true,
-                  },
-                },
-                {
-                  name: 'showTooltip',
-                  title: '显示提示框',
-                  setter: 'SwitchSetter',
-                  extraProps: {
-                    defaultValue: true,
-                  },
-                },
-                {
-                  name: 'roam',
-                  title: '允许缩放拖拽',
-                  setter: 'SwitchSetter',
-                  extraProps: {
-                    defaultValue: false,
-                  },
-                },
-              ],
-            },
-            {
-              type: 'group',
-              title: '动画',
-              setter: {
-                componentName: 'CollapseSetter',
-                props: {
-                  icon: false,
-                },
-              },
-              items: [
-                {
-                  name: 'showAnimation',
-                  title: '显示飞线动画',
-                  setter: 'SwitchSetter',
-                  extraProps: {
-                    defaultValue: true,
-                  },
-                },
-                {
-                  name: 'animationSpeed',
-                  title: '动画速度',
-                  setter: 'NumberSetter',
-                  extraProps: {
-                    defaultValue: 2,
-                  },
-                },
-                {
-                  name: 'curveness',
-                  title: '飞线曲率',
-                  setter: 'NumberSetter',
-                  extraProps: {
-                    defaultValue: 0.3,
-                  },
-                },
-              ],
             },
           ],
         },
+        // 样式 Tab
         {
           type: 'group',
-          key: 'data',
-          title: '数据',
+          key: 'style',
+          title: '样式',
           items: [
             {
-              name: 'dataBinding',
-              title: '数据绑定',
-              setter: 'DataBindingSetter',
+              name: 'lineColor',
+              title: '飞线颜色',
+              setter: 'ColorSetter',
+              extraProps: {
+                defaultValue: '#00d4ff',
+              },
             },
-          ],
-        },
-        {
-          type: 'group',
-          key: 'advanced',
-          title: '高级',
-          items: [
             {
-              name: 'condition',
-              title: '显隐控制',
+              name: 'lineGlowColor',
+              title: '飞线发光颜色',
+              setter: 'ColorSetter',
+              extraProps: {
+                defaultValue: '#00d4ff',
+              },
+            },
+            {
+              name: 'scatterColor',
+              title: '散点颜色',
+              setter: 'ColorSetter',
+              extraProps: {
+                defaultValue: '#ffd700',
+              },
+            },
+            {
+              name: 'showScatter',
+              title: '显示散点',
               setter: 'SwitchSetter',
               extraProps: {
                 defaultValue: true,
-                supportVariable: true,
+              },
+            },
+            {
+              name: 'showTooltip',
+              title: '显示提示框',
+              setter: 'SwitchSetter',
+              extraProps: {
+                defaultValue: true,
+              },
+            },
+          ],
+        },
+        // 动画 Tab
+        {
+          type: 'group',
+          key: 'animation',
+          title: '动画',
+          items: [
+            {
+              name: 'showAnimation',
+              title: '显示飞线动画',
+              setter: 'SwitchSetter',
+              extraProps: {
+                defaultValue: true,
+              },
+            },
+            {
+              name: 'animationSpeed',
+              title: '动画速度',
+              setter: {
+                componentName: 'SliderSetter',
+                props: {
+                  min: 0.5,
+                  max: 5,
+                  step: 0.5,
+                },
+              },
+              extraProps: {
+                defaultValue: 2,
+              },
+            },
+            {
+              name: 'curveness',
+              title: '飞线曲率',
+              setter: {
+                componentName: 'SliderSetter',
+                props: {
+                  min: 0,
+                  max: 1,
+                  step: 0.1,
+                },
+              },
+              extraProps: {
+                defaultValue: 0.3,
               },
             },
           ],
@@ -285,9 +144,18 @@ export const configure: Configure = {
       ],
     },
   ],
-  component: {},
-  supports: {},
-  advanced: {},
-}
+  {
+    padding: '6px 16px 12px',
+  },
+)
 
-export default configure
+/** 数据配置 */
+const dataConfigGroup: FieldConfig = createDataConfigGroup([
+  { name: 'fromName', label: 'fromName', type: 'string', required: true, description: '起点名称' },
+  { name: 'toName', label: 'toName', type: 'string', required: true, description: '终点名称' },
+  { name: 'fromCoord', label: 'fromCoord', type: 'array', required: true, description: '起点坐标 [lng, lat]' },
+  { name: 'toCoord', label: 'toCoord', type: 'array', required: true, description: '终点坐标 [lng, lat]' },
+  { name: 'value', label: 'value', type: 'number', required: false, description: '数值' },
+])
+
+export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup)

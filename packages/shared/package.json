@@ -1,6 +1,6 @@
 {
   "name": "@easy-editor/materials-shared",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "description": "Shared types, components and utilities for EasyEditor materials (internal use only)",
   "type": "module",
@@ -11,7 +11,11 @@
     "./vite": "./src/vite/index.ts"
   },
   "license": "MIT",
-  "dependencies": {
-    "clsx": "^2.1.1"
+  "peerDependencies": {
+    "@easy-editor/core": "*",
+    "react": "^18 || ^19",
+    "react-dom": "^18 || ^19",
+    "@types/react": "^18 || ^19",
+    "@types/react-dom": "^18 || ^19"
   }
 }

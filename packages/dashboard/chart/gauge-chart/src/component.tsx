@@ -1,50 +1,86 @@
-import { useEffect, useRef, type CSSProperties, type Ref } from 'react'
+/**
+ * Gauge Chart Component
+ * 仪表盘组件 - 支持数据源绑定和事件交互
+ */
+
+import { useEffect, useMemo, useRef, type CSSProperties } from 'react'
 import * as echarts from 'echarts/core'
-import { GaugeChart } from 'echarts/charts'
+import { GaugeChart as EChartsGaugeChart } from 'echarts/charts'
 import { TooltipComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { EChartsOption } from 'echarts'
+import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
 import { DEFAULT_RANGES, type GaugeRange } from './constants'
 import styles from './component.module.css'
 
 // 按需注册 ECharts 组件
-echarts.use([GaugeChart, TooltipComponent, CanvasRenderer])
+echarts.use([EChartsGaugeChart, TooltipComponent, CanvasRenderer])
 
-interface GaugeChartProps {
-  ref?: Ref<HTMLDivElement>
-  value?: number
+export interface GaugeChartProps extends MaterialComponet {
+  /** 最小值 */
   min?: number
+  /** 最大值 */
   max?: number
+  /** 单位 */
   unit?: string
+  /** 显示刻度 */
   showScale?: boolean
+  /** 刻度数量 */
   divisions?: number
+  /** 显示刻度值 */
   showLabels?: boolean
+  /** 指针类型 */
   pointerType?: 'needle' | 'triangle' | 'rect'
+  /** 指针颜色 */
   pointerColor?: string
+  /** 颜色区间 */
   ranges?: GaugeRange[]
+  /** 发光效果 */
   glowEffect?: boolean
-  style?: CSSProperties
+  /** 点击事件 */
+  onClick?: (e: React.MouseEvent) => void
+  /** 双击事件 */
+  onDoubleClick?: (e: React.MouseEvent) => void
+  /** 鼠标进入 */
+  onMouseEnter?: (e: React.MouseEvent) => void
+  /** 鼠标离开 */
+  onMouseLeave?: (e: React.MouseEvent) => void
 }
 
-const GaugeChartComponent = (props: GaugeChartProps) => {
-  const {
-    ref,
-    value = 0,
-    min = 0,
-    max = 100,
-    unit = '',
-    showScale = true,
-    divisions = 10,
-    showLabels = true,
-    pointerType = 'needle',
-    pointerColor = '#00d4ff',
-    ranges = DEFAULT_RANGES,
-    glowEffect = true,
-    style: externalStyle,
-  } = props
-
+export const GaugeChart: React.FC<GaugeChartProps> = ({
+  ref,
+  $data,
+  __dataSource,
+  min = 0,
+  max = 100,
+  unit = '',
+  showScale = true,
+  divisions = 10,
+  showLabels = true,
+  pointerType = 'needle',
+  pointerColor = '#00d4ff',
+  ranges = DEFAULT_RANGES,
+  glowEffect = true,
+  rotation = 0,
+  opacity = 100,
+  background = 'transparent',
+  style: externalStyle,
+  onClick,
+  onDoubleClick,
+  onMouseEnter,
+  onMouseLeave,
+}) => {
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstance = useRef<echarts.ECharts | null>(null)
+
+  // 解析数据源（单值）
+  const dataSource = useDataSource($data, __dataSource)
+  const value = useMemo<number>(() => {
+    if (dataSource.length > 0 && dataSource[0]?.value !== undefined) {
+      return Number(dataSource[0].value)
+    }
+    return 0
+  }, [dataSource])
 
   useEffect(() => {
     if (!chartRef.current) {
@@ -73,14 +109,14 @@ const GaugeChartComponent = (props: GaugeChartProps) => {
           max,
           startAngle: 180,
           endAngle: 0,
-          center: ['50%', '70%'],
-          radius: '90%',
+          center: ['50%', '80%'],
+          radius: '72%',
           progress: {
             show: false,
           },
           axisLine: {
             lineStyle: {
-              width: 20,
+              width: 16,
               color: axisLineColors,
               shadowColor: glowEffect ? 'rgba(0, 212, 255, 0.3)' : 'transparent',
               shadowBlur: glowEffect ? 10 : 0,
@@ -88,8 +124,8 @@ const GaugeChartComponent = (props: GaugeChartProps) => {
           },
           axisTick: {
             show: showScale,
-            distance: -25,
-            length: 6,
+            distance: -20,
+            length: 4,
             lineStyle: {
               color: '#8899aa',
               width: 1,
@@ -98,8 +134,8 @@ const GaugeChartComponent = (props: GaugeChartProps) => {
           },
           splitLine: {
             show: showScale,
-            distance: -30,
-            length: 12,
+            distance: -24,
+            length: 8,
             lineStyle: {
               color: '#8899aa',
               width: 2,
@@ -107,13 +143,13 @@ const GaugeChartComponent = (props: GaugeChartProps) => {
           },
           axisLabel: {
             show: showLabels,
-            distance: -40,
+            distance: -32,
             color: '#8899aa',
-            fontSize: 10,
+            fontSize: 9,
           },
           pointer: {
             show: true,
-            length: '60%',
+            length: '55%',
             width: pointerWidth,
             itemStyle: {
               color: pointerColor,
@@ -123,7 +159,7 @@ const GaugeChartComponent = (props: GaugeChartProps) => {
           },
           anchor: {
             show: true,
-            size: 12,
+            size: 10,
             itemStyle: {
               color: pointerColor,
               shadowColor: glowEffect ? pointerColor : 'transparent',
@@ -132,14 +168,14 @@ const GaugeChartComponent = (props: GaugeChartProps) => {
           },
           title: {
             show: true,
-            offsetCenter: [0, '30%'],
+            offsetCenter: [0, '20%'],
             color: '#8899aa',
-            fontSize: 12,
+            fontSize: 11,
           },
           detail: {
             valueAnimation: true,
-            offsetCenter: [0, '50%'],
-            fontSize: 28,
+            offsetCenter: [0, '40%'],
+            fontSize: 22,
             fontWeight: 'bold',
             color: '#fff',
             formatter: (val: number) => `${val}${unit}`,
@@ -167,14 +203,23 @@ const GaugeChartComponent = (props: GaugeChartProps) => {
   const containerStyle: CSSProperties = {
     width: '100%',
     height: '100%',
+    transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
+    opacity: opacity / 100,
+    backgroundColor: background,
     ...externalStyle,
   }
 
   return (
-    <div className={styles.container} ref={ref} style={containerStyle}>
+    <div
+      className={styles.container}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      ref={ref}
+      style={containerStyle}
+    >
       <div className={styles.chart} ref={chartRef} />
     </div>
   )
 }
-
-export default GaugeChartComponent

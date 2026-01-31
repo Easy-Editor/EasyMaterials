@@ -1,6 +1,6 @@
 {
   "name": "@easy-editor/materials-dashboard-fly-line",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Fly Line component for EasyEditor dashboard",
   "type": "module",
   "main": "src/index.tsx",
@@ -47,7 +47,7 @@
     "url": "https://github.com/Easy-Editor/EasyMaterials/issues"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "easypack dev",
     "format": "biome format --write .",
     "lint": "biome check .",
     "build": "npm-run-all -nl build:*",
@@ -59,10 +59,10 @@
     "react": "^18 || ^19",
     "react-dom": "^18 || ^19",
     "@types/react": "^18 || ^19",
-    "@types/react-dom": "^18 || ^19"
+    "@types/react-dom": "^18 || ^19",
+    "echarts": "^5"
   },
   "dependencies": {
-    "@easy-editor/materials-shared": "workspace:*",
-    "echarts": "^5.6.0"
+    "@easy-editor/materials-shared": "workspace:*"
   }
 }

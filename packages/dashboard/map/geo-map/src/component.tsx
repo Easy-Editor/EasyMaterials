@@ -1,8 +1,14 @@
-import { useEffect, useRef, type CSSProperties, type Ref } from 'react'
+/**
+ * Geo Map Component
+ * 地理地图组件 - 支持数据源绑定和事件交互
+ */
+
+import { useEffect, useRef, useMemo, type CSSProperties } from 'react'
 import * as echarts from 'echarts/core'
 import { MapChart, EffectScatterChart } from 'echarts/charts'
 import { GeoComponent, TooltipComponent, VisualMapComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
+import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
 import {
   DEFAULT_COLORS,
   DEFAULT_REGION_DATA,
@@ -27,29 +33,48 @@ const BUILTIN_MAP_JSON: Record<MapType, object> = {
 // 已注册的地图
 const registeredMaps = new Set<string>()
 
-interface GeoMapProps {
-  ref?: Ref<HTMLDivElement>
+interface GeoMapProps extends MaterialComponet {
+  /** 地图类型 */
   mapType?: MapType
+  /** 地图 GeoJSON 数据 */
   mapJson?: object
+  /** 区域数据（兼容旧版） */
   regionData?: MapDataPoint[]
+  /** 散点数据（兼容旧版） */
   scatterData?: ScatterPoint[]
+  /** 颜色列表 */
   colors?: string[]
+  /** 显示图例 */
   showVisualMap?: boolean
+  /** 显示提示 */
   showTooltip?: boolean
+  /** 显示散点 */
   showScatter?: boolean
+  /** 散点大小 */
   scatterSymbolSize?: number
+  /** 发光效果 */
   glowEffect?: boolean
+  /** 允许缩放 */
   roam?: boolean
-  style?: CSSProperties
+  /** 点击事件 */
+  onClick?: (e: React.MouseEvent) => void
+  /** 双击事件 */
+  onDoubleClick?: (e: React.MouseEvent) => void
+  /** 鼠标进入 */
+  onMouseEnter?: (e: React.MouseEvent) => void
+  /** 鼠标离开 */
+  onMouseLeave?: (e: React.MouseEvent) => void
 }
 
 export const GeoMap = (props: GeoMapProps) => {
   const {
     ref,
+    $data,
+    __dataSource,
     mapType = 'china',
     mapJson,
-    regionData,
-    scatterData,
+    regionData: staticRegionData,
+    scatterData: staticScatterData,
     colors,
     showVisualMap = true,
     showTooltip = true,
@@ -57,19 +82,36 @@ export const GeoMap = (props: GeoMapProps) => {
     scatterSymbolSize = 12,
     glowEffect = true,
     roam = true,
+    rotation = 0,
+    opacity = 100,
+    background = 'transparent',
     style: externalStyle,
+    onClick,
+    onDoubleClick,
+    onMouseEnter,
+    onMouseLeave,
   } = props
 
-  // 处理可能为 null 的数据，使用默认值
-  const safeRegionData = regionData && regionData.length > 0 ? regionData : DEFAULT_REGION_DATA
-  const safeScatterData = scatterData && scatterData.length > 0 ? scatterData : DEFAULT_SCATTER_DATA
-  const safeColors = colors && colors.length > 0 ? colors : DEFAULT_COLORS
+  // 解析数据源
+  const dataSource = useDataSource($data, __dataSource)
+  const regionData = useMemo<MapDataPoint[]>(() => {
+    if (dataSource.length > 0) {
+      return dataSource as MapDataPoint[]
+    }
+    return staticRegionData ?? DEFAULT_REGION_DATA
+  }, [dataSource, staticRegionData])
+  const scatterData = useMemo<ScatterPoint[]>(() => {
+    return staticScatterData ?? DEFAULT_SCATTER_DATA
+  }, [staticScatterData])
+  const chartColors = useMemo<string[]>(() => {
+    return colors ?? DEFAULT_COLORS
+  }, [colors])
 
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstance = useRef<echarts.ECharts | null>(null)
 
   // 计算数据范围
-  const values = safeRegionData.map(d => d.value)
+  const values = regionData.map(d => d.value)
   const minValue = values.length > 0 ? Math.min(...values) : 0
   const maxValue = values.length > 0 ? Math.max(...values) : 100
 
@@ -187,7 +229,7 @@ export const GeoMap = (props: GeoMapProps) => {
           type: 'map',
           map: mapType,
           geoIndex: 0,
-          data: safeRegionData,
+          data: regionData,
         },
         ...(showScatter
           ? [
@@ -195,7 +237,7 @@ export const GeoMap = (props: GeoMapProps) => {
                 name: '散点',
                 type: 'effectScatter' as const,
                 coordinateSystem: 'geo' as const,
-                data: safeScatterData.map(item => ({
+                data: scatterData.map(item => ({
                   name: item.name,
                   value: item.value,
                 })),
@@ -217,11 +259,11 @@ export const GeoMap = (props: GeoMapProps) => {
                     r: 0.5,
                     colorStops: [
                       { offset: 0, color: '#fff' },
-                      { offset: 0.3, color: safeColors[0] },
-                      { offset: 1, color: safeColors[0] },
+                      { offset: 0.3, color: chartColors[0] },
+                      { offset: 1, color: chartColors[0] },
                     ],
                   },
-                  shadowColor: glowEffect ? safeColors[0] : 'transparent',
+                  shadowColor: glowEffect ? chartColors[0] : 'transparent',
                   shadowBlur: glowEffect ? 15 : 0,
                 },
                 zlevel: 1,
@@ -245,28 +287,39 @@ export const GeoMap = (props: GeoMapProps) => {
   }, [
     mapType,
     mapJson,
-    safeRegionData,
-    safeScatterData,
-    safeColors,
+    regionData,
+    scatterData,
+    chartColors,
     showVisualMap,
     showTooltip,
     showScatter,
     scatterSymbolSize,
     glowEffect,
     roam,
+    minValue,
+    maxValue,
   ])
 
   const containerStyle: CSSProperties = {
     width: '100%',
     height: '100%',
+    transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
+    opacity: opacity / 100,
+    backgroundColor: background,
     ...externalStyle,
   }
 
   return (
-    <div className={styles.container} ref={ref} style={containerStyle}>
+    <div
+      className={styles.container}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      ref={ref}
+      style={containerStyle}
+    >
       <div className={styles.chart} ref={chartRef} />
     </div>
   )
 }
-
-export default GeoMap

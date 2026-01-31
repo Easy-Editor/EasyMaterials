@@ -1,31 +1,54 @@
-import { useEffect, useRef, type CSSProperties, type Ref } from 'react'
+/**
+ * Bar Chart Component
+ * 柱状图组件 - 支持数据源绑定和事件交互
+ */
+
+import { useEffect, useMemo, useRef, type CSSProperties } from 'react'
 import * as echarts from 'echarts/core'
-import { BarChart } from 'echarts/charts'
+import { BarChart as EChartsBarChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { SeriesOption } from 'echarts'
-import { DEFAULT_COLORS, DEFAULT_DATA, type DataPoint } from './constants'
+import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
+import { DEFAULT_COLORS, type DataPoint } from './constants'
 import styles from './component.module.css'
 
 // 按需注册 ECharts 组件
-echarts.use([BarChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer])
+echarts.use([EChartsBarChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer])
 
-interface BarChartProps {
-  ref?: Ref<HTMLDivElement>
-  data?: DataPoint[]
+export interface BarChartProps extends MaterialComponet {
+  /** X轴字段 */
   xField?: string
+  /** Y轴字段列表 */
   yFields?: string[]
+  /** 颜色列表 */
   colors?: string[]
+  /** 布局方向 */
   layout?: 'vertical' | 'horizontal'
+  /** 堆叠模式 */
   stacked?: boolean
+  /** 渐变填充 */
   gradient?: boolean
+  /** 圆角 */
   borderRadius?: number
+  /** 柱间距 */
   barGap?: string
+  /** 显示网格 */
   showGrid?: boolean
+  /** 显示图例 */
   showLegend?: boolean
+  /** 显示提示 */
   showTooltip?: boolean
+  /** 发光效果 */
   glowEffect?: boolean
-  style?: CSSProperties
+  /** 点击事件 */
+  onClick?: (e: React.MouseEvent) => void
+  /** 双击事件 */
+  onDoubleClick?: (e: React.MouseEvent) => void
+  /** 鼠标进入 */
+  onMouseEnter?: (e: React.MouseEvent) => void
+  /** 鼠标离开 */
+  onMouseLeave?: (e: React.MouseEvent) => void
 }
 
 interface SeriesOptions {
@@ -170,27 +193,46 @@ const buildOption = (
   }
 }
 
-const BarChartComponent = (props: BarChartProps) => {
-  const {
-    ref,
-    data = DEFAULT_DATA,
-    xField = 'name',
-    yFields = ['value1', 'value2'],
-    colors = DEFAULT_COLORS,
-    layout = 'vertical',
-    stacked = false,
-    gradient = true,
-    borderRadius = 4,
-    barGap = '20%',
-    showGrid = true,
-    showLegend = true,
-    showTooltip = true,
-    glowEffect = true,
-    style: externalStyle,
-  } = props
-
+export const BarChart: React.FC<BarChartProps> = ({
+  ref,
+  $data,
+  __dataSource,
+  xField = 'name',
+  yFields = ['value1', 'value2'],
+  colors = DEFAULT_COLORS,
+  layout = 'vertical',
+  stacked = false,
+  gradient = true,
+  borderRadius = 4,
+  barGap = '20%',
+  showGrid = true,
+  showLegend = true,
+  showTooltip = true,
+  glowEffect = true,
+  rotation = 0,
+  opacity = 100,
+  background = 'transparent',
+  style: externalStyle,
+  onClick,
+  onDoubleClick,
+  onMouseEnter,
+  onMouseLeave,
+}) => {
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstance = useRef<echarts.ECharts | null>(null)
+
+  // 解析数据源
+  const dataSource = useDataSource($data, __dataSource)
+  const data = useMemo<DataPoint[]>(() => {
+    if (dataSource.length > 0 && dataSource[0]?.name && dataSource[0]?.value1 && dataSource[0]?.value2) {
+      return dataSource.map(item => ({
+        name: String(item.name),
+        value1: Number(item.value1),
+        value2: Number(item.value2),
+      }))
+    }
+    return []
+  }, [dataSource])
 
   useEffect(() => {
     if (!chartRef.current) {
@@ -247,14 +289,23 @@ const BarChartComponent = (props: BarChartProps) => {
   const containerStyle: CSSProperties = {
     width: '100%',
     height: '100%',
+    transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
+    opacity: opacity / 100,
+    backgroundColor: background,
     ...externalStyle,
   }
 
   return (
-    <div className={styles.container} ref={ref} style={containerStyle}>
+    <div
+      className={styles.container}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      ref={ref}
+      style={containerStyle}
+    >
       <div className={styles.chart} ref={chartRef} />
     </div>
   )
 }
-
-export default BarChartComponent

@@ -3,235 +3,116 @@
  * 雷达图组件配置
  */
 
-import type { Configure } from '@easy-editor/core'
+import type { FieldConfig } from '@easy-editor/core'
+import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
 
-const configure: Configure = {
-  props: [
+/** 组件配置 */
+const componentConfigGroup: FieldConfig = createCollapseGroup(
+  '组件配置',
+  [
     {
       type: 'group',
-      title: '属性',
-      setter: 'TabSetter',
+      title: '组件配置',
+      setter: 'SubTabSetter',
       items: [
+        // 数据 Tab
         {
           type: 'group',
-          key: 'config',
-          title: '配置',
-          setter: {
-            componentName: 'CollapseSetter',
-            props: {
-              icon: false,
-            },
-          },
-          items: [
-            // 基础配置
-            {
-              name: 'id',
-              title: 'ID',
-              setter: 'NodeIdSetter',
-              extraProps: {
-                // @ts-expect-error label is not a valid extra prop
-                label: false,
-              },
-            },
-            {
-              name: 'title',
-              title: '标题',
-              setter: 'StringSetter',
-              extraProps: {
-                getValue(target) {
-                  return target.getExtraPropValue('title')
-                },
-                setValue(target, value) {
-                  target.setExtraPropValue('title', value)
-                },
-              },
-            },
-            {
-              type: 'group',
-              title: '基础属性',
-              setter: {
-                componentName: 'CollapseSetter',
-                props: {
-                  icon: false,
-                },
-              },
-              items: [
-                {
-                  name: 'rect',
-                  title: '位置尺寸',
-                  setter: 'RectSetter',
-                  extraProps: {
-                    getValue(target) {
-                      return target.getExtraPropValue('$dashboard.rect')
-                    },
-                    setValue(target, value) {
-                      target.setExtraPropValue('$dashboard.rect', value)
-                    },
-                  },
-                },
-              ],
-            },
-            // 组件配置
-            {
-              type: 'group',
-              title: '数据',
-              setter: {
-                componentName: 'CollapseSetter',
-                props: {
-                  icon: false,
-                },
-              },
-              items: [
-                {
-                  name: 'data',
-                  title: '数据',
-                  setter: 'JsonSetter',
-                },
-                {
-                  name: 'dimensionKey',
-                  title: '维度字段',
-                  setter: 'StringSetter',
-                  extraProps: {
-                    defaultValue: 'dimension',
-                  },
-                },
-                {
-                  name: 'series',
-                  title: '系列',
-                  setter: 'JsonSetter',
-                },
-              ],
-            },
-            {
-              type: 'group',
-              title: '数值格式',
-              setter: {
-                componentName: 'CollapseSetter',
-                props: {
-                  icon: false,
-                },
-              },
-              items: [
-                {
-                  name: 'valuePrefix',
-                  title: '前缀',
-                  setter: 'StringSetter',
-                },
-                {
-                  name: 'valueSuffix',
-                  title: '后缀',
-                  setter: 'StringSetter',
-                },
-                {
-                  name: 'valueDecimals',
-                  title: '小数位数',
-                  setter: {
-                    componentName: 'NumberSetter',
-                    props: {
-                      suffix: '位',
-                    },
-                  },
-                  extraProps: {
-                    defaultValue: 0,
-                  },
-                },
-              ],
-            },
-            {
-              type: 'group',
-              title: '样式',
-              setter: {
-                componentName: 'CollapseSetter',
-                props: {
-                  icon: false,
-                },
-              },
-              items: [
-                {
-                  name: 'showGrid',
-                  title: '显示网格',
-                  setter: 'SwitchSetter',
-                  extraProps: {
-                    defaultValue: true,
-                  },
-                },
-                {
-                  name: 'fillOpacity',
-                  title: '填充透明度',
-                  setter: {
-                    componentName: 'SliderSetter',
-                    props: {
-                      min: 0,
-                      max: 1,
-                      step: 0.1,
-                    },
-                  },
-                  extraProps: {
-                    defaultValue: 0.3,
-                  },
-                },
-                {
-                  name: 'showLegend',
-                  title: '显示图例',
-                  setter: 'SwitchSetter',
-                  extraProps: {
-                    defaultValue: true,
-                  },
-                },
-                {
-                  name: 'legendPosition',
-                  title: '图例位置',
-                  setter: {
-                    componentName: 'SelectSetter',
-                    props: {
-                      options: [
-                        { label: '顶部', value: 'top' },
-                        { label: '底部', value: 'bottom' },
-                        { label: '左侧', value: 'left' },
-                        { label: '右侧', value: 'right' },
-                      ],
-                    },
-                  },
-                  extraProps: {
-                    defaultValue: 'bottom',
-                  },
-                },
-                {
-                  name: 'glowEffect',
-                  title: '发光效果',
-                  setter: 'SwitchSetter',
-                  extraProps: {
-                    defaultValue: true,
-                  },
-                },
-              ],
-            },
-          ],
-        },
-        {
-          type: 'group',
-          key: 'data',
+          key: 'chartData',
           title: '数据',
           items: [
             {
-              name: 'dataBinding',
-              title: '数据绑定',
-              setter: 'DataBindingSetter',
+              name: 'dimensionKey',
+              title: '维度字段',
+              setter: 'StringSetter',
+              extraProps: {
+                defaultValue: 'dimension',
+              },
+            },
+            {
+              name: 'series',
+              title: '系列配置',
+              setter: 'JsonSetter',
             },
           ],
         },
+        // 样式 Tab
         {
           type: 'group',
-          key: 'advanced',
-          title: '高级',
+          key: 'style',
+          title: '样式',
           items: [
             {
-              name: 'condition',
-              title: '显隐控制',
+              name: 'showGrid',
+              title: '显示网格',
               setter: 'SwitchSetter',
               extraProps: {
                 defaultValue: true,
-                supportVariable: true,
+              },
+            },
+            {
+              name: 'fillOpacity',
+              title: '填充透明度',
+              setter: {
+                componentName: 'SliderSetter',
+                props: {
+                  min: 0,
+                  max: 1,
+                  step: 0.1,
+                },
+              },
+              extraProps: {
+                defaultValue: 0.3,
+              },
+            },
+            {
+              name: 'glowEffect',
+              title: '发光效果',
+              setter: 'SwitchSetter',
+              extraProps: {
+                defaultValue: true,
+              },
+            },
+          ],
+        },
+        // 图例 Tab
+        {
+          type: 'group',
+          key: 'legend',
+          title: '图例',
+          items: [
+            {
+              name: 'showLegend',
+              title: '显示图例',
+              setter: 'SwitchSetter',
+              extraProps: {
+                defaultValue: true,
+              },
+            },
+            {
+              name: 'legendPosition',
+              title: '图例位置',
+              setter: {
+                componentName: 'SelectSetter',
+                props: {
+                  options: [
+                    { label: '顶部', value: 'top' },
+                    { label: '底部', value: 'bottom' },
+                    { label: '左侧', value: 'left' },
+                    { label: '右侧', value: 'right' },
+                  ],
+                },
+              },
+              extraProps: {
+                defaultValue: 'bottom',
+              },
+            },
+            {
+              name: 'showTooltip',
+              title: '显示提示',
+              setter: 'SwitchSetter',
+              extraProps: {
+                defaultValue: true,
               },
             },
           ],
@@ -239,9 +120,16 @@ const configure: Configure = {
       ],
     },
   ],
-  component: {},
-  supports: {},
-  advanced: {},
-}
+  {
+    padding: '6px 16px 12px',
+  },
+)
 
-export default configure
+/** 数据配置 */
+const dataConfigGroup: FieldConfig = createDataConfigGroup([
+  { name: 'dimension', label: 'dimension', type: 'string', required: true, description: '维度名称' },
+  { name: 'value1', label: 'value1', type: 'number', required: true, description: '数值1' },
+  { name: 'value2', label: 'value2', type: 'number', required: false, description: '数值2' },
+])
+
+export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup)

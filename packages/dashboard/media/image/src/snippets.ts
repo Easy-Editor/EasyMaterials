@@ -12,10 +12,14 @@ export const snippets: Snippet[] = [
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
+      title: '普通图片',
       props: {
         alt: '图片',
         objectFit: 'contain',
         borderRadius: 0,
+        rotation: 0,
+        opacity: 100,
+        background: 'transparent',
       },
       $dashboard: {
         rect: {
@@ -30,11 +34,15 @@ export const snippets: Snippet[] = [
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
+      title: '圆角图片',
       props: {
         alt: '圆角图片',
         objectFit: 'contain',
         borderRadius: 100,
         borderStyle: 'tech',
+        rotation: 0,
+        opacity: 100,
+        background: 'transparent',
       },
       $dashboard: {
         rect: {
@@ -45,5 +53,3 @@ export const snippets: Snippet[] = [
     },
   },
 ]
-
-export default snippets

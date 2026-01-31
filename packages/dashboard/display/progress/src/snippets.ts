@@ -1,19 +1,21 @@
 /**
  * Progress Snippets
- * 进度条组件代码片段
+ * 进度条组件代码片段 - 使用共享数据源生成函数
  */
 
 import type { Snippet } from '@easy-editor/core'
+import { generateStaticDataSource } from '@easy-editor/materials-shared'
 import { COMPONENT_NAME } from './constants'
 
-export const snippets: Snippet[] = [
+const snippets: Snippet[] = [
   {
     title: '进度环',
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
+      title: '进度环',
       props: {
-        value: 75,
+        $data: generateStaticDataSource({ value: 75 }),
         maxValue: 100,
         type: 'ring',
         showValue: true,
@@ -21,6 +23,9 @@ export const snippets: Snippet[] = [
         valueFormat: 'percent',
         strokeWidthRatio: 0.07,
         progressColor: '#00ffff',
+        rotation: 0,
+        opacity: 100,
+        background: 'transparent',
       },
       $dashboard: {
         rect: {
@@ -35,8 +40,9 @@ export const snippets: Snippet[] = [
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
+      title: '线性进度条',
       props: {
-        value: 85,
+        $data: generateStaticDataSource({ value: 85 }),
         maxValue: 100,
         type: 'bar',
         showValue: true,
@@ -46,6 +52,9 @@ export const snippets: Snippet[] = [
         progressColor: '#00ff88',
         gradientEnable: true,
         gradientColors: ['#00ff88', '#00d4ff'],
+        rotation: 0,
+        opacity: 100,
+        background: 'transparent',
       },
       $dashboard: {
         rect: {
@@ -57,4 +66,4 @@ export const snippets: Snippet[] = [
   },
 ]
 
-export default snippets
+export { snippets }

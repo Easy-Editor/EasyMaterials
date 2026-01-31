@@ -5,24 +5,7 @@
 
 import type { Snippet } from '@easy-editor/core'
 import { COMPONENT_NAME } from './constants'
-
-// 生成静态数据源
-const generateStaticDataSource = (text: string) => {
-  return {
-    sourceType: "static",
-    staticData: [
-      {
-        text
-      }
-    ],
-    fieldMappings: [
-      {
-        componentField: "text",
-        sourceField: "text"
-      }
-    ]
-  }
-}
+import { generateStaticDataSource } from '@easy-editor/materials-shared'
 
 export const snippets: Snippet[] = [
   {
@@ -37,7 +20,7 @@ export const snippets: Snippet[] = [
         rotation: 0,
         opacity: 100,
         background: 'transparent',
-        $data: generateStaticDataSource('普通文本'),
+        $data: generateStaticDataSource({ text: '普通文本' }),
       },
       $dashboard: {
         rect: {
@@ -61,7 +44,7 @@ export const snippets: Snippet[] = [
         rotation: 0,
         opacity: 100,
         background: 'transparent',
-        $data: generateStaticDataSource('标题文本'),
+        $data: generateStaticDataSource({ text: '标题文本' }),
       },
       $dashboard: {
         rect: {
@@ -88,7 +71,7 @@ export const snippets: Snippet[] = [
         rotation: 0,
         opacity: 100,
         background: 'transparent',
-        $data: generateStaticDataSource('发光标题')
+        $data: generateStaticDataSource({ text: '发光标题' }),
       },
       $dashboard: {
         rect: {
@@ -114,7 +97,7 @@ export const snippets: Snippet[] = [
         rotation: 0,
         opacity: 100,
         background: 'transparent',
-        $data: generateStaticDataSource('点击跳转'),
+        $data: generateStaticDataSource({ text: '点击跳转' }),
       },
       $dashboard: {
         rect: {
@@ -138,7 +121,7 @@ export const snippets: Snippet[] = [
         rotation: 0,
         opacity: 100,
         background: 'rgba(0, 212, 255, 0.2)',
-        $data: generateStaticDataSource('标签'),
+        $data: generateStaticDataSource({ text: '标签' }),
       },
       $dashboard: {
         rect: {

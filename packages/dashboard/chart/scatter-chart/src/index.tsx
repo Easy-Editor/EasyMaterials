@@ -3,5 +3,5 @@
  * 散点图组件入口
  */
 
-export { default as component } from './component'
-export { default as meta } from './meta'
+export { ScatterChart as component } from './component'
+export { meta } from './meta'

@@ -1,29 +1,50 @@
-import { useEffect, useRef, type CSSProperties, type Ref } from 'react'
+/**
+ * Line Chart Component
+ * 折线图组件 - 支持数据源绑定和事件交互
+ */
+
+import { useEffect, useMemo, useRef, type CSSProperties } from 'react'
 import * as echarts from 'echarts/core'
-import { LineChart } from 'echarts/charts'
+import { LineChart as EChartsLineChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { SeriesOption } from 'echarts'
+import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
 import { DEFAULT_COLORS, DEFAULT_DATA, type DataPoint } from './constants'
 import styles from './component.module.css'
 
 // 按需注册 ECharts 组件
-echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer])
+echarts.use([EChartsLineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer])
 
-interface LineChartProps {
-  ref?: Ref<HTMLDivElement>
-  data?: DataPoint[]
+export interface LineChartProps extends MaterialComponet {
+  /** X轴字段 */
   xField?: string
+  /** Y轴字段列表 */
   yFields?: string[]
+  /** 颜色列表 */
   colors?: string[]
+  /** 显示网格 */
   showGrid?: boolean
+  /** 显示图例 */
   showLegend?: boolean
+  /** 显示提示 */
   showTooltip?: boolean
+  /** 发光效果 */
   glowEffect?: boolean
+  /** 线条宽度 */
   strokeWidth?: number
+  /** 区域填充 */
   areaFill?: boolean
+  /** 平滑曲线 */
   smooth?: boolean
-  style?: CSSProperties
+  /** 点击事件 */
+  onClick?: (e: React.MouseEvent) => void
+  /** 双击事件 */
+  onDoubleClick?: (e: React.MouseEvent) => void
+  /** 鼠标进入 */
+  onMouseEnter?: (e: React.MouseEvent) => void
+  /** 鼠标离开 */
+  onMouseLeave?: (e: React.MouseEvent) => void
 }
 
 // 构建 series 配置
@@ -161,25 +182,40 @@ const buildOption = (
   }
 }
 
-const LineChartComponent = (props: LineChartProps) => {
-  const {
-    ref,
-    data = DEFAULT_DATA,
-    xField = 'name',
-    yFields = ['value1', 'value2'],
-    colors = DEFAULT_COLORS,
-    showGrid = true,
-    showLegend = true,
-    showTooltip = true,
-    glowEffect = true,
-    strokeWidth = 2,
-    areaFill = false,
-    smooth = true,
-    style: externalStyle,
-  } = props
-
+export const LineChart: React.FC<LineChartProps> = ({
+  ref,
+  $data,
+  __dataSource,
+  xField = 'name',
+  yFields = ['value1', 'value2'],
+  colors = DEFAULT_COLORS,
+  showGrid = true,
+  showLegend = true,
+  showTooltip = true,
+  glowEffect = true,
+  strokeWidth = 2,
+  areaFill = false,
+  smooth = true,
+  rotation = 0,
+  opacity = 100,
+  background = 'transparent',
+  style: externalStyle,
+  onClick,
+  onDoubleClick,
+  onMouseEnter,
+  onMouseLeave,
+}) => {
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstance = useRef<echarts.ECharts | null>(null)
+
+  // 解析数据源
+  const dataSource = useDataSource($data, __dataSource)
+  const data = useMemo<DataPoint[]>(() => {
+    if (dataSource.length > 0) {
+      return dataSource as DataPoint[]
+    }
+    return DEFAULT_DATA
+  }, [dataSource])
 
   useEffect(() => {
     if (!chartRef.current) {
@@ -219,14 +255,23 @@ const LineChartComponent = (props: LineChartProps) => {
   const containerStyle: CSSProperties = {
     width: '100%',
     height: '100%',
+    transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
+    opacity: opacity / 100,
+    backgroundColor: background,
     ...externalStyle,
   }
 
   return (
-    <div className={styles.container} ref={ref} style={containerStyle}>
+    <div
+      className={styles.container}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      ref={ref}
+      style={containerStyle}
+    >
       <div className={styles.chart} ref={chartRef} />
     </div>
   )
 }
-
-export default LineChartComponent

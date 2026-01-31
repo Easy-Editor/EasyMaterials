@@ -3,16 +3,15 @@
  * 图片/图标/边框装饰组件
  */
 
-import type { CSSProperties, Ref } from 'react'
-import { cn } from '@easy-editor/materials-shared'
+import type { CSSProperties } from 'react'
+import { cn, type MaterialComponet } from '@easy-editor/materials-shared'
 import styles from './component.module.css'
 
 export type ObjectFit = 'cover' | 'contain' | 'fill' | 'none'
 export type BorderStyle = 'none' | 'neon' | 'gradient' | 'tech'
 export type DisplayMode = 'image' | 'icon'
 
-export interface ImageProps {
-  ref?: Ref<HTMLDivElement>
+export interface ImageProps extends MaterialComponet {
   /** 图片地址 */
   src?: string
   /** 图片描述 */

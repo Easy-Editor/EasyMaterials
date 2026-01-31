@@ -1,15 +1,13 @@
 /**
  * Progress Component
- * 进度组件 - 支持环形和线性进度条
+ * 进度组件 - 支持数据源绑定和事件交互
  */
 
-import { useId, useRef, useEffect, useState, type CSSProperties, type Ref } from 'react'
+import { useId, useRef, useEffect, useState, useMemo, type CSSProperties } from 'react'
+import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
 import styles from './component.module.css'
 
-export interface ProgressProps {
-  ref?: Ref<HTMLDivElement>
-  /** 当前值 */
-  value?: number
+export interface ProgressProps extends MaterialComponet {
   /** 最大值 */
   maxValue?: number
   /** 进度条类型 */
@@ -32,8 +30,14 @@ export interface ProgressProps {
   gradientEnable?: boolean
   /** 渐变颜色 [起始色, 结束色] */
   gradientColors?: [string, string]
-  /** 外部样式 */
-  style?: CSSProperties
+  /** 点击事件 */
+  onClick?: (e: React.MouseEvent) => void
+  /** 双击事件 */
+  onDoubleClick?: (e: React.MouseEvent) => void
+  /** 鼠标进入 */
+  onMouseEnter?: (e: React.MouseEvent) => void
+  /** 鼠标离开 */
+  onMouseLeave?: (e: React.MouseEvent) => void
 }
 
 // 格式化数值
@@ -200,7 +204,12 @@ const BarProgress = ({
 
 export const Progress: React.FC<ProgressProps> = ({
   ref,
-  value = 0,
+  $data,
+  __dataSource,
+  rotation = 0,
+  opacity = 100,
+  background = 'transparent',
+  style: externalStyle,
   maxValue = 100,
   type = 'ring',
   showValue = true,
@@ -212,17 +221,44 @@ export const Progress: React.FC<ProgressProps> = ({
   progressColor = '#00d4ff',
   gradientEnable = false,
   gradientColors = ['#00d4ff', '#9b59b6'],
-  style: externalStyle,
+  onClick,
+  onDoubleClick,
+  onMouseEnter,
+  onMouseLeave,
 }) => {
   const gradientId = useId()
+
+  // 解析数据源
+  const dataSource = useDataSource($data, __dataSource)
+  const value = useMemo<number>(() => {
+    if (dataSource.length > 0 && typeof dataSource[0]?.value === 'number') {
+      return dataSource[0].value
+    }
+    return 0
+  }, [dataSource])
 
   const normalizedValue = Math.min(Math.max(value, 0), maxValue)
   const percentage = (normalizedValue / maxValue) * 100
   const displayColor = gradientEnable ? gradientColors[0] : progressColor
 
+  const wrapperStyle: CSSProperties = {
+    transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
+    opacity: opacity / 100,
+    backgroundColor: background,
+    ...externalStyle,
+  }
+
   if (type === 'ring') {
     return (
-      <div className={styles.wrapper} ref={ref} style={externalStyle}>
+      <div
+        className={styles.wrapper}
+        onClick={onClick}
+        onDoubleClick={onDoubleClick}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        ref={ref}
+        style={wrapperStyle}
+      >
         <RingProgress
           displayColor={displayColor}
           gradientColors={gradientColors}
@@ -242,7 +278,15 @@ export const Progress: React.FC<ProgressProps> = ({
   }
 
   return (
-    <div className={styles.wrapper} ref={ref} style={externalStyle}>
+    <div
+      className={styles.wrapper}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      ref={ref}
+      style={wrapperStyle}
+    >
       <BarProgress
         displayColor={displayColor}
         gradientColors={gradientColors}
@@ -258,5 +302,3 @@ export const Progress: React.FC<ProgressProps> = ({
     </div>
   )
 }
-
-export default Progress

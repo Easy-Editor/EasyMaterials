@@ -1,11 +1,11 @@
 import type { ComponentMetadata } from '@easy-editor/core'
 import { MaterialGroup } from '@easy-editor/materials-shared'
 import { COMPONENT_NAME, PACKAGE_NAME } from './constants'
-import configure from './configure'
-import snippets from './snippets'
+import { configure } from './configure'
+import { snippets } from './snippets'
 import pkg from '../package.json'
 
-const meta: ComponentMetadata = {
+export const meta: ComponentMetadata = {
   componentName: COMPONENT_NAME,
   title: '柱状图',
   group: MaterialGroup.CHART,
@@ -19,5 +19,3 @@ const meta: ComponentMetadata = {
   snippets,
   configure,
 }
-
-export default meta

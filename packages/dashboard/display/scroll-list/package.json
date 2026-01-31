@@ -1,6 +1,6 @@
 {
   "name": "@easy-editor/materials-dashboard-scroll-list",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Scroll List component for EasyEditor dashboard",
   "type": "module",
   "main": "src/index.tsx",
@@ -45,7 +45,7 @@
     "url": "https://github.com/Easy-Editor/EasyMaterials/issues"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "easypack dev",
     "dev:debug": "vite --port 5023",
     "format": "biome format --write .",
     "lint": "biome check .",

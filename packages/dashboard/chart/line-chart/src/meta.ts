@@ -1,8 +1,8 @@
 import type { ComponentMetadata } from '@easy-editor/core'
 import { MaterialGroup } from '@easy-editor/materials-shared'
 import { COMPONENT_NAME, PACKAGE_NAME } from './constants'
-import configure from './configure'
-import snippets from './snippets'
+import { configure } from './configure'
+import { snippets } from './snippets'
 import pkg from '../package.json'
 
 const meta: ComponentMetadata = {
@@ -20,4 +20,4 @@ const meta: ComponentMetadata = {
   configure,
 }
 
-export default meta
+export { meta }
