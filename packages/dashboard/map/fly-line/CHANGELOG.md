@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-fly-line
 
+## 0.0.4
+
+### Patch Changes
+
+- perf: external echarts
+
 ## 0.0.3
 
 ### Patch Changes

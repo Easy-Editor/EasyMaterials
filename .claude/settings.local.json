@@ -9,7 +9,9 @@
       "Bash(done)",
       "Bash(for material in packages/dashboard/*/*/package.json)",
       "Bash(pnpm test-types:*)",
-      "Bash(pnpm check:*)"
+      "Bash(pnpm check:*)",
+      "mcp__filesystem__list_allowed_directories",
+      "Bash(dir /s /b D:ProgrammingEasyEditor*easypack*)"
     ]
   },
   "enableAllProjectMcpServers": true,
