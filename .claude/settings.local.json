@@ -11,7 +11,12 @@
       "Bash(pnpm test-types:*)",
       "Bash(pnpm check:*)",
       "mcp__filesystem__list_allowed_directories",
-      "Bash(dir /s /b D:ProgrammingEasyEditor*easypack*)"
+      "Bash(dir /s /b D:ProgrammingEasyEditor*easypack*)",
+      "Bash(node:*)",
+      "Bash(timeout 60 node:*)",
+      "Bash(pnpm update:*)",
+      "Bash(rimraf:*)",
+      "Bash(pnpm build:js:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

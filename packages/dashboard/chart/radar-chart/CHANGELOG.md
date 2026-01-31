@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-radar-chart
 
+## 0.0.6
+
+### Patch Changes
+
+- fix: build error
+
 ## 0.0.5
 
 ### Patch Changes

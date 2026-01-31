@@ -1,6 +1,6 @@
 {
   "name": "@easy-editor/materials-dashboard-line-chart",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Line Chart component for EasyEditor dashboard",
   "type": "module",
   "main": "src/index.tsx",

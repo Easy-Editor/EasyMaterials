@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-image
 
+## 0.0.5
+
+### Patch Changes
+
+- fix: build error
+
 ## 0.0.4
 
 ### Patch Changes
