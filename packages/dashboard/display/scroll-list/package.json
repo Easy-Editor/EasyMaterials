@@ -1,6 +1,6 @@
 {
   "name": "@easy-editor/materials-dashboard-scroll-list",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Scroll List component for EasyEditor dashboard",
   "type": "module",
   "main": "src/index.tsx",

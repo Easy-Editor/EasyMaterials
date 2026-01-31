@@ -244,3 +244,5 @@ export const PieChart: React.FC<PieChartProps> = ({
     </div>
   )
 }
+
+export default PieChart

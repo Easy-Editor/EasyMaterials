@@ -1,6 +1,6 @@
 {
   "name": "@easy-editor/materials-dashboard-geo-map",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Geo Map component for EasyEditor dashboard",
   "type": "module",
   "main": "src/index.tsx",

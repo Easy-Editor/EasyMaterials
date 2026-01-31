@@ -282,3 +282,5 @@ export const ScatterChart: React.FC<ScatterChartProps> = ({
     </div>
   )
 }
+
+export default ScatterChart

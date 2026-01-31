@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-progress
 
+## 0.0.5
+
+### Patch Changes
+
+- fix: component export error
+
 ## 0.0.4
 
 ### Patch Changes

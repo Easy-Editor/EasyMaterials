@@ -302,3 +302,5 @@ export const Progress: React.FC<ProgressProps> = ({
     </div>
   )
 }
+
+export default Progress

@@ -217,3 +217,5 @@ export const ScrollList: React.FC<ScrollListProps> = ({
     </div>
   )
 }
+
+export default ScrollList

@@ -220,3 +220,5 @@ export const Audio: React.FC<AudioProps> = ({
     </div>
   )
 }
+
+export default Audio

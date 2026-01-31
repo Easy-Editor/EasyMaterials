@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-gauge-chart
 
+## 0.0.4
+
+### Patch Changes
+
+- fix: component export error
+
 ## 0.0.3
 
 ### Patch Changes

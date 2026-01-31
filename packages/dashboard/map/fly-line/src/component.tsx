@@ -313,3 +313,4 @@ export const FlyLine: React.FC<FlyLineProps> = ({
   )
 }
 
+export default FlyLine

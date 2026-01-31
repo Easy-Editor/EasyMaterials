@@ -1,6 +1,6 @@
 {
   "name": "@easy-editor/materials-dashboard-pie-chart",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Pie Chart component for EasyEditor dashboard",
   "type": "module",
   "main": "src/index.tsx",

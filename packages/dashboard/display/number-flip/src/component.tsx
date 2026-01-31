@@ -210,3 +210,5 @@ export const NumberFlip: React.FC<NumberFlipProps> = ({
     </div>
   )
 }
+
+export default NumberFlip

@@ -168,3 +168,5 @@ export const Video: React.FC<VideoProps> = ({
     </div>
   )
 }
+
+export default Video

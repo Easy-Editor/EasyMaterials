@@ -100,12 +100,8 @@ export const GeoMap = (props: GeoMapProps) => {
     }
     return staticRegionData ?? DEFAULT_REGION_DATA
   }, [dataSource, staticRegionData])
-  const scatterData = useMemo<ScatterPoint[]>(() => {
-    return staticScatterData ?? DEFAULT_SCATTER_DATA
-  }, [staticScatterData])
-  const chartColors = useMemo<string[]>(() => {
-    return colors ?? DEFAULT_COLORS
-  }, [colors])
+  const scatterData = useMemo<ScatterPoint[]>(() => staticScatterData ?? DEFAULT_SCATTER_DATA, [staticScatterData])
+  const chartColors = useMemo<string[]>(() => colors ?? DEFAULT_COLORS, [colors])
 
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstance = useRef<echarts.ECharts | null>(null)
@@ -323,3 +319,5 @@ export const GeoMap = (props: GeoMapProps) => {
     </div>
   )
 }
+
+export default GeoMap

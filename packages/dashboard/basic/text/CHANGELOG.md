@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-text
 
+## 0.0.20
+
+### Patch Changes
+
+- fix: component export error
+
 ## 0.0.19
 
 ### Patch Changes

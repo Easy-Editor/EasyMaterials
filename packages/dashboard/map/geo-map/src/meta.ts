@@ -5,7 +5,7 @@ import { configure } from './configure'
 import { snippets } from './snippets'
 import pkg from '../package.json'
 
-const meta: ComponentMetadata = {
+export const meta: ComponentMetadata = {
   componentName: COMPONENT_NAME,
   title: '地理地图',
   group: MaterialGroup.MAP,
@@ -20,4 +20,4 @@ const meta: ComponentMetadata = {
   configure,
 }
 
-export { meta }
+export default meta

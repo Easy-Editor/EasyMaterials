@@ -24,3 +24,5 @@ export const meta: ComponentMetadata = {
   configure,
   snippets,
 }
+
+export default meta

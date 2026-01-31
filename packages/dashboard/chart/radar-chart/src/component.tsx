@@ -242,3 +242,5 @@ export const RadarChart: React.FC<RadarChartProps> = ({
     </div>
   )
 }
+
+export default RadarChart

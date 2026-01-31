@@ -215,3 +215,5 @@ export const Carousel: React.FC<CarouselProps> = ({
     </div>
   )
 }
+
+export default Carousel
