@@ -9,6 +9,9 @@ export default {
   dev: {
     port: 5001,
   },
+  css: {
+    scopedName: 'em_line-chart__[local]___[hash:base64:5]',
+  },
   rollup: {
     external: ECHARTS_EXTERNALS,
     output: {

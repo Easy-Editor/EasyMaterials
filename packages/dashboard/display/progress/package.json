@@ -1,6 +1,6 @@
 {
   "name": "@easy-editor/materials-dashboard-progress",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Progress component for EasyEditor dashboard",
   "type": "module",
   "main": "src/index.tsx",

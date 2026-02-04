@@ -16,7 +16,13 @@
       "Bash(timeout 60 node:*)",
       "Bash(pnpm update:*)",
       "Bash(rimraf:*)",
-      "Bash(pnpm build:js:*)"
+      "Bash(pnpm build:js:*)",
+      "Bash(findstr:*)",
+      "Bash(powershell -Command \"Get-Content ''D:\\\\Programming\\\\EasyEditor\\\\EasyMaterials\\\\packages\\\\dashboard\\\\basic\\\\text\\\\dist\\\\index.min.js'' | Select-String ''container___'' -AllMatches | ForEach-Object { $_Matches.Value }\")",
+      "Bash(powershell -Command \"Get-Content ''D:\\\\Programming\\\\EasyEditor\\\\EasyMaterials\\\\packages\\\\dashboard\\\\chart\\\\bar-chart\\\\dist\\\\index.min.js'' | Select-String ''container___'' -AllMatches | ForEach-Object { $_Matches.Value }\")",
+      "Bash(powershell -Command \"Get-Content ''D:\\\\Programming\\\\EasyEditor\\\\EasyMaterials\\\\packages\\\\dashboard\\\\chart\\\\gauge-chart\\\\dist\\\\index.min.js'' | Select-String ''container___'' -AllMatches | ForEach-Object { $_Matches.Value }\")",
+      "Bash(powershell -Command \"Get-Content ''D:\\\\Programming\\\\EasyEditor\\\\EasyMaterials\\\\packages\\\\dashboard\\\\display\\\\carousel\\\\dist\\\\index.min.js'' | Select-String ''container___'' -AllMatches | ForEach-Object { $_Matches.Value }\")",
+      "Bash(dir:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -1,6 +1,6 @@
 {
   "name": "@easy-editor/materials-dashboard-gauge-chart",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Gauge Chart component for EasyEditor dashboard",
   "type": "module",
   "main": "src/index.tsx",

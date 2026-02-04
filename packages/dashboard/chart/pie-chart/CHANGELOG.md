@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-pie-chart
 
+## 0.0.7
+
+### Patch Changes
+
+- fix: css build error
+
 ## 0.0.6
 
 ### Patch Changes

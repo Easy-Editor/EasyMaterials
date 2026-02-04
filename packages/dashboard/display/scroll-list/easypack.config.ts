@@ -7,4 +7,7 @@ export default {
   dev: {
     port: 5001,
   },
+  css: {
+    scopedName: 'em_scroll-list__[local]___[hash:base64:5]',
+  },
 }

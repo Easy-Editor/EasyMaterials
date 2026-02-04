@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-text
 
+## 0.0.22
+
+### Patch Changes
+
+- fix: css build error
+
 ## 0.0.21
 
 ### Patch Changes

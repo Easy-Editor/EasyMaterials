@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-button
 
+## 0.0.6
+
+### Patch Changes
+
+- fix: css build error
+
 ## 0.0.5
 
 ### Patch Changes

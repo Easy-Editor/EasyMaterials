@@ -1,6 +1,6 @@
 {
   "name": "@easy-editor/materials-dashboard-fly-line",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Fly Line component for EasyEditor dashboard",
   "type": "module",
   "main": "src/index.tsx",
