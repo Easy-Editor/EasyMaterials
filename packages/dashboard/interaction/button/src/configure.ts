@@ -4,7 +4,12 @@
  */
 
 import type { FieldConfig } from '@easy-editor/core'
-import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
+import {
+  advancedConfigGroup,
+  createCollapseGroup,
+  createDataConfigGroup,
+  createStandardConfigure,
+} from '@easy-editor/materials-shared'
 
 /** 组件配置 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -55,14 +60,6 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               },
               extraProps: {
                 defaultValue: 'medium',
-              },
-            },
-            {
-              name: 'glowEnable',
-              title: '发光效果',
-              setter: 'SwitchSetter',
-              extraProps: {
-                defaultValue: false,
               },
             },
           ],
@@ -129,8 +126,34 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
 )
 
 /** 数据配置 */
-const dataConfigGroup: FieldConfig = createDataConfigGroup([
-  { name: 'text', label: 'text', type: 'string', required: true, description: '按钮文本' },
-])
+const dataConfigGroup: FieldConfig = createDataConfigGroup(
+  [{ name: 'text', label: 'text', type: 'string', required: true, description: '按钮文本' }],
+  { showEmptyState: false },
+)
 
-export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup)
+const createAdvancedConfigGroup = (): FieldConfig =>
+  createCollapseGroup(
+    '高级设置',
+    [
+      advancedConfigGroup,
+      createCollapseGroup(
+        '兼容装饰效果',
+        [
+          {
+            name: 'glowEnable',
+            title: '启用按钮辉光',
+            setter: 'SwitchSetter',
+            extraProps: {
+              defaultValue: false,
+            },
+          },
+        ],
+        { defaultOpen: false },
+      ),
+    ],
+    { defaultOpen: false },
+  )
+
+export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup, {
+  advancedConfigGroup: createAdvancedConfigGroup(),
+})

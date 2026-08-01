@@ -8,15 +8,15 @@ import * as echarts from 'echarts/core'
 import { MapChart, EffectScatterChart } from 'echarts/charts'
 import { GeoComponent, TooltipComponent, VisualMapComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
-import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
 import {
-  DEFAULT_COLORS,
-  DEFAULT_REGION_DATA,
-  DEFAULT_SCATTER_DATA,
-  type MapDataPoint,
-  type ScatterPoint,
-  type MapType,
-} from './constants'
+  escapeHtml,
+  MATERIAL_THEME,
+  MaterialEmptyState,
+  shouldHideEmptyMaterial,
+  type MaterialComponet,
+  useDataSource,
+} from '@easy-editor/materials-shared'
+import { DEFAULT_COLORS, type MapDataPoint, type ScatterPoint, type MapType } from './constants'
 import chinaGeoJson from './assets/geo/china.json'
 import worldGeoJson from './assets/geo/world.json'
 import styles from './component.module.css'
@@ -68,6 +68,7 @@ interface GeoMapProps extends MaterialComponet {
 
 export const GeoMap = (props: GeoMapProps) => {
   const {
+    __designMode,
     ref,
     $data,
     __dataSource,
@@ -75,12 +76,14 @@ export const GeoMap = (props: GeoMapProps) => {
     mapJson,
     regionData: staticRegionData,
     scatterData: staticScatterData,
+    emptyBehavior,
+    emptyText,
     colors,
     showVisualMap = true,
     showTooltip = true,
     showScatter = true,
     scatterSymbolSize = 12,
-    glowEffect = true,
+    glowEffect = false,
     roam = true,
     rotation = 0,
     opacity = 100,
@@ -95,13 +98,16 @@ export const GeoMap = (props: GeoMapProps) => {
   // 解析数据源
   const dataSource = useDataSource($data, __dataSource)
   const regionData = useMemo<MapDataPoint[]>(() => {
-    if (dataSource.length > 0) {
-      return dataSource as MapDataPoint[]
+    if ($data) {
+      return dataSource as unknown as MapDataPoint[]
     }
-    return staticRegionData ?? DEFAULT_REGION_DATA
-  }, [dataSource, staticRegionData])
-  const scatterData = useMemo<ScatterPoint[]>(() => staticScatterData ?? DEFAULT_SCATTER_DATA, [staticScatterData])
-  const chartColors = useMemo<string[]>(() => colors ?? DEFAULT_COLORS, [colors])
+    return staticRegionData ?? []
+  }, [$data, dataSource, staticRegionData])
+  const scatterData = useMemo<ScatterPoint[]>(() => staticScatterData ?? [], [staticScatterData])
+  const chartColors = useMemo<string[]>(
+    () => DEFAULT_COLORS.map((fallback, index) => colors?.[index] ?? fallback),
+    [colors],
+  )
 
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstance = useRef<echarts.ECharts | null>(null)
@@ -110,9 +116,11 @@ export const GeoMap = (props: GeoMapProps) => {
   const values = regionData.map(d => d.value)
   const minValue = values.length > 0 ? Math.min(...values) : 0
   const maxValue = values.length > 0 ? Math.max(...values) : 100
+  const valueRangeMax = maxValue > 0 ? maxValue : 1
+  const isEmpty = regionData.length === 0
 
   useEffect(() => {
-    if (!chartRef.current) {
+    if (isEmpty || !chartRef.current) {
       return
     }
 
@@ -133,19 +141,21 @@ export const GeoMap = (props: GeoMapProps) => {
       tooltip: showTooltip
         ? {
             trigger: 'item',
-            backgroundColor: 'rgba(0, 15, 35, 0.95)',
-            borderColor: 'rgba(0, 242, 254, 0.6)',
+            backgroundColor: MATERIAL_THEME.tooltipBackground,
+            borderColor: MATERIAL_THEME.tooltipBorder,
             borderWidth: 1,
             padding: [10, 15],
             textStyle: {
-              color: '#fff',
+              color: MATERIAL_THEME.tooltipForeground,
               fontSize: 13,
             },
             formatter: (params: { name: string; value?: number; seriesType: string }) => {
+              const safeName = escapeHtml(params.name)
               if (params.seriesType === 'effectScatter') {
-                return `<div style="font-weight:500">${params.name}</div>`
+                return `<div style="font-weight:500">${safeName}</div>`
               }
-              return `<div style="font-weight:500">${params.name}</div><div style="color:#00f2fe;margin-top:4px">${params.value?.toLocaleString() ?? '-'}</div>`
+              const safeValue = escapeHtml(params.value?.toLocaleString() ?? '-')
+              return `<div style="font-weight:500">${safeName}</div><div style="color:${MATERIAL_THEME.mutedForeground};margin-top:4px">${safeValue}</div>`
             },
           }
         : { show: false },
@@ -159,11 +169,11 @@ export const GeoMap = (props: GeoMapProps) => {
             itemHeight: 100,
             text: ['高', '低'],
             textStyle: {
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: MATERIAL_THEME.mutedForeground,
               fontSize: 11,
             },
             inRange: {
-              color: ['#0a2e4e', '#0d4a6e', '#1a6a8e', '#2a8aae', '#4abadd', '#00f2fe'],
+              color: [MATERIAL_THEME.surfaceRaised, chartColors[5], chartColors[0]],
             },
             calculable: true,
           }
@@ -178,45 +188,24 @@ export const GeoMap = (props: GeoMapProps) => {
         emphasis: {
           label: {
             show: true,
-            color: '#fff',
+            color: MATERIAL_THEME.foreground,
             fontSize: 12,
             fontWeight: 500,
           },
           itemStyle: {
-            areaColor: {
-              type: 'linear',
-              x: 0,
-              y: 0,
-              x2: 0,
-              y2: 1,
-              colorStops: [
-                { offset: 0, color: '#00f2fe' },
-                { offset: 1, color: '#4facfe' },
-              ],
-            },
-            shadowColor: glowEffect ? 'rgba(0, 242, 254, 0.8)' : 'transparent',
-            shadowBlur: glowEffect ? 25 : 0,
-            borderColor: '#00f2fe',
-            borderWidth: 2,
+            areaColor: chartColors[0],
+            shadowColor: glowEffect ? chartColors[0] : 'transparent',
+            shadowBlur: glowEffect ? 8 : 0,
+            borderColor: MATERIAL_THEME.foreground,
+            borderWidth: 1,
           },
         },
         itemStyle: {
-          areaColor: {
-            type: 'linear',
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              { offset: 0, color: '#0d2b4a' },
-              { offset: 1, color: '#051428' },
-            ],
-          },
-          borderColor: 'rgba(0, 242, 254, 0.3)',
+          areaColor: MATERIAL_THEME.surfaceRaised,
+          borderColor: MATERIAL_THEME.border,
           borderWidth: 1,
-          shadowColor: glowEffect ? 'rgba(0, 242, 254, 0.15)' : 'transparent',
-          shadowBlur: glowEffect ? 8 : 0,
-          shadowOffsetY: glowEffect ? 2 : 0,
+          shadowColor: glowEffect ? chartColors[0] : 'transparent',
+          shadowBlur: glowEffect ? 4 : 0,
         },
       },
       series: [
@@ -238,7 +227,7 @@ export const GeoMap = (props: GeoMapProps) => {
                   value: item.value,
                 })),
                 symbolSize: (val: number[]) => {
-                  const size = (val[2] / maxValue) * scatterSymbolSize + scatterSymbolSize / 2
+                  const size = ((val[2] ?? 0) / valueRangeMax) * scatterSymbolSize + scatterSymbolSize / 2
                   return Math.max(size, 8)
                 },
                 showEffectOn: 'render' as const,
@@ -248,19 +237,9 @@ export const GeoMap = (props: GeoMapProps) => {
                   period: 4,
                 },
                 itemStyle: {
-                  color: {
-                    type: 'radial',
-                    x: 0.5,
-                    y: 0.5,
-                    r: 0.5,
-                    colorStops: [
-                      { offset: 0, color: '#fff' },
-                      { offset: 0.3, color: chartColors[0] },
-                      { offset: 1, color: chartColors[0] },
-                    ],
-                  },
+                  color: chartColors[0],
                   shadowColor: glowEffect ? chartColors[0] : 'transparent',
-                  shadowBlur: glowEffect ? 15 : 0,
+                  shadowBlur: glowEffect ? 6 : 0,
                 },
                 zlevel: 1,
               },
@@ -294,6 +273,8 @@ export const GeoMap = (props: GeoMapProps) => {
     roam,
     minValue,
     maxValue,
+    valueRangeMax,
+    isEmpty,
   ])
 
   const containerStyle: CSSProperties = {
@@ -303,6 +284,10 @@ export const GeoMap = (props: GeoMapProps) => {
     opacity: opacity / 100,
     backgroundColor: background,
     ...externalStyle,
+  }
+
+  if (shouldHideEmptyMaterial(isEmpty, emptyBehavior, __designMode)) {
+    return null
   }
 
   return (
@@ -315,7 +300,11 @@ export const GeoMap = (props: GeoMapProps) => {
       ref={ref}
       style={containerStyle}
     >
-      <div className={styles.chart} ref={chartRef} />
+      {isEmpty ? (
+        <MaterialEmptyState behavior={emptyBehavior} designMode={__designMode} text={emptyText} />
+      ) : (
+        <div className={styles.chart} ref={chartRef} />
+      )}
     </div>
   )
 }

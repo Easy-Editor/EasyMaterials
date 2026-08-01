@@ -4,7 +4,12 @@
  */
 
 import type { FieldConfig } from '@easy-editor/core'
-import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
+import {
+  advancedConfigGroup as visibilityConfigGroup,
+  createCollapseGroup,
+  createDataConfigGroup,
+  createStandardConfigure,
+} from '@easy-editor/materials-shared'
 
 /** 组件配置 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -36,6 +41,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
                 componentName: 'ArraySetter',
                 props: {
                   itemSetter: 'StringSetter',
+                  minItems: 1,
                 },
               },
               extraProps: {
@@ -129,7 +135,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '渐变填充',
               setter: 'SwitchSetter',
               extraProps: {
-                defaultValue: true,
+                defaultValue: false,
               },
             },
             {
@@ -155,6 +161,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
                 componentName: 'ArraySetter',
                 props: {
                   itemSetter: 'ColorSetter',
+                  minItems: 1,
                 },
               },
             },
@@ -217,4 +224,25 @@ const dataConfigGroup: FieldConfig = createDataConfigGroup([
   { name: 'value2', label: 'value2', type: 'number', required: false, description: '数值2' },
 ])
 
-export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup)
+const compatibilityDecorationConfigGroup: FieldConfig = createCollapseGroup(
+  '兼容装饰效果',
+  [
+    {
+      name: 'glowEffect',
+      title: '发光效果',
+      setter: 'SwitchSetter',
+      extraProps: { defaultValue: false },
+    },
+  ],
+  { defaultOpen: false },
+)
+
+const chartAdvancedConfigGroup: FieldConfig = createCollapseGroup(
+  '高级设置',
+  [visibilityConfigGroup, compatibilityDecorationConfigGroup],
+  { defaultOpen: false },
+)
+
+export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup, {
+  advancedConfigGroup: chartAdvancedConfigGroup,
+})

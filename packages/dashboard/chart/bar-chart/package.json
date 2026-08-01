@@ -1,27 +1,27 @@
 {
   "name": "@easy-editor/materials-dashboard-bar-chart",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Bar Chart component for EasyEditor dashboard",
   "type": "module",
-  "main": "src/index.tsx",
-  "types": "src/index.tsx",
+  "main": "dist/index.min.cjs",
+  "module": "dist/index.min.esm.js",
+  "types": "dist/index.d.ts",
+  "unpkg": "dist/index.min.js",
+  "jsdelivr": "dist/index.min.js",
   "exports": {
-    ".": "./src/index.tsx"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.min.esm.js",
+      "require": "./dist/index.min.cjs"
+    }
   },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "publishConfig": {
     "access": "public",
-    "main": "dist/index.js",
-    "module": "dist/index.esm.js",
-    "unpkg": "dist/index.min.js",
-    "jsdelivr": "dist/index.min.js",
-    "types": "dist/index.d.ts",
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.esm.js",
-        "require": "./dist/index.cjs"
-      }
-    },
     "registry": "https://registry.npmjs.org/"
   },
   "homepage": "https://github.com/Easy-Editor/EasyMaterials",
@@ -46,15 +46,6 @@
   "bugs": {
     "url": "https://github.com/Easy-Editor/EasyMaterials/issues"
   },
-  "scripts": {
-    "dev": "easypack dev",
-    "dev:debug": "vite --port 5003",
-    "format": "biome format --write .",
-    "lint": "biome check .",
-    "build": "npm-run-all -nl build:*",
-    "build:clean": "rimraf dist/",
-    "build:js": "easypack build"
-  },
   "peerDependencies": {
     "@easy-editor/core": "*",
     "react": "^18 || ^19",
@@ -63,7 +54,17 @@
     "@types/react-dom": "^18 || ^19",
     "echarts": "^5"
   },
-  "dependencies": {
+  "scripts": {
+    "dev": "easypack dev",
+    "dev:debug": "vite --port 5003",
+    "format": "biome format --write .",
+    "lint": "biome check .",
+    "build": "npm-run-all -nl build:*",
+    "build:clean": "rimraf dist/",
+    "build:js": "easypack build",
+    "build:types": "tsc --project tsconfig.json && node ../../../../scripts/prepare-material-types.mjs"
+  },
+  "devDependencies": {
     "@easy-editor/materials-shared": "workspace:*"
   }
 }

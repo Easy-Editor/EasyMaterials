@@ -5,7 +5,12 @@
 
 import type { FieldConfig } from '@easy-editor/core'
 import type { UploadValue } from '@easy-editor/materials-shared'
-import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
+import {
+  createCollapseGroup,
+  createDataConfigGroup,
+  createStandardConfigure,
+  withAgentCapability,
+} from '@easy-editor/materials-shared'
 
 /** 组件配置 - 音频独有 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -29,35 +34,42 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
                 componentName: 'UploadSetter',
                 props: {
                   accept: '.mp3,.wav,.ogg',
+                  mediaKind: 'audio',
                 },
               },
-              extraProps: {
-                setValue(target, value: UploadValue) {
-                  if (value) {
-                    const { base64, raw } = value
-                    if (base64) {
-                      target.parent.setPropValue('src', base64)
+              extraProps: withAgentCapability(
+                {
+                  setValue(target, value: UploadValue) {
+                    if (value?.base64) {
+                      target.parent.setPropValue('src', value.base64)
+                    } else {
+                      target.parent.clearPropValue('src')
                     }
-                    if (raw?.width) {
-                      target.parent.setExtraPropValue('$dashboard.rect.width', raw.width)
-                    }
-                    if (raw?.height) {
-                      target.parent.setExtraPropValue('$dashboard.rect.height', raw.height)
-                    }
-                  } else {
-                    target.parent.clearPropValue('src')
-                  }
+                  },
                 },
-              },
+                { expose: false },
+              ),
             },
             {
               name: 'src',
               title: '音频地址',
               setter: 'StringSetter',
+              extraProps: withAgentCapability(
+                {},
+                {
+                  fieldId: 'audio.source',
+                  access: 'read-write',
+                  readPath: ['props', 'src'],
+                  writeTargets: [{ path: ['props', 'src'] }],
+                  unsetTargets: [{ path: ['props', 'src'] }],
+                  valueSchema: { type: 'string', minLength: 1 },
+                  verifyPaths: [['props', 'src']],
+                },
+              ),
             },
             {
-              name: 'title',
-              title: '标题',
+              name: 'mediaTitle',
+              title: '媒体标题',
               setter: 'StringSetter',
               extraProps: {
                 defaultValue: '音频文件',

@@ -38,8 +38,8 @@ export interface FilterProps extends MaterialComponet {
   hueRotate?: number
   /** 反相 (0-100) */
   invert?: number
-  /** 不透明度 (0-100) */
-  opacity?: number
+  /** 滤镜不透明度 (0-100) */
+  filterOpacity?: number
   /** 饱和度 (0-200, 100为正常) */
   saturate?: number
   /** 棕褐色 (0-100) */
@@ -60,11 +60,14 @@ export const Filter: React.FC<FilterProps> = ({
   grayscale = 0,
   hueRotate = 0,
   invert = 0,
-  opacity = 100,
+  filterOpacity = 100,
   saturate = 100,
   sepia = 0,
   blendMode = 'normal',
   backgroundColor = 'transparent',
+  rotation = 0,
+  opacity = 100,
+  background = 'transparent',
   style: externalStyle,
 }) => {
   // 构建 CSS filter 字符串
@@ -88,8 +91,8 @@ export const Filter: React.FC<FilterProps> = ({
   if (invert > 0) {
     filters.push(`invert(${invert}%)`)
   }
-  if (opacity !== 100) {
-    filters.push(`opacity(${opacity}%)`)
+  if (filterOpacity !== 100) {
+    filters.push(`opacity(${filterOpacity}%)`)
   }
   if (saturate !== 100) {
     filters.push(`saturate(${saturate}%)`)
@@ -105,7 +108,9 @@ export const Filter: React.FC<FilterProps> = ({
     backdropFilter: filterValue,
     WebkitBackdropFilter: filterValue, // Safari 兼容
     mixBlendMode: blendMode,
-    backgroundColor,
+    transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
+    opacity: opacity / 100,
+    backgroundColor: backgroundColor !== 'transparent' ? backgroundColor : background,
     ...externalStyle,
   }
 

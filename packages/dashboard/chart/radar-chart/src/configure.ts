@@ -4,7 +4,13 @@
  */
 
 import type { FieldConfig } from '@easy-editor/core'
-import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
+import {
+  advancedConfigGroup as visibilityConfigGroup,
+  createCollapseGroup,
+  createDataConfigGroup,
+  createStandardConfigure,
+  withAgentCapability,
+} from '@easy-editor/materials-shared'
 
 /** 组件配置 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -33,6 +39,31 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               name: 'series',
               title: '系列配置',
               setter: 'JsonSetter',
+              extraProps: withAgentCapability(
+                {},
+                {
+                  fieldId: 'radar.series',
+                  access: 'read-write',
+                  readPath: ['props', 'series'],
+                  writeTargets: [{ path: ['props', 'series'] }],
+                  unsetTargets: [{ path: ['props', 'series'] }],
+                  verifyPaths: [['props', 'series']],
+                  valueSchema: {
+                    type: 'array',
+                    minItems: 1,
+                    items: {
+                      type: 'object',
+                      additionalProperties: false,
+                      required: ['name', 'dataKey', 'color'],
+                      properties: {
+                        name: { type: 'string', minLength: 1 },
+                        dataKey: { type: 'string', minLength: 1 },
+                        color: { type: 'string', minLength: 1 },
+                      },
+                    },
+                  },
+                },
+              ),
             },
           ],
         },
@@ -63,14 +94,6 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               },
               extraProps: {
                 defaultValue: 0.3,
-              },
-            },
-            {
-              name: 'glowEffect',
-              title: '发光效果',
-              setter: 'SwitchSetter',
-              extraProps: {
-                defaultValue: true,
               },
             },
           ],
@@ -132,4 +155,25 @@ const dataConfigGroup: FieldConfig = createDataConfigGroup([
   { name: 'value2', label: 'value2', type: 'number', required: false, description: '数值2' },
 ])
 
-export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup)
+const compatibilityDecorationConfigGroup: FieldConfig = createCollapseGroup(
+  '兼容装饰效果',
+  [
+    {
+      name: 'glowEffect',
+      title: '发光效果',
+      setter: 'SwitchSetter',
+      extraProps: { defaultValue: false },
+    },
+  ],
+  { defaultOpen: false },
+)
+
+const chartAdvancedConfigGroup: FieldConfig = createCollapseGroup(
+  '高级设置',
+  [visibilityConfigGroup, compatibilityDecorationConfigGroup],
+  { defaultOpen: false },
+)
+
+export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup, {
+  advancedConfigGroup: chartAdvancedConfigGroup,
+})

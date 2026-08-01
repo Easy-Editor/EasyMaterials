@@ -1,5 +1,11 @@
 # @easy-editor/materials-dashboard-radar-chart
 
+## 0.0.8
+
+### Patch Changes
+
+- Redesign dashboard materials with neutral product styling, explicit empty states, richer configuration contracts, Agent-safe schemas, and installable ESM/CJS/type entry points.
+
 ## 0.0.7
 
 ### Patch Changes

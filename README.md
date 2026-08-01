@@ -26,6 +26,17 @@ EasyMaterials is the official materials library for EasyEditor, providing a rich
 - **♿ Accessibility**: Follow WCAG 2.1 AA standards
 - **📊 Data Binding**: Seamless integration with EasyEditor's data source management
 
+## Design and Agent configuration contract
+
+EasyMaterials components are composable content and interaction primitives, not pre-skinned dashboard cards:
+
+- Defaults stay transparent or neutral; glass, neon, glow, and gradients are opt-in effects rather than product identity.
+- Color communicates data categories and state. Shadows are reserved for real elevation.
+- A host canvas can own the theme through `--ee-material-*` variables and material props.
+- `configure` is the single source for both the human property inspector and compiled Agent capabilities.
+
+Keep every field machine-legible with a stable `name`, a clear `title`, a static setter, JSON-safe defaults, and explicit constraints. Describe expected data fields in business terms. Callback-backed mappings must use explicit bindings; an Agent must never infer write paths from `getValue` or `setValue` implementations.
+
 ## 🏗️ Development
 
 ### Environment Requirements
@@ -48,16 +59,16 @@ pnpm install
 pnpm dev
 
 # Build all packages
-pnpm build
+pnpm -r --if-present build
 
 # Run tests
 pnpm test
 
-# Lint code
-pnpm lint
+# Check code
+pnpm check
 
-# Preview specific material
-pnpm dev:dashboard-bar-chart
+# Preview a specific material
+pnpm --filter @easy-editor/materials-dashboard-bar-chart dev
 ```
 
 ### Create New Material

@@ -4,7 +4,16 @@
  */
 
 import type { FieldConfig } from '@easy-editor/core'
-import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
+import {
+  advancedConfigGroup,
+  createCollapseGroup,
+  createDataConfigGroup,
+  createEventConfigGroup,
+  createStandardConfigure,
+  defaultEvents,
+  MATERIAL_CHART_COLORS,
+  MATERIAL_THEME,
+} from '@easy-editor/materials-shared'
 
 /** 组件配置 - 滚动列表独有 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -45,10 +54,10 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
             },
             {
               name: 'showMedal',
-              title: '显示奖牌',
+              title: '突出前三名',
               setter: 'SwitchSetter',
               extraProps: {
-                defaultValue: true,
+                defaultValue: false,
               },
             },
             {
@@ -62,14 +71,6 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
             {
               name: 'progressBarGradient',
               title: '渐变效果',
-              setter: 'SwitchSetter',
-              extraProps: {
-                defaultValue: true,
-              },
-            },
-            {
-              name: 'glowEnable',
-              title: '发光效果',
               setter: 'SwitchSetter',
               extraProps: {
                 defaultValue: false,
@@ -131,10 +132,12 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
                 componentName: 'ArraySetter',
                 props: {
                   itemSetter: 'ColorSetter',
+                  minItems: 2,
+                  maxItems: 2,
                 },
               },
               extraProps: {
-                defaultValue: ['#00d4ff', '#9b59b6'],
+                defaultValue: [MATERIAL_CHART_COLORS[0], MATERIAL_CHART_COLORS[4]],
               },
             },
             {
@@ -142,7 +145,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '名称颜色',
               setter: 'ColorSetter',
               extraProps: {
-                defaultValue: '#e6e6e6',
+                defaultValue: MATERIAL_THEME.foreground,
               },
             },
             {
@@ -150,7 +153,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '数值颜色',
               setter: 'ColorSetter',
               extraProps: {
-                defaultValue: '#00d4ff',
+                defaultValue: MATERIAL_THEME.foreground,
               },
             },
             {
@@ -158,7 +161,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '背景颜色',
               setter: 'ColorSetter',
               extraProps: {
-                defaultValue: 'rgba(10, 10, 26, 0.95)',
+                defaultValue: MATERIAL_THEME.surface,
               },
             },
             {
@@ -166,7 +169,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '行背景颜色',
               setter: 'ColorSetter',
               extraProps: {
-                defaultValue: 'rgba(15, 15, 42, 0.9)',
+                defaultValue: MATERIAL_THEME.surface,
               },
             },
           ],
@@ -186,4 +189,38 @@ const dataConfigGroup: FieldConfig = createDataConfigGroup([
   { name: 'value', label: 'value', type: 'number', required: true, description: '数值' },
 ])
 
-export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup)
+const eventConfigGroup = createEventConfigGroup([
+  ...defaultEvents,
+  {
+    title: '列表事件',
+    children: [{ label: '点击列表项', value: 'onItemClick', description: '点击列表项时触发，参数为当前项和索引' }],
+  },
+])
+
+const createAdvancedConfigGroup = (): FieldConfig =>
+  createCollapseGroup(
+    '高级设置',
+    [
+      advancedConfigGroup,
+      createCollapseGroup(
+        '兼容强调效果',
+        [
+          {
+            name: 'glowEnable',
+            title: '强调进度线',
+            setter: 'SwitchSetter',
+            extraProps: {
+              defaultValue: false,
+            },
+          },
+        ],
+        { defaultOpen: false },
+      ),
+    ],
+    { defaultOpen: false },
+  )
+
+export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup, {
+  eventConfigGroup,
+  advancedConfigGroup: createAdvancedConfigGroup(),
+})

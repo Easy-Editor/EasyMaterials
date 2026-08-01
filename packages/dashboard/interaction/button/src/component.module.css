@@ -8,19 +8,29 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: none;
+  border: 1px solid transparent;
   width: 100%;
   height: 100%;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.2s ease;
+  font-family: inherit;
+  line-height: 1;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
   white-space: nowrap;
   user-select: none;
 }
 
 .button:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ee-material-focus, #5b8def);
+  outline-offset: 2px;
 }
 
 /* 尺寸 */
@@ -44,76 +54,92 @@
 
 /* 变体 */
 .variantPrimary {
-  background: linear-gradient(135deg, #00d4ff, #0099cc);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(0, 212, 255, 0.3);
+  background: var(--ee-material-button-primary, #5b8def);
+  color: var(--ee-material-button-on-primary, #fff);
+  border-color: var(--ee-material-button-primary, #5b8def);
 }
 
 .variantPrimary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+  background: var(--ee-material-button-primary-hover, #4f7fd8);
+  border-color: var(--ee-material-button-primary-hover, #4f7fd8);
 }
 
 .variantPrimary:active:not(:disabled) {
-  transform: translateY(0);
+  background: var(--ee-material-button-primary-active, #456fc0);
+  border-color: var(--ee-material-button-primary-active, #456fc0);
 }
 
 .variantSecondary {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--ee-material-button-secondary, rgba(148, 163, 184, 0.12));
+  color: var(--ee-material-foreground, #e5e7eb);
+  border-color: var(--ee-material-border, rgba(148, 163, 184, 0.24));
 }
 
 .variantSecondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: var(
+    --ee-material-button-secondary-hover,
+    rgba(148, 163, 184, 0.18)
+  );
+  border-color: var(--ee-material-border-strong, rgba(148, 163, 184, 0.36));
+}
+
+.variantSecondary:active:not(:disabled) {
+  background: var(
+    --ee-material-button-secondary-active,
+    rgba(148, 163, 184, 0.24)
+  );
 }
 
 .variantOutline {
   background: transparent;
-  color: #00d4ff;
-  border: 1px solid #00d4ff;
+  color: var(--ee-material-accent, #5b8def);
+  border-color: var(--ee-material-accent, #5b8def);
 }
 
 .variantOutline:hover:not(:disabled) {
-  background: rgba(0, 212, 255, 0.1);
+  background: var(--ee-material-accent-subtle, rgba(91, 141, 239, 0.1));
+}
+
+.variantOutline:active:not(:disabled) {
+  background: var(--ee-material-accent-muted, rgba(91, 141, 239, 0.16));
 }
 
 .variantGhost {
   background: transparent;
-  color: #fff;
+  color: var(--ee-material-foreground, #e5e7eb);
 }
 
 .variantGhost:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--ee-material-button-ghost-hover, rgba(148, 163, 184, 0.1));
+}
+
+.variantGhost:active:not(:disabled) {
+  background: var(--ee-material-button-ghost-active, rgba(148, 163, 184, 0.16));
 }
 
 .variantDanger {
-  background: linear-gradient(135deg, #ff4d4f, #cc3333);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
+  background: var(--ee-material-danger, #c66b6b);
+  color: var(--ee-material-button-on-danger, #fff);
+  border-color: var(--ee-material-danger, #c66b6b);
 }
 
 .variantDanger:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 77, 79, 0.4);
+  background: var(--ee-material-danger-hover, #b85f5f);
+  border-color: var(--ee-material-danger-hover, #b85f5f);
 }
 
-/* 发光效果 */
+.variantDanger:active:not(:disabled) {
+  background: var(--ee-material-danger-active, #a95454);
+  border-color: var(--ee-material-danger-active, #a95454);
+}
+
+/* Legacy prop: preserve an opt-in emphasis without an ambient halo. */
 .glow {
-  animation: buttonGlow 2s ease-in-out infinite;
+  box-shadow: inset 0 0 0 1px currentColor;
 }
 
-@keyframes buttonGlow {
-  0%,
-  100% {
-    box-shadow:
-      0 0 5px currentColor,
-      0 0 10px currentColor;
-  }
-  50% {
-    box-shadow:
-      0 0 10px currentColor,
-      0 0 20px currentColor;
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
   }
 }

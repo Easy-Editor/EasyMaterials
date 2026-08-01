@@ -4,7 +4,7 @@
  */
 
 import type { Snippet } from '@easy-editor/core'
-import { generateStaticDataSource } from '@easy-editor/materials-shared'
+import { MATERIAL_STATUS_COLORS, MATERIAL_THEME, generateStaticDataSource } from '@easy-editor/materials-shared'
 import { COMPONENT_NAME } from './constants'
 
 const snippets: Snippet[] = [
@@ -22,7 +22,8 @@ const snippets: Snippet[] = [
         divisions: 10,
         showLabels: true,
         pointerType: 'needle',
-        pointerColor: '#ffffff',
+        pointerColor: MATERIAL_THEME.accent,
+        glowEffect: false,
         rotation: 0,
         opacity: 100,
         background: 'transparent',
@@ -36,11 +37,11 @@ const snippets: Snippet[] = [
     },
   },
   {
-    title: '发光仪表盘',
+    title: '区间仪表盘',
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
-      title: '发光仪表盘',
+      title: '区间仪表盘',
       props: {
         $data: generateStaticDataSource({ value: 78 }),
         min: 0,
@@ -50,8 +51,13 @@ const snippets: Snippet[] = [
         divisions: 10,
         showLabels: true,
         pointerType: 'needle',
-        pointerColor: '#00ffff',
-        glowEffect: true,
+        pointerColor: MATERIAL_STATUS_COLORS.warning,
+        ranges: [
+          { from: 0, to: 60, color: MATERIAL_STATUS_COLORS.success },
+          { from: 60, to: 80, color: MATERIAL_STATUS_COLORS.warning },
+          { from: 80, to: 100, color: MATERIAL_STATUS_COLORS.danger },
+        ],
+        glowEffect: false,
         rotation: 0,
         opacity: 100,
         background: 'transparent',

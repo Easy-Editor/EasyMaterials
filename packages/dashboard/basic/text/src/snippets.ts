@@ -5,7 +5,7 @@
 
 import type { Snippet } from '@easy-editor/core'
 import { COMPONENT_NAME } from './constants'
-import { generateStaticDataSource } from '@easy-editor/materials-shared'
+import { generateStaticDataSource, MATERIAL_THEME } from '@easy-editor/materials-shared'
 
 export const snippets: Snippet[] = [
   {
@@ -16,7 +16,9 @@ export const snippets: Snippet[] = [
       title: '普通文本',
       props: {
         fontSize: 16,
-        color: '#ffffff',
+        color: MATERIAL_THEME.foreground,
+        glowEnable: false,
+        glowIntensity: 0,
         rotation: 0,
         opacity: 100,
         background: 'transparent',
@@ -39,7 +41,9 @@ export const snippets: Snippet[] = [
       props: {
         fontSize: 32,
         fontWeight: 'bold',
-        color: '#ffffff',
+        color: MATERIAL_THEME.foreground,
+        glowEnable: false,
+        glowIntensity: 0,
         textAlign: 'center',
         rotation: 0,
         opacity: 100,
@@ -55,28 +59,27 @@ export const snippets: Snippet[] = [
     },
   },
   {
-    title: '发光标题',
+    title: '说明文本',
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
-      title: '发光标题',
+      title: '说明文本',
       props: {
-        fontSize: 36,
-        fontWeight: 'bold',
-        color: '#00d4ff',
-        textAlign: 'center',
-        glowEnable: true,
-        glowColor: '#00d4ff',
-        glowIntensity: 1.5,
+        fontSize: 14,
+        color: MATERIAL_THEME.mutedForeground,
+        lineHeight: 1.6,
+        textAlign: 'left',
+        glowEnable: false,
+        glowIntensity: 0,
         rotation: 0,
         opacity: 100,
         background: 'transparent',
-        $data: generateStaticDataSource({ text: '发光标题' }),
+        $data: generateStaticDataSource({ text: '说明文本' }),
       },
       $dashboard: {
         rect: {
           width: 240,
-          height: 80,
+          height: 48,
         },
       },
     },
@@ -89,7 +92,7 @@ export const snippets: Snippet[] = [
       title: '链接文本',
       props: {
         fontSize: 16,
-        color: '#00d4ff',
+        color: MATERIAL_THEME.accent,
         isLink: true,
         href: 'https://easy-editor-docs.vercel.app/',
         target: '_blank',
@@ -115,12 +118,12 @@ export const snippets: Snippet[] = [
       title: '标签文本',
       props: {
         fontSize: 14,
-        color: '#ffffff',
+        color: MATERIAL_THEME.foreground,
         textAlign: 'center',
         verticalAlign: 'middle',
         rotation: 0,
         opacity: 100,
-        background: 'rgba(0, 212, 255, 0.2)',
+        background: MATERIAL_THEME.surfaceRaised,
         $data: generateStaticDataSource({ text: '标签' }),
       },
       $dashboard: {

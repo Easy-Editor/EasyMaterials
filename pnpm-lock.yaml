@@ -96,9 +96,6 @@ importers:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -111,15 +108,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/chart/bar-chart:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -135,15 +133,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/chart/gauge-chart:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -159,15 +158,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/chart/line-chart:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -183,15 +183,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/chart/pie-chart:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -207,15 +208,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/chart/radar-chart:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -231,15 +233,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/chart/scatter-chart:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -255,15 +258,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/display/carousel:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -276,15 +280,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/display/number-flip:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -297,15 +302,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/display/progress:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -321,15 +327,16 @@ importers:
       recharts:
         specifier: 2.15.3
         version: 2.15.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/display/scroll-list:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -342,15 +349,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/interaction/button:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -363,15 +371,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/map/fly-line:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -387,15 +396,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/map/geo-map:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -411,15 +421,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/media/audio:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -432,15 +443,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/media/filter:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -453,15 +465,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/media/image:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -477,15 +490,16 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/dashboard/media/video:
     dependencies:
       '@easy-editor/core':
         specifier: '*'
         version: 1.0.2(mobx@6.15.0)
-      '@easy-editor/materials-shared':
-        specifier: workspace:*
-        version: link:../../../shared
       '@types/react':
         specifier: ^18 || ^19
         version: 19.2.7
@@ -498,6 +512,10 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@easy-editor/materials-shared':
+        specifier: workspace:*
+        version: link:../../../shared
 
   packages/shared:
     dependencies:
@@ -2325,6 +2343,7 @@ packages:
   git-raw-commits@4.0.0:
     resolution: {integrity: sha512-ICsMM1Wk8xSGMowkOmPrzo2Fgmfo4bMHLNX6ytHjajRJUqvHOw/TFapQ+QG75c3X/tTDDhOSRPGC52dDbNM8FQ==}
     engines: {node: '>=16'}
+    deprecated: Deprecated and no longer maintained. Use @conventional-changelog/git-client instead.
     hasBin: true
 
   glob-parent@5.1.2:
@@ -2337,12 +2356,12 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   global-directory@4.0.1:
     resolution: {integrity: sha512-wHTUcDUoZ1H5/0iVqEudYW4/kAlN5cZ3j/bXn0Dpbizl9iaUVeWSHqiOjsgk6OW2bkLclbBjzewBz6weQ1zA2Q==}
@@ -3376,6 +3395,7 @@ packages:
   recharts@2.15.3:
     resolution: {integrity: sha512-EdOPzTwcFSuqtvkDoaM5ws/Km1+WTAO2eizL7rqiG0V2UVhTnz0m7J2i0CjVPUCdEkZImaWvXLbZDS2H5t6GFQ==}
     engines: {node: '>=14'}
+    deprecated: 1.x and 2.x branches are no longer active. Bump to Recharts v3 to receive latest features and bugfixes. See https://github.com/recharts/recharts/wiki/3.0-migration-guide
     peerDependencies:
       react: ^19.0.0
       react-dom: ^19.0.0

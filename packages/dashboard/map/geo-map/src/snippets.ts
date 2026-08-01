@@ -5,7 +5,7 @@
 
 import type { Snippet } from '@easy-editor/core'
 import { generateStaticDataSource } from '@easy-editor/materials-shared'
-import { COMPONENT_NAME, DEFAULT_REGION_DATA } from './constants'
+import { COMPONENT_NAME, DEFAULT_REGION_DATA, DEFAULT_SCATTER_DATA } from './constants'
 
 const snippets: Snippet[] = [
   {
@@ -16,11 +16,12 @@ const snippets: Snippet[] = [
       title: '地理地图',
       props: {
         $data: generateStaticDataSource(DEFAULT_REGION_DATA),
+        scatterData: DEFAULT_SCATTER_DATA,
         mapType: 'china',
         showVisualMap: true,
         showTooltip: true,
         showScatter: true,
-        glowEffect: true,
+        glowEffect: false,
         roam: true,
         rotation: 0,
         opacity: 100,
@@ -42,11 +43,12 @@ const snippets: Snippet[] = [
       title: '地图（无散点）',
       props: {
         $data: generateStaticDataSource(DEFAULT_REGION_DATA),
+        scatterData: DEFAULT_SCATTER_DATA,
         mapType: 'china',
         showVisualMap: true,
         showTooltip: true,
         showScatter: false,
-        glowEffect: true,
+        glowEffect: false,
         roam: true,
         rotation: 0,
         opacity: 100,

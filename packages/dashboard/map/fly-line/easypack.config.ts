@@ -6,6 +6,13 @@ import { ECHARTS_EXTERNALS, ECHARTS_GLOBALS, echartsExternalPlugin } from './.vi
 
 export default {
   preset: 'material',
+  output: {
+    esm: true,
+    cjs: true,
+    umd: true,
+    minify: true,
+    types: false,
+  },
   dev: {
     port: 5001,
   },

@@ -5,7 +5,12 @@
 
 import type { FieldConfig } from '@easy-editor/core'
 import type { UploadValue } from '@easy-editor/materials-shared'
-import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
+import {
+  createCollapseGroup,
+  createDataConfigGroup,
+  createStandardConfigure,
+  withAgentCapability,
+} from '@easy-editor/materials-shared'
 
 /** 组件配置 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -29,31 +34,47 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
                 componentName: 'UploadSetter',
                 props: {
                   accept: '.mp4,.webm,.ogg',
+                  mediaKind: 'video',
                 },
               },
-              extraProps: {
-                setValue(target, value: UploadValue) {
-                  if (value) {
-                    const { base64, raw } = value
-                    if (base64) {
-                      target.parent.setPropValue('src', base64)
+              extraProps: withAgentCapability(
+                {
+                  setValue(target, value: UploadValue) {
+                    if (value) {
+                      const { base64, raw } = value
+                      if (base64) {
+                        target.parent.setPropValue('src', base64)
+                      }
+                      if (raw?.width) {
+                        target.parent.setExtraPropValue('$dashboard.rect.width', raw.width)
+                      }
+                      if (raw?.height) {
+                        target.parent.setExtraPropValue('$dashboard.rect.height', raw.height)
+                      }
+                    } else {
+                      target.parent.clearPropValue('src')
                     }
-                    if (raw?.width) {
-                      target.parent.setExtraPropValue('$dashboard.rect.width', raw.width)
-                    }
-                    if (raw?.height) {
-                      target.parent.setExtraPropValue('$dashboard.rect.height', raw.height)
-                    }
-                  } else {
-                    target.parent.clearPropValue('src')
-                  }
+                  },
                 },
-              },
+                { expose: false },
+              ),
             },
             {
               name: 'src',
               title: '视频地址',
               setter: 'StringSetter',
+              extraProps: withAgentCapability(
+                {},
+                {
+                  fieldId: 'video.source',
+                  access: 'read-write',
+                  readPath: ['props', 'src'],
+                  writeTargets: [{ path: ['props', 'src'] }],
+                  unsetTargets: [{ path: ['props', 'src'] }],
+                  valueSchema: { type: 'string', minLength: 1 },
+                  verifyPaths: [['props', 'src']],
+                },
+              ),
             },
             {
               name: 'poster',

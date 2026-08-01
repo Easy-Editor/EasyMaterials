@@ -9,12 +9,84 @@ import { GaugeChart as EChartsGaugeChart } from 'echarts/charts'
 import { TooltipComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { EChartsOption } from 'echarts'
-import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
+import {
+  MaterialEmptyState,
+  type MaterialComponet,
+  resolveMaterialTheme,
+  shouldHideEmptyMaterial,
+  useDataSource,
+} from '@easy-editor/materials-shared'
 import { DEFAULT_RANGES, type GaugeRange } from './constants'
 import styles from './component.module.css'
 
 // 按需注册 ECharts 组件
 echarts.use([EChartsGaugeChart, TooltipComponent, CanvasRenderer])
+
+const MINOR_TICKS_PER_DIVISION = 5
+
+export const normalizeGaugeDomain = (min: number, max: number): [number, number] => {
+  const safeMin = Number.isFinite(min) ? min : 0
+  const candidateMax = Number.isFinite(max) ? max : safeMin + 100
+  return [safeMin, candidateMax > safeMin ? candidateMax : safeMin + 1]
+}
+
+export const normalizeGaugeRanges = (
+  ranges: GaugeRange[],
+  min: number,
+  max: number,
+  fallbackColor: string,
+): GaugeRange[] => {
+  const candidates = (Array.isArray(ranges) ? ranges : [])
+    .filter(
+      range =>
+        range &&
+        Number.isFinite(range.from) &&
+        Number.isFinite(range.to) &&
+        range.to > range.from &&
+        typeof range.color === 'string' &&
+        range.color.trim().length > 0 &&
+        range.to > min &&
+        range.from < max,
+    )
+    .map(range => ({
+      ...range,
+      from: Math.max(min, range.from),
+      to: Math.min(max, range.to),
+      color: range.color.trim(),
+    }))
+    .sort((left, right) => left.from - right.from || left.to - right.to)
+
+  if (candidates.length === 0) {
+    return [{ from: min, to: max, color: fallbackColor }]
+  }
+
+  const normalized: GaugeRange[] = []
+  let cursor = min
+  let gapColor = fallbackColor
+  for (const range of candidates) {
+    if (range.from > cursor) {
+      normalized.push({ from: cursor, to: range.from, color: gapColor })
+      cursor = range.from
+    }
+
+    const rangeStart = Math.max(cursor, range.from)
+    if (range.to <= rangeStart) {
+      continue
+    }
+
+    normalized.push({ ...range, from: rangeStart })
+    cursor = range.to
+    gapColor = range.color
+    if (cursor >= max) {
+      break
+    }
+  }
+
+  if (cursor < max) {
+    normalized.push({ from: cursor, to: max, color: gapColor })
+  }
+  return normalized
+}
 
 export interface GaugeChartProps extends MaterialComponet {
   /** 最小值 */
@@ -58,9 +130,12 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
   divisions = 10,
   showLabels = true,
   pointerType = 'needle',
-  pointerColor = '#00d4ff',
+  pointerColor,
   ranges = DEFAULT_RANGES,
-  glowEffect = true,
+  glowEffect = false,
+  emptyBehavior,
+  emptyText,
+  __designMode,
   rotation = 0,
   opacity = 100,
   background = 'transparent',
@@ -75,22 +150,35 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
 
   // 解析数据源（单值）
   const dataSource = useDataSource($data, __dataSource)
-  const value = useMemo<number>(() => {
+  const value = useMemo<number | null>(() => {
     if (dataSource.length > 0 && dataSource[0]?.value !== undefined) {
-      return Number(dataSource[0].value)
+      const nextValue = Number(dataSource[0].value)
+      return Number.isFinite(nextValue) ? nextValue : null
     }
-    return 0
+    return null
   }, [dataSource])
 
+  const isEmpty = value === null
+
   useEffect(() => {
-    if (!chartRef.current) {
+    if (!chartRef.current || value === null) {
       return
     }
 
     chartInstance.current = echarts.init(chartRef.current)
 
+    const theme = resolveMaterialTheme(chartRef.current)
+    const resolvedPointerColor = pointerColor ?? theme.accent
+    const [safeMin, safeMax] = normalizeGaugeDomain(min, max)
+    const safeRanges = normalizeGaugeRanges(ranges, safeMin, safeMax, theme.border)
+    const safeDivisions = Math.max(2, Math.floor(Number.isFinite(divisions) ? divisions : 10))
+    const safeValue = Math.min(safeMax, Math.max(safeMin, value))
+
     // 构建颜色区间
-    const axisLineColors: [number, string][] = ranges.map(range => [(range.to - min) / (max - min), range.color])
+    const axisLineColors: [number, string][] = safeRanges.map(range => [
+      (range.to - safeMin) / (safeMax - safeMin),
+      range.color,
+    ])
 
     // 指针宽度根据类型调整
     const pointerWidthMap: Record<string, number> = {
@@ -105,8 +193,9 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
       series: [
         {
           type: 'gauge',
-          min,
-          max,
+          min: safeMin,
+          max: safeMax,
+          splitNumber: safeDivisions,
           startAngle: 180,
           endAngle: 0,
           center: ['50%', '80%'],
@@ -118,8 +207,8 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
             lineStyle: {
               width: 16,
               color: axisLineColors,
-              shadowColor: glowEffect ? 'rgba(0, 212, 255, 0.3)' : 'transparent',
-              shadowBlur: glowEffect ? 10 : 0,
+              shadowColor: glowEffect ? theme.accent : 'transparent',
+              shadowBlur: glowEffect ? 6 : 0,
             },
           },
           axisTick: {
@@ -127,24 +216,24 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
             distance: -20,
             length: 4,
             lineStyle: {
-              color: '#8899aa',
+              color: theme.mutedForeground,
               width: 1,
             },
-            splitNumber: divisions / 5,
+            splitNumber: MINOR_TICKS_PER_DIVISION,
           },
           splitLine: {
             show: showScale,
             distance: -24,
             length: 8,
             lineStyle: {
-              color: '#8899aa',
+              color: theme.mutedForeground,
               width: 2,
             },
           },
           axisLabel: {
             show: showLabels,
             distance: -32,
-            color: '#8899aa',
+            color: theme.mutedForeground,
             fontSize: 9,
           },
           pointer: {
@@ -152,24 +241,24 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
             length: '55%',
             width: pointerWidth,
             itemStyle: {
-              color: pointerColor,
-              shadowColor: glowEffect ? pointerColor : 'transparent',
-              shadowBlur: glowEffect ? 10 : 0,
+              color: resolvedPointerColor,
+              shadowColor: glowEffect ? resolvedPointerColor : 'transparent',
+              shadowBlur: glowEffect ? 6 : 0,
             },
           },
           anchor: {
             show: true,
             size: 10,
             itemStyle: {
-              color: pointerColor,
-              shadowColor: glowEffect ? pointerColor : 'transparent',
-              shadowBlur: glowEffect ? 5 : 0,
+              color: resolvedPointerColor,
+              shadowColor: glowEffect ? resolvedPointerColor : 'transparent',
+              shadowBlur: glowEffect ? 4 : 0,
             },
           },
           title: {
             show: true,
             offsetCenter: [0, '20%'],
-            color: '#8899aa',
+            color: theme.mutedForeground,
             fontSize: 11,
           },
           detail: {
@@ -177,12 +266,12 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
             offsetCenter: [0, '40%'],
             fontSize: 22,
             fontWeight: 'bold',
-            color: '#fff',
+            color: theme.foreground,
             formatter: (val: number) => `${val}${unit}`,
-            textShadowColor: glowEffect ? 'rgba(0, 212, 255, 0.5)' : 'transparent',
-            textShadowBlur: glowEffect ? 10 : 0,
+            textShadowColor: glowEffect ? resolvedPointerColor : 'transparent',
+            textShadowBlur: glowEffect ? 6 : 0,
           },
-          data: [{ value }],
+          data: [{ value: safeValue }],
         },
       ],
     }
@@ -209,6 +298,10 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
     ...externalStyle,
   }
 
+  if (shouldHideEmptyMaterial(isEmpty, emptyBehavior, __designMode)) {
+    return null
+  }
+
   return (
     <div
       className={styles.container}
@@ -219,7 +312,11 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
       ref={ref}
       style={containerStyle}
     >
-      <div className={styles.chart} ref={chartRef} />
+      {isEmpty ? (
+        <MaterialEmptyState behavior={emptyBehavior} designMode={__designMode} text={emptyText} />
+      ) : (
+        <div className={styles.chart} ref={chartRef} />
+      )}
     </div>
   )
 }

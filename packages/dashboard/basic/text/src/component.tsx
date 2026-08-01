@@ -4,7 +4,15 @@
  */
 
 import { useMemo, type CSSProperties } from 'react'
-import { cn, type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
+import {
+  cn,
+  MaterialEmptyState,
+  MATERIAL_THEME,
+  normalizeSafeHref,
+  shouldHideEmptyMaterial,
+  type MaterialComponet,
+  useDataSource,
+} from '@easy-editor/materials-shared'
 import styles from './component.module.css'
 
 export type TextAlign = 'left' | 'center' | 'right'
@@ -78,10 +86,13 @@ export const Text: React.FC<TextProps> = ({
   ref,
   $data,
   __dataSource,
+  __designMode,
+  emptyBehavior,
+  emptyText,
   fontSize = 16,
   fontWeight = 'normal',
   fontFamily = 'inherit',
-  color = '#ffffff',
+  color = MATERIAL_THEME.foreground,
   textAlign = 'left',
   verticalAlign = 'middle',
   lineHeight = 1.5,
@@ -91,8 +102,8 @@ export const Text: React.FC<TextProps> = ({
   target = '_blank',
   underline = false,
   glowEnable = false,
-  glowColor = '#00d4ff',
-  glowIntensity = 1,
+  glowColor = MATERIAL_THEME.accent,
+  glowIntensity,
   rotation = 0,
   opacity = 100,
   background = 'transparent',
@@ -104,16 +115,19 @@ export const Text: React.FC<TextProps> = ({
 }) => {
   const dataSource = useDataSource($data, __dataSource)
   const data = useMemo<string>(() => {
-    if (dataSource.length > 0 && dataSource[0]?.text) {
-      return String(dataSource[0].text)
+    const value = dataSource[0]?.text
+    if (value !== undefined && value !== null) {
+      return String(value)
     }
     return ''
   }, [dataSource])
 
-  // 计算发光效果
-  const textShadow = glowEnable
-    ? `0 0 ${10 * glowIntensity}px ${glowColor}, 0 0 ${20 * glowIntensity}px ${glowColor}, 0 0 ${30 * glowIntensity}px ${glowColor}`
-    : undefined
+  // 旧版仅开启 glowEnable 时仍保留效果；新建物料会显式写入强度 0。
+  const effectiveGlowIntensity = glowIntensity ?? (glowEnable ? 1 : 0)
+  const textShadow =
+    glowEnable && effectiveGlowIntensity > 0
+      ? `0 0 ${10 * effectiveGlowIntensity}px ${glowColor}, 0 0 ${20 * effectiveGlowIntensity}px ${glowColor}, 0 0 ${30 * effectiveGlowIntensity}px ${glowColor}`
+      : undefined
 
   const textStyle: CSSProperties = {
     fontSize,
@@ -136,10 +150,25 @@ export const Text: React.FC<TextProps> = ({
   const containerClass = cn(styles.container, getAlignClass(textAlign), getValignClass(verticalAlign))
 
   const textClass = cn(styles.text, isLink && styles.link, underline && styles.underline)
+  const safeHref = normalizeSafeHref(href)
+  const safeTarget = target === '_self' ? '_self' : '_blank'
+
+  const isEmpty = data.length === 0
+  if (shouldHideEmptyMaterial(isEmpty, emptyBehavior, __designMode)) {
+    return null
+  }
+
+  if (isEmpty) {
+    return (
+      <div className={containerClass} ref={ref} style={containerStyle}>
+        <MaterialEmptyState behavior={emptyBehavior} designMode={__designMode} text={emptyText} />
+      </div>
+    )
+  }
 
   // 链接模式
-  if (isLink && href) {
-    const relValue = target === '_blank' ? 'noopener noreferrer' : ''
+  if (isLink && safeHref) {
+    const relValue = safeTarget === '_blank' ? 'noopener noreferrer' : undefined
     return (
       <div
         className={containerClass}
@@ -150,7 +179,7 @@ export const Text: React.FC<TextProps> = ({
         ref={ref}
         style={containerStyle}
       >
-        <a className={textClass} href={href} rel={relValue} style={textStyle} target={target}>
+        <a className={textClass} href={safeHref} rel={relValue} style={textStyle} target={safeTarget}>
           {data}
         </a>
       </div>

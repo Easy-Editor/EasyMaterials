@@ -4,6 +4,7 @@
  */
 
 import type { Snippet } from '@easy-editor/core'
+import { MATERIAL_THEME } from '@easy-editor/materials-shared'
 import { COMPONENT_NAME } from './constants'
 
 export const snippets: Snippet[] = [
@@ -17,6 +18,9 @@ export const snippets: Snippet[] = [
         alt: '图片',
         objectFit: 'contain',
         borderRadius: 0,
+        borderStyle: 'solid',
+        borderColor: MATERIAL_THEME.border,
+        shadow: false,
         rotation: 0,
         opacity: 100,
         background: 'transparent',
@@ -39,7 +43,9 @@ export const snippets: Snippet[] = [
         alt: '圆角图片',
         objectFit: 'contain',
         borderRadius: 100,
-        borderStyle: 'tech',
+        borderStyle: 'solid',
+        borderColor: MATERIAL_THEME.border,
+        shadow: false,
         rotation: 0,
         opacity: 100,
         background: 'transparent',

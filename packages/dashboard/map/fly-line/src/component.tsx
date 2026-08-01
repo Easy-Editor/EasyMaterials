@@ -9,15 +9,15 @@ import { LinesChart, EffectScatterChart, MapChart } from 'echarts/charts'
 import { GeoComponent, TooltipComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { EChartsOption } from 'echarts'
-import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
 import {
-  DEFAULT_FLY_LINES,
-  DEFAULT_SCATTER_POINTS,
-  DEFAULT_COLORS,
-  type FlyLineData,
-  type ScatterPoint,
-  type MapType,
-} from './constants'
+  escapeHtml,
+  MATERIAL_THEME,
+  MaterialEmptyState,
+  shouldHideEmptyMaterial,
+  type MaterialComponet,
+  useDataSource,
+} from '@easy-editor/materials-shared'
+import { DEFAULT_COLORS, type FlyLineData, type ScatterPoint, type MapType } from './constants'
 import chinaGeoJson from './assets/geo/china.json'
 import worldGeoJson from './assets/geo/world.json'
 import styles from './component.module.css'
@@ -76,13 +76,16 @@ export interface FlyLineProps extends MaterialComponet {
 }
 
 export const FlyLine: React.FC<FlyLineProps> = ({
+  __designMode,
   ref,
   $data,
   __dataSource,
   mapType = 'china',
   mapJson,
   flyLines: staticFlyLines,
-  scatterPoints = DEFAULT_SCATTER_POINTS,
+  scatterPoints = [],
+  emptyBehavior,
+  emptyText,
   lineColor = DEFAULT_COLORS.lineColor,
   lineGlowColor = DEFAULT_COLORS.lineGlowColor,
   scatterColor = DEFAULT_COLORS.scatterColor,
@@ -109,11 +112,11 @@ export const FlyLine: React.FC<FlyLineProps> = ({
   // 解析数据源
   const dataSource = useDataSource($data, __dataSource)
   const flyLines = useMemo<FlyLineData[]>(() => {
-    if (dataSource.length > 0) {
-      return dataSource as FlyLineData[]
+    if ($data) {
+      return dataSource as unknown as FlyLineData[]
     }
-    return staticFlyLines ?? DEFAULT_FLY_LINES
-  }, [dataSource, staticFlyLines])
+    return staticFlyLines ?? []
+  }, [$data, dataSource, staticFlyLines])
 
   // 转换飞线数据为 ECharts 格式
   const linesData = useMemo(
@@ -126,6 +129,7 @@ export const FlyLine: React.FC<FlyLineProps> = ({
       })),
     [flyLines],
   )
+  const isEmpty = flyLines.length === 0
 
   // 转换散点数据为 ECharts 格式
   const scatterData = useMemo(
@@ -149,7 +153,7 @@ export const FlyLine: React.FC<FlyLineProps> = ({
       effect: showAnimation
         ? {
             show: true,
-            period: 6 / animationSpeed,
+            period: animationSpeed > 0 ? 6 / animationSpeed : 6,
             trailLength: 0.4,
             symbol: 'arrow',
             symbolSize: 6,
@@ -180,14 +184,12 @@ export const FlyLine: React.FC<FlyLineProps> = ({
         symbolSize: (val: number[]) => Math.max(8, (val[2] ?? 10) / 10),
         itemStyle: {
           color: scatterColor,
-          shadowBlur: 10,
-          shadowColor: scatterColor,
         },
         label: {
           show: true,
           position: 'right',
           formatter: '{b}',
-          color: '#fff',
+          color: MATERIAL_THEME.foreground,
           fontSize: 11,
         },
         data: scatterData,
@@ -199,12 +201,12 @@ export const FlyLine: React.FC<FlyLineProps> = ({
       tooltip: showTooltip
         ? {
             trigger: 'item',
-            backgroundColor: 'rgba(0, 20, 40, 0.9)',
-            borderColor: 'rgba(0, 200, 255, 0.3)',
-            textStyle: { color: '#fff' },
+            backgroundColor: MATERIAL_THEME.tooltipBackground,
+            borderColor: MATERIAL_THEME.tooltipBorder,
+            textStyle: { color: MATERIAL_THEME.tooltipForeground },
             formatter: (params: { name?: string; value?: number[] }) => {
               if (params.name) {
-                return params.name
+                return escapeHtml(params.name)
               }
               return ''
             },
@@ -219,12 +221,10 @@ export const FlyLine: React.FC<FlyLineProps> = ({
           areaColor,
           borderColor,
           borderWidth: 1,
-          shadowColor: 'rgba(0, 200, 255, 0.2)',
-          shadowBlur: 10,
         },
         emphasis: {
           itemStyle: {
-            areaColor: 'rgba(0, 100, 150, 0.8)',
+            areaColor: MATERIAL_THEME.accent,
           },
           label: {
             show: false,
@@ -253,7 +253,7 @@ export const FlyLine: React.FC<FlyLineProps> = ({
 
   // 注册地图并初始化图表
   useEffect(() => {
-    if (!chartRef.current) {
+    if (isEmpty || !chartRef.current) {
       return
     }
 
@@ -282,7 +282,7 @@ export const FlyLine: React.FC<FlyLineProps> = ({
       chartInstance.current?.dispose()
       chartInstance.current = null
     }
-  }, [mapType, mapJson])
+  }, [mapType, mapJson, isEmpty])
 
   // 更新配置
   useEffect(() => {
@@ -298,6 +298,10 @@ export const FlyLine: React.FC<FlyLineProps> = ({
     ...externalStyle,
   }
 
+  if (shouldHideEmptyMaterial(isEmpty, emptyBehavior, __designMode)) {
+    return null
+  }
+
   return (
     <div
       className={styles.container}
@@ -308,7 +312,11 @@ export const FlyLine: React.FC<FlyLineProps> = ({
       ref={ref}
       style={containerStyle}
     >
-      <div className={styles.chart} ref={chartRef} />
+      {isEmpty ? (
+        <MaterialEmptyState behavior={emptyBehavior} designMode={__designMode} text={emptyText} />
+      ) : (
+        <div className={styles.chart} ref={chartRef} />
+      )}
     </div>
   )
 }

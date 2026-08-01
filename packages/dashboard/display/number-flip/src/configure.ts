@@ -4,7 +4,13 @@
  */
 
 import type { FieldConfig } from '@easy-editor/core'
-import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
+import {
+  advancedConfigGroup,
+  createCollapseGroup,
+  createDataConfigGroup,
+  createStandardConfigure,
+  MATERIAL_THEME,
+} from '@easy-editor/materials-shared'
 
 /** 组件配置 - 数字翻牌独有 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -139,7 +145,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
                 },
               },
               extraProps: {
-                defaultValue: 'digital',
+                defaultValue: 'default',
               },
             },
             {
@@ -147,22 +153,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '颜色',
               setter: 'ColorSetter',
               extraProps: {
-                defaultValue: '#00d4ff',
-              },
-            },
-            {
-              name: 'glowIntensity',
-              title: '发光强度',
-              setter: {
-                componentName: 'SliderSetter',
-                props: {
-                  min: 0,
-                  max: 2,
-                  step: 0.1,
-                },
-              },
-              extraProps: {
-                defaultValue: 0.5,
+                defaultValue: MATERIAL_THEME.foreground,
               },
             },
           ],
@@ -180,4 +171,36 @@ const dataConfigGroup: FieldConfig = createDataConfigGroup([
   { name: 'value', label: 'value', type: 'number', required: true, description: '数值' },
 ])
 
-export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup)
+const createAdvancedConfigGroup = (): FieldConfig =>
+  createCollapseGroup(
+    '高级设置',
+    [
+      advancedConfigGroup,
+      createCollapseGroup(
+        '兼容强调效果',
+        [
+          {
+            name: 'glowIntensity',
+            title: '数字强调强度',
+            setter: {
+              componentName: 'SliderSetter',
+              props: {
+                min: 0,
+                max: 2,
+                step: 0.1,
+              },
+            },
+            extraProps: {
+              defaultValue: 0,
+            },
+          },
+        ],
+        { defaultOpen: false },
+      ),
+    ],
+    { defaultOpen: false },
+  )
+
+export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup, {
+  advancedConfigGroup: createAdvancedConfigGroup(),
+})

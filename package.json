@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Easy-Editor/EasyMaterials"
+    "url": "git+https://github.com/Easy-Editor/EasyMaterials.git"
   },
   "bugs": {
     "url": "https://github.com/Easy-Editor/EasyMaterials/issues"
@@ -25,6 +25,7 @@
     "preinstall": "npx only-allow pnpm",
     "check": "pnpm dlx ultracite check",
     "fix": "pnpm dlx ultracite fix",
+    "test": "node --test test/*.test.mjs",
     "pub:changeset": "pnpm changeset",
     "pub:version": "pnpm changeset version",
     "pub:release": "pnpm changeset publish"
@@ -71,5 +72,10 @@
       "react": "^19.0.0",
       "react-dom": "^19.0.0"
     }
-  }
+  },
+  "main": "commitlint.config.js",
+  "directories": {
+    "test": "test"
+  },
+  "type": "commonjs"
 }

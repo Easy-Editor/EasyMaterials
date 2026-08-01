@@ -9,8 +9,15 @@ import { LineChart as EChartsLineChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { SeriesOption } from 'echarts'
-import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
-import { DEFAULT_COLORS, DEFAULT_DATA, type DataPoint } from './constants'
+import {
+  MaterialEmptyState,
+  type MaterialComponet,
+  resolveMaterialChartColors,
+  resolveMaterialTheme,
+  shouldHideEmptyMaterial,
+  useDataSource,
+} from '@easy-editor/materials-shared'
+import { DEFAULT_COLORS, type DataPoint } from './constants'
 import styles from './component.module.css'
 
 // 按需注册 ECharts 组件
@@ -29,6 +36,8 @@ export interface LineChartProps extends MaterialComponet {
   showLegend?: boolean
   /** 显示提示 */
   showTooltip?: boolean
+  /** 图例位置 */
+  legendPosition?: 'top' | 'bottom' | 'left' | 'right'
   /** 发光效果 */
   glowEffect?: boolean
   /** 线条宽度 */
@@ -45,6 +54,19 @@ export interface LineChartProps extends MaterialComponet {
   onMouseEnter?: (e: React.MouseEvent) => void
   /** 鼠标离开 */
   onMouseLeave?: (e: React.MouseEvent) => void
+}
+
+const getLegendLayout = (position: NonNullable<LineChartProps['legendPosition']>) => {
+  switch (position) {
+    case 'bottom':
+      return { bottom: 8, left: 'center', orient: 'horizontal' as const }
+    case 'left':
+      return { left: 8, top: 'middle', orient: 'vertical' as const }
+    case 'right':
+      return { right: 8, top: 'middle', orient: 'vertical' as const }
+    default:
+      return { left: 'center', top: 8, orient: 'horizontal' as const }
+  }
 }
 
 // 构建 series 配置
@@ -71,7 +93,7 @@ const buildSeries = (
         width: strokeWidth,
         color,
         shadowColor: glowEffect ? color : 'transparent',
-        shadowBlur: glowEffect ? 10 : 0,
+        shadowBlur: glowEffect ? 6 : 0,
       },
       itemStyle: {
         color,
@@ -99,17 +121,19 @@ const buildOption = (
     showGrid: boolean
     showLegend: boolean
     showTooltip: boolean
+    legendPosition: NonNullable<LineChartProps['legendPosition']>
+    theme: ReturnType<typeof resolveMaterialTheme>
   },
 ) => {
-  const { showGrid, showLegend, showTooltip } = options
+  const { showGrid, showLegend, showTooltip, legendPosition, theme } = options
 
   return {
     backgroundColor: 'transparent',
     grid: {
-      top: showLegend ? 40 : 20,
-      right: 20,
-      bottom: 30,
-      left: 50,
+      top: showLegend && legendPosition === 'top' ? 48 : 20,
+      right: showLegend && legendPosition === 'right' ? 96 : 20,
+      bottom: showLegend && legendPosition === 'bottom' ? 48 : 30,
+      left: showLegend && legendPosition === 'left' ? 96 : 50,
       containLabel: false,
     },
     xAxis: {
@@ -117,20 +141,18 @@ const buildOption = (
       data: data.map(item => item[xField]),
       axisLine: {
         lineStyle: {
-          color: '#8899aa',
-          opacity: 0.3,
+          color: theme.border,
         },
       },
       axisTick: { show: false },
       axisLabel: {
-        color: '#8899aa',
+        color: theme.mutedForeground,
         fontSize: 12,
       },
       splitLine: {
         show: showGrid,
         lineStyle: {
-          color: '#00d4ff',
-          opacity: 0.1,
+          color: theme.grid,
           type: 'dashed',
         },
       },
@@ -139,20 +161,18 @@ const buildOption = (
       type: 'value',
       axisLine: {
         lineStyle: {
-          color: '#8899aa',
-          opacity: 0.3,
+          color: theme.border,
         },
       },
       axisTick: { show: false },
       axisLabel: {
-        color: '#8899aa',
+        color: theme.mutedForeground,
         fontSize: 11,
       },
       splitLine: {
         show: showGrid,
         lineStyle: {
-          color: '#00d4ff',
-          opacity: 0.1,
+          color: theme.grid,
           type: 'dashed',
         },
       },
@@ -160,20 +180,20 @@ const buildOption = (
     tooltip: showTooltip
       ? {
           trigger: 'axis',
-          backgroundColor: 'rgba(0, 20, 40, 0.9)',
-          borderColor: '#00d4ff',
+          backgroundColor: theme.tooltipBackground,
+          borderColor: theme.tooltipBorder,
           borderWidth: 1,
           textStyle: {
-            color: '#fff',
+            color: theme.tooltipForeground,
           },
         }
       : undefined,
     legend: showLegend
       ? {
           show: true,
-          top: 10,
+          ...getLegendLayout(legendPosition),
           textStyle: {
-            color: '#8899aa',
+            color: theme.mutedForeground,
             fontSize: 11,
           },
         }
@@ -192,10 +212,14 @@ export const LineChart: React.FC<LineChartProps> = ({
   showGrid = true,
   showLegend = true,
   showTooltip = true,
-  glowEffect = true,
+  legendPosition = 'bottom',
+  glowEffect = false,
   strokeWidth = 2,
   areaFill = false,
   smooth = true,
+  emptyBehavior,
+  emptyText,
+  __designMode,
   rotation = 0,
   opacity = 100,
   background = 'transparent',
@@ -210,22 +234,21 @@ export const LineChart: React.FC<LineChartProps> = ({
 
   // 解析数据源
   const dataSource = useDataSource($data, __dataSource)
-  const data = useMemo<DataPoint[]>(() => {
-    if (dataSource.length > 0) {
-      return dataSource as DataPoint[]
-    }
-    return DEFAULT_DATA
-  }, [dataSource])
+  const data = useMemo<DataPoint[]>(() => dataSource as DataPoint[], [dataSource])
 
   useEffect(() => {
-    if (!chartRef.current) {
+    if (!chartRef.current || data.length === 0) {
       return
     }
 
     chartInstance.current = echarts.init(chartRef.current)
 
+    const theme = resolveMaterialTheme(chartRef.current)
+    const resolvedColors =
+      colors === DEFAULT_COLORS || colors.length === 0 ? resolveMaterialChartColors(chartRef.current) : colors
+
     // 构建 series
-    const series = buildSeries(yFields, data, colors, {
+    const series = buildSeries(yFields, data, resolvedColors, {
       smooth,
       strokeWidth,
       glowEffect,
@@ -236,6 +259,8 @@ export const LineChart: React.FC<LineChartProps> = ({
       showGrid,
       showLegend,
       showTooltip,
+      legendPosition,
+      theme,
     })
 
     chartInstance.current.setOption(option)
@@ -250,7 +275,20 @@ export const LineChart: React.FC<LineChartProps> = ({
       resizeObserver.disconnect()
       chartInstance.current?.dispose()
     }
-  }, [data, xField, yFields, colors, showGrid, showLegend, showTooltip, glowEffect, strokeWidth, areaFill, smooth])
+  }, [
+    data,
+    xField,
+    yFields,
+    colors,
+    showGrid,
+    showLegend,
+    showTooltip,
+    legendPosition,
+    glowEffect,
+    strokeWidth,
+    areaFill,
+    smooth,
+  ])
 
   const containerStyle: CSSProperties = {
     width: '100%',
@@ -259,6 +297,11 @@ export const LineChart: React.FC<LineChartProps> = ({
     opacity: opacity / 100,
     backgroundColor: background,
     ...externalStyle,
+  }
+
+  const isEmpty = data.length === 0
+  if (shouldHideEmptyMaterial(isEmpty, emptyBehavior, __designMode)) {
+    return null
   }
 
   return (
@@ -271,7 +314,11 @@ export const LineChart: React.FC<LineChartProps> = ({
       ref={ref}
       style={containerStyle}
     >
-      <div className={styles.chart} ref={chartRef} />
+      {isEmpty ? (
+        <MaterialEmptyState behavior={emptyBehavior} designMode={__designMode} text={emptyText} />
+      ) : (
+        <div className={styles.chart} ref={chartRef} />
+      )}
     </div>
   )
 }

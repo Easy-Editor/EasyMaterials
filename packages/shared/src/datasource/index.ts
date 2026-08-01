@@ -3,10 +3,11 @@
  * 提供数据源解析、字段映射等通用功能
  */
 
+import type { JSONObject } from '@easy-editor/core'
 import { useMemo } from 'react'
 
 /** 字段映射配置 */
-export interface FieldMapping {
+export interface FieldMapping extends JSONObject {
   /** 组件字段名 */
   componentField: string
   /** 数据源字段名（支持点号路径，如 'user.name'） */
@@ -14,11 +15,11 @@ export interface FieldMapping {
 }
 
 /** 数据配置类型（来自 DataSetter） */
-export interface DataConfig {
+export interface DataConfig extends JSONObject {
   /** 数据源类型：静态数据 | 组件数据源 | 全局数据源 */
   sourceType: 'static' | 'datasource' | 'global'
   /** 静态数据（sourceType === 'static'） */
-  staticData?: unknown[]
+  staticData?: JSONObject[]
   /** 数据源 ID（sourceType === 'datasource' | 'global'） */
   datasourceId?: string
   /** 字段映射配置 */
@@ -191,7 +192,7 @@ export function useDataSource(
  * // 数组数据
  * generateStaticDataSource([{ name: 'A', value: 100 }, { name: 'B', value: 200 }])
  */
-export const generateStaticDataSource = <T extends Record<string, unknown>>(
+export const generateStaticDataSource = <T extends JSONObject>(
   data: T | T[],
   fieldMappings?: FieldMapping[],
 ): DataConfig => {

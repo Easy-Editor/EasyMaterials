@@ -4,7 +4,7 @@
  */
 
 import type { Snippet } from '@easy-editor/core'
-import { generateStaticDataSource } from '@easy-editor/materials-shared'
+import { generateStaticDataSource, MATERIAL_CHART_COLORS, MATERIAL_THEME } from '@easy-editor/materials-shared'
 import { COMPONENT_NAME } from './constants'
 
 /** 默认排行榜数据 */
@@ -26,10 +26,12 @@ const snippets: Snippet[] = [
       props: {
         $data: generateStaticDataSource(DEFAULT_RANKING_DATA),
         maxItems: 5,
-        showMedal: true,
+        showMedal: false,
         progressBarEnable: true,
-        progressBarGradient: true,
-        progressBarColors: ['#00d4ff', '#9b59b6'],
+        progressBarGradient: false,
+        progressBarColors: [MATERIAL_THEME.accent, MATERIAL_CHART_COLORS[4]],
+        backgroundColor: MATERIAL_THEME.surface,
+        itemBackgroundColor: MATERIAL_THEME.surface,
         rotation: 0,
         opacity: 100,
         background: 'transparent',
@@ -58,7 +60,9 @@ const snippets: Snippet[] = [
         showMedal: false,
         progressBarEnable: true,
         progressBarGradient: false,
-        progressBarColors: ['#00ff88', '#00ff88'],
+        progressBarColors: [MATERIAL_THEME.accent, MATERIAL_THEME.accent],
+        backgroundColor: MATERIAL_THEME.surface,
+        itemBackgroundColor: MATERIAL_THEME.surface,
         rotation: 0,
         opacity: 100,
         background: 'transparent',

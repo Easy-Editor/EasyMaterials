@@ -4,6 +4,7 @@
  */
 
 import type { Snippet } from '@easy-editor/core'
+import { MATERIAL_THEME } from '@easy-editor/materials-shared'
 import { COMPONENT_NAME } from './constants'
 
 export const snippets: Snippet[] = [
@@ -70,17 +71,16 @@ export const snippets: Snippet[] = [
     },
   },
   {
-    title: '蓝色叠加',
+    title: '柔和遮罩',
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
-      title: '蓝色叠加',
+      title: '柔和遮罩',
       props: {
-        backgroundColor: 'rgba(0, 100, 255, 0.3)',
-        blendMode: 'overlay',
+        blendMode: 'normal',
         rotation: 0,
         opacity: 100,
-        background: 'transparent',
+        background: MATERIAL_THEME.surfaceRaised,
       },
       $dashboard: {
         rect: {

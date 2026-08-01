@@ -30,16 +30,16 @@ export const snippets: Snippet[] = [
     },
   },
   {
-    title: '发光按钮',
+    title: '轮廓按钮',
     screenshot: '',
     schema: {
       componentName: COMPONENT_NAME,
-      title: '发光按钮',
+      title: '轮廓按钮',
       props: {
-        $data: generateStaticDataSource({ text: '发光按钮' }),
+        $data: generateStaticDataSource({ text: '轮廓按钮' }),
         variant: 'outline',
         size: 'large',
-        glowEnable: true,
+        glowEnable: false,
         rotation: 0,
         opacity: 100,
       },

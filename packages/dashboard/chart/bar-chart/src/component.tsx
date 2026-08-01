@@ -9,7 +9,14 @@ import { BarChart as EChartsBarChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { SeriesOption } from 'echarts'
-import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
+import {
+  MaterialEmptyState,
+  type MaterialComponet,
+  resolveMaterialChartColors,
+  resolveMaterialTheme,
+  shouldHideEmptyMaterial,
+  useDataSource,
+} from '@easy-editor/materials-shared'
 import { DEFAULT_COLORS, type DataPoint } from './constants'
 import styles from './component.module.css'
 
@@ -39,6 +46,18 @@ export interface BarChartProps extends MaterialComponet {
   showLegend?: boolean
   /** 显示提示 */
   showTooltip?: boolean
+  /** 图例位置 */
+  legendPosition?: 'top' | 'bottom' | 'left' | 'right'
+  /** X轴标签 */
+  xAxisLabel?: string
+  /** Y轴标签 */
+  yAxisLabel?: string
+  /** 显示X轴 */
+  xAxisVisible?: boolean
+  /** 显示Y轴 */
+  yAxisVisible?: boolean
+  /** 类目标签旋转角度 */
+  axisLabelRotate?: number
   /** 发光效果 */
   glowEffect?: boolean
   /** 点击事件 */
@@ -58,6 +77,19 @@ interface SeriesOptions {
   glowEffect: boolean
   layout: string
   barGap?: string
+}
+
+const getLegendLayout = (position: NonNullable<BarChartProps['legendPosition']>) => {
+  switch (position) {
+    case 'bottom':
+      return { bottom: 8, left: 'center', orient: 'horizontal' as const }
+    case 'left':
+      return { left: 8, top: 'middle', orient: 'vertical' as const }
+    case 'right':
+      return { right: 8, top: 'middle', orient: 'vertical' as const }
+    default:
+      return { left: 'center', top: 8, orient: 'horizontal' as const }
+  }
 }
 
 // 获取渐变色
@@ -82,7 +114,7 @@ const createBarSeries = (field: string, data: DataPoint[], color: string, option
       color: gradient ? getGradientColor(color, isVertical) : color,
       borderRadius,
       shadowColor: glowEffect ? color : 'transparent',
-      shadowBlur: glowEffect ? 10 : 0,
+      shadowBlur: glowEffect ? 6 : 0,
     },
   }
 }
@@ -104,63 +136,87 @@ const buildOption = (
     showGrid: boolean
     showLegend: boolean
     showTooltip: boolean
-    glowEffect: boolean
+    legendPosition: NonNullable<BarChartProps['legendPosition']>
+    xAxisLabel: string
+    yAxisLabel: string
+    xAxisVisible: boolean
+    yAxisVisible: boolean
+    axisLabelRotate: number
+    theme: ReturnType<typeof resolveMaterialTheme>
   },
 ) => {
-  const { layout, showGrid, showLegend, showTooltip } = options
+  const {
+    layout,
+    showGrid,
+    showLegend,
+    showTooltip,
+    legendPosition,
+    xAxisLabel,
+    yAxisLabel,
+    xAxisVisible,
+    yAxisVisible,
+    axisLabelRotate,
+    theme,
+  } = options
   const isHorizontal = layout === 'horizontal'
-
+  const defaultGridLeft = isHorizontal ? 80 : 50
+  const categoryAxisLabel = isHorizontal ? yAxisLabel : xAxisLabel
+  const valueAxisLabel = isHorizontal ? xAxisLabel : yAxisLabel
+  const categoryAxisVisible = isHorizontal ? yAxisVisible : xAxisVisible
+  const valueAxisVisible = isHorizontal ? xAxisVisible : yAxisVisible
   return {
     backgroundColor: 'transparent',
     grid: {
-      top: showLegend ? 40 : 20,
-      right: 20,
-      bottom: 30,
-      left: isHorizontal ? 80 : 50,
+      top: showLegend && legendPosition === 'top' ? 48 : 20,
+      right: showLegend && legendPosition === 'right' ? 96 : 20,
+      bottom: showLegend && legendPosition === 'bottom' ? 48 : 30,
+      left: showLegend && legendPosition === 'left' ? 96 : defaultGridLeft,
       containLabel: false,
     },
     xAxis: {
       type: isHorizontal ? 'value' : 'category',
+      show: isHorizontal ? valueAxisVisible : categoryAxisVisible,
+      name: isHorizontal ? valueAxisLabel : categoryAxisLabel,
       data: isHorizontal ? undefined : data.map(item => item[xField]),
       axisLine: {
         lineStyle: {
-          color: '#8899aa',
-          opacity: 0.3,
+          color: theme.border,
         },
       },
       axisTick: { show: false },
       axisLabel: {
-        color: '#8899aa',
+        color: theme.mutedForeground,
         fontSize: isHorizontal ? 11 : 12,
+        rotate: isHorizontal ? 0 : axisLabelRotate,
       },
       splitLine: {
         show: showGrid,
         lineStyle: {
-          color: '#00d4ff',
-          opacity: 0.1,
+          color: theme.grid,
           type: 'dashed',
         },
       },
     },
     yAxis: {
       type: isHorizontal ? 'category' : 'value',
+      show: isHorizontal ? categoryAxisVisible : valueAxisVisible,
+      name: isHorizontal ? categoryAxisLabel : valueAxisLabel,
       data: isHorizontal ? data.map(item => item[xField]) : undefined,
       axisLine: {
         lineStyle: {
-          color: '#8899aa',
-          opacity: 0.3,
+          color: theme.border,
         },
       },
       axisTick: { show: false },
       axisLabel: {
-        color: '#8899aa',
+        color: theme.mutedForeground,
         fontSize: isHorizontal ? 12 : 11,
+        rotate: isHorizontal ? axisLabelRotate : 0,
       },
       splitLine: {
         show: showGrid && !isHorizontal,
         lineStyle: {
-          color: '#00d4ff',
-          opacity: 0.1,
+          color: theme.grid,
           type: 'dashed',
         },
       },
@@ -171,20 +227,20 @@ const buildOption = (
           axisPointer: {
             type: 'shadow',
           },
-          backgroundColor: 'rgba(0, 20, 40, 0.9)',
-          borderColor: '#00d4ff',
+          backgroundColor: theme.tooltipBackground,
+          borderColor: theme.tooltipBorder,
           borderWidth: 1,
           textStyle: {
-            color: '#fff',
+            color: theme.tooltipForeground,
           },
         }
       : undefined,
     legend: showLegend
       ? {
           show: true,
-          top: 10,
+          ...getLegendLayout(legendPosition),
           textStyle: {
-            color: '#8899aa',
+            color: theme.mutedForeground,
             fontSize: 11,
           },
         }
@@ -202,13 +258,22 @@ export const BarChart: React.FC<BarChartProps> = ({
   colors = DEFAULT_COLORS,
   layout = 'vertical',
   stacked = false,
-  gradient = true,
+  gradient = false,
   borderRadius = 4,
   barGap = '20%',
   showGrid = true,
   showLegend = true,
   showTooltip = true,
-  glowEffect = true,
+  legendPosition = 'bottom',
+  xAxisLabel = '',
+  yAxisLabel = '',
+  xAxisVisible = true,
+  yAxisVisible = true,
+  axisLabelRotate = 0,
+  glowEffect = false,
+  emptyBehavior,
+  emptyText,
+  __designMode,
   rotation = 0,
   opacity = 100,
   background = 'transparent',
@@ -223,26 +288,36 @@ export const BarChart: React.FC<BarChartProps> = ({
 
   // 解析数据源
   const dataSource = useDataSource($data, __dataSource)
-  const data = useMemo<DataPoint[]>(() => {
-    if (dataSource.length > 0 && dataSource[0]?.name && dataSource[0]?.value1 && dataSource[0]?.value2) {
-      return dataSource.map(item => ({
-        name: String(item.name),
-        value1: Number(item.value1),
-        value2: Number(item.value2),
-      }))
-    }
-    return []
-  }, [dataSource])
+  const data = useMemo<DataPoint[]>(
+    () =>
+      dataSource
+        .filter(item => item[xField] !== undefined && yFields.some(field => Number.isFinite(Number(item[field]))))
+        .map(item => {
+          const point: DataPoint = { name: String(item[xField]) }
+          point[xField] = String(item[xField])
+          for (const field of yFields) {
+            if (item[field] !== undefined && Number.isFinite(Number(item[field]))) {
+              point[field] = Number(item[field])
+            }
+          }
+          return point
+        }),
+    [dataSource, xField, yFields],
+  )
 
   useEffect(() => {
-    if (!chartRef.current) {
+    if (!chartRef.current || data.length === 0) {
       return
     }
 
     chartInstance.current = echarts.init(chartRef.current)
 
+    const theme = resolveMaterialTheme(chartRef.current)
+    const resolvedColors =
+      colors === DEFAULT_COLORS || colors.length === 0 ? resolveMaterialChartColors(chartRef.current) : colors
+
     // 构建 series
-    const series = buildSeries(yFields, data, colors, {
+    const series = buildSeries(yFields, data, resolvedColors, {
       stacked,
       gradient,
       borderRadius,
@@ -256,7 +331,13 @@ export const BarChart: React.FC<BarChartProps> = ({
       showGrid,
       showLegend,
       showTooltip,
-      glowEffect,
+      legendPosition,
+      xAxisLabel,
+      yAxisLabel,
+      xAxisVisible,
+      yAxisVisible,
+      axisLabelRotate,
+      theme,
     })
 
     chartInstance.current.setOption(option)
@@ -283,6 +364,12 @@ export const BarChart: React.FC<BarChartProps> = ({
     showGrid,
     showLegend,
     showTooltip,
+    legendPosition,
+    xAxisLabel,
+    yAxisLabel,
+    xAxisVisible,
+    yAxisVisible,
+    axisLabelRotate,
     glowEffect,
   ])
 
@@ -295,6 +382,11 @@ export const BarChart: React.FC<BarChartProps> = ({
     ...externalStyle,
   }
 
+  const isEmpty = data.length === 0
+  if (shouldHideEmptyMaterial(isEmpty, emptyBehavior, __designMode)) {
+    return null
+  }
+
   return (
     <div
       className={styles.container}
@@ -305,7 +397,11 @@ export const BarChart: React.FC<BarChartProps> = ({
       ref={ref}
       style={containerStyle}
     >
-      <div className={styles.chart} ref={chartRef} />
+      {isEmpty ? (
+        <MaterialEmptyState behavior={emptyBehavior} designMode={__designMode} text={emptyText} />
+      ) : (
+        <div className={styles.chart} ref={chartRef} />
+      )}
     </div>
   )
 }

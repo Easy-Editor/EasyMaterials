@@ -4,7 +4,15 @@
  */
 
 import type { FieldConfig } from '@easy-editor/core'
-import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
+import {
+  createCollapseGroup,
+  createDataConfigGroup,
+  createStandardConfigure,
+  MATERIAL_STATUS_COLORS,
+  MATERIAL_THEME,
+  withAgentCapability,
+} from '@easy-editor/materials-shared'
+import { DEFAULT_COLORS, DEFAULT_SCATTER_POINTS } from './constants'
 
 /** 组件配置 - 飞线独有 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -47,6 +55,46 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
             },
           ],
         },
+        {
+          type: 'group',
+          key: 'secondaryData',
+          title: '散点数据',
+          items: [
+            {
+              name: 'scatterPoints',
+              title: '散点数据',
+              setter: 'JsonSetter',
+              extraProps: withAgentCapability(
+                { defaultValue: DEFAULT_SCATTER_POINTS },
+                {
+                  fieldId: 'props.scatterPoints',
+                  access: 'read-write',
+                  readPath: ['props', 'scatterPoints'],
+                  writeTargets: [{ path: ['props', 'scatterPoints'] }],
+                  unsetTargets: [{ path: ['props', 'scatterPoints'] }],
+                  valueSchema: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      required: ['name', 'coord'],
+                      properties: {
+                        name: { type: 'string', minLength: 1 },
+                        coord: {
+                          type: 'array',
+                          minItems: 2,
+                          maxItems: 2,
+                          items: { type: 'number' },
+                        },
+                        value: { type: 'number' },
+                      },
+                    },
+                  },
+                  verifyPaths: [['props', 'scatterPoints']],
+                },
+              ),
+            },
+          ],
+        },
         // 样式 Tab
         {
           type: 'group',
@@ -58,15 +106,15 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '飞线颜色',
               setter: 'ColorSetter',
               extraProps: {
-                defaultValue: '#00d4ff',
+                defaultValue: DEFAULT_COLORS.lineColor,
               },
             },
             {
               name: 'lineGlowColor',
-              title: '飞线发光颜色',
+              title: '动画标记颜色',
               setter: 'ColorSetter',
               extraProps: {
-                defaultValue: '#00d4ff',
+                defaultValue: DEFAULT_COLORS.lineGlowColor,
               },
             },
             {
@@ -74,7 +122,23 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '散点颜色',
               setter: 'ColorSetter',
               extraProps: {
-                defaultValue: '#ffd700',
+                defaultValue: MATERIAL_STATUS_COLORS.warning,
+              },
+            },
+            {
+              name: 'areaColor',
+              title: '地图区域颜色',
+              setter: 'ColorSetter',
+              extraProps: {
+                defaultValue: MATERIAL_THEME.surfaceRaised,
+              },
+            },
+            {
+              name: 'borderColor',
+              title: '地图边框颜色',
+              setter: 'ColorSetter',
+              extraProps: {
+                defaultValue: MATERIAL_THEME.border,
               },
             },
             {
@@ -153,8 +217,32 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
 const dataConfigGroup: FieldConfig = createDataConfigGroup([
   { name: 'fromName', label: 'fromName', type: 'string', required: true, description: '起点名称' },
   { name: 'toName', label: 'toName', type: 'string', required: true, description: '终点名称' },
-  { name: 'fromCoord', label: 'fromCoord', type: 'array', required: true, description: '起点坐标 [lng, lat]' },
-  { name: 'toCoord', label: 'toCoord', type: 'array', required: true, description: '终点坐标 [lng, lat]' },
+  {
+    name: 'fromCoord',
+    label: 'fromCoord',
+    type: 'array',
+    required: true,
+    description: '起点坐标 [lng, lat]',
+    valueSchema: {
+      type: 'array',
+      minItems: 2,
+      maxItems: 2,
+      items: { type: 'number' },
+    },
+  },
+  {
+    name: 'toCoord',
+    label: 'toCoord',
+    type: 'array',
+    required: true,
+    description: '终点坐标 [lng, lat]',
+    valueSchema: {
+      type: 'array',
+      minItems: 2,
+      maxItems: 2,
+      items: { type: 'number' },
+    },
+  },
   { name: 'value', label: 'value', type: 'number', required: false, description: '数值' },
 ])
 

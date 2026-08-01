@@ -10,6 +10,8 @@
  * - 组件：${GLOBAL_NAME}Component (例如: EasyEditorMaterialsProgressComponent)
  * - 完整构建：${GLOBAL_NAME} (例如: EasyEditorMaterialsProgress)
  */
+import { MATERIAL_CHART_COLORS, MATERIAL_THEME } from '@easy-editor/materials-shared'
+
 export const COMPONENT_NAME = 'EasyEditorMaterialsProgress'
 
 /**
@@ -25,19 +27,19 @@ export const VALUE_FORMATS = ['percent', 'number'] as const
 /**
  * 默认轨道颜色
  */
-export const DEFAULT_TRACK_COLOR = 'rgba(255, 255, 255, 0.1)'
+export const DEFAULT_TRACK_COLOR = MATERIAL_THEME.track
 
 /**
  * 默认进度颜色
  */
-export const DEFAULT_PROGRESS_COLOR = '#00ffff'
+export const DEFAULT_PROGRESS_COLOR = MATERIAL_THEME.accent
 
 /**
  * 默认渐变颜色
  */
-export const DEFAULT_GRADIENT_COLORS: [string, string] = ['#00ffff', '#ff00ff']
+export const DEFAULT_GRADIENT_COLORS: [string, string] = [MATERIAL_CHART_COLORS[0], MATERIAL_CHART_COLORS[4]]
 
 /**
  * 默认发光颜色
  */
-export const DEFAULT_GLOW_COLOR = '#00ffff'
+export const DEFAULT_GLOW_COLOR = MATERIAL_THEME.accent

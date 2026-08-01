@@ -13,7 +13,8 @@
     "allowSyntheticDefaultImports": true,
     "strictPropertyInitialization": false,
     "outDir": "./dist",
-    "skipLibCheck": true,
+    "rootDir": "./src",
+    "skipLibCheck": true
   },
   "exclude": ["node_modules", "dist"],
   "include": ["./src"]

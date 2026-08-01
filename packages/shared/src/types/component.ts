@@ -1,5 +1,6 @@
 import type { DesignMode } from '@easy-editor/core'
 import type { DataConfig, DataSourceContext } from '../datasource'
+import type { EmptyBehavior } from '../empty-state/model'
 import type { Ref, CSSProperties } from 'react'
 
 /**
@@ -12,6 +13,11 @@ export interface MaterialComponet<T = HTMLDivElement> {
   $data?: DataConfig
   /** 数据源上下文 */
   __dataSource?: DataSourceContext
+
+  /** 空数据展示方式 */
+  emptyBehavior?: EmptyBehavior
+  /** 空数据提示文案 */
+  emptyText?: string
 
   /** 旋转角度 */
   rotation?: number
