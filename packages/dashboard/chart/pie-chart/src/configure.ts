@@ -27,6 +27,21 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
           title: '样式',
           items: [
             {
+              name: 'displayStyle',
+              title: '展示样式',
+              setter: {
+                componentName: 'SelectSetter',
+                props: {
+                  options: [
+                    { label: '标准饼图', value: 'standard' },
+                    { label: '同心进度环', value: 'concentric-rings' },
+                    { label: '倾斜层叠环', value: 'tilted-donut' },
+                  ],
+                },
+              },
+              extraProps: { defaultValue: 'standard' },
+            },
+            {
               name: 'innerRadius',
               title: '内半径',
               setter: 'StringSetter',
@@ -60,6 +75,36 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               extraProps: {
                 defaultValue: false,
               },
+            },
+            {
+              name: 'trackColor',
+              title: '同心环轨道色',
+              setter: 'ColorSetter',
+              extraProps: { defaultValue: 'rgba(120, 153, 177, 0.16)' },
+            },
+            {
+              name: 'ringWidth',
+              title: '同心环宽度',
+              setter: 'NumberSetter',
+              extraProps: { defaultValue: 5 },
+            },
+            {
+              name: 'ringGap',
+              title: '同心环间距',
+              setter: 'NumberSetter',
+              extraProps: { defaultValue: 3 },
+            },
+            {
+              name: 'tiltRatio',
+              title: '倾斜压缩比例',
+              setter: 'NumberSetter',
+              extraProps: { defaultValue: 0.56 },
+            },
+            {
+              name: 'tiltedDepth',
+              title: '倾斜层叠深度',
+              setter: 'NumberSetter',
+              extraProps: { defaultValue: 12 },
             },
           ],
         },

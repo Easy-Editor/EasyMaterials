@@ -31,6 +31,22 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
           title: '显示',
           items: [
             {
+              name: 'displayStyle',
+              title: '展示样式',
+              setter: {
+                componentName: 'SelectSetter',
+                props: {
+                  options: [
+                    { label: '标准列表', value: 'standard' },
+                    { label: '排行轨道', value: 'ranking-track' },
+                  ],
+                },
+              },
+              extraProps: {
+                defaultValue: 'standard',
+              },
+            },
+            {
               name: 'maxItems',
               title: '最大显示数',
               setter: {

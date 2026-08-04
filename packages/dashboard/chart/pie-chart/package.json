@@ -57,6 +57,7 @@
   "scripts": {
     "dev": "easypack dev",
     "dev:debug": "vite --port 5004",
+    "test": "node --test test/*.test.mjs",
     "format": "biome format --write .",
     "lint": "biome check .",
     "build": "npm-run-all -nl build:*",

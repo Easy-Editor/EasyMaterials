@@ -25,6 +25,7 @@ const snippets: Snippet[] = [
       title: '排行榜',
       props: {
         $data: generateStaticDataSource(DEFAULT_RANKING_DATA),
+        displayStyle: 'ranking-track',
         maxItems: 5,
         showMedal: false,
         progressBarEnable: true,
@@ -56,6 +57,7 @@ const snippets: Snippet[] = [
           { rank: 2, name: '产品B', value: 980 },
           { rank: 3, name: '产品C', value: 750 },
         ]),
+        displayStyle: 'standard',
         maxItems: 3,
         showMedal: false,
         progressBarEnable: true,
