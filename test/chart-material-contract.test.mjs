@@ -33,7 +33,8 @@ const patterns = {
   legendPosition: /legendPosition/,
   pieInnerRadius: /defaultValue:\s*'0%'/,
   pieOuterRadius: /defaultValue:\s*'70%'/,
-  escapedPieTooltipName: /escapeTooltipHtml\(params\.name\)/,
+  escapedPieTooltipNameSource: /const name = params\.seriesName \|\| params\.name/,
+  escapedPieTooltipName: /escapeTooltipHtml\(name\)/,
   escapedScatterSeries: /escapeTooltipHtml\(params\.seriesName\)/,
   escapedScatterValue: /escapeTooltipHtml\(params\.value\[/,
   radarConfigureValue1: /name:\s*'value1'/,
@@ -168,6 +169,7 @@ test('HTML tooltip values escape malicious material data', async () => {
   }
 
   const [pie, scatter] = await Promise.all([readChartSource('pie-chart'), readChartSource('scatter-chart')])
+  assert.match(pie, patterns.escapedPieTooltipNameSource)
   assert.match(pie, patterns.escapedPieTooltipName)
   assert.match(scatter, patterns.escapedScatterSeries)
   assert.match(scatter, patterns.escapedScatterValue)
