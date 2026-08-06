@@ -4,7 +4,14 @@
  */
 
 import { useState, useRef, useEffect, useMemo, type CSSProperties } from 'react'
-import { useDataSource, type MaterialComponet } from '@easy-editor/materials-shared'
+import {
+  MaterialEmptyState,
+  normalizeMediaPlaybackRate,
+  normalizeMediaVolume,
+  shouldHideEmptyMaterial,
+  useDataSource,
+  type MaterialComponet,
+} from '@easy-editor/materials-shared'
 import styles from './component.module.css'
 
 export type AudioStyle = 'custom' | 'native'
@@ -12,7 +19,9 @@ export type AudioStyle = 'custom' | 'native'
 export interface AudioProps extends MaterialComponet {
   /** 音频地址（兼容旧版） */
   src?: string
-  /** 标题 */
+  /** 媒体标题 */
+  mediaTitle?: string
+  /** @deprecated 使用 mediaTitle */
   title?: string
   /** 自动播放 */
   autoPlay?: boolean
@@ -47,11 +56,15 @@ const formatTime = (seconds: number): string => {
 }
 
 export const Audio: React.FC<AudioProps> = ({
+  __designMode,
   ref,
   $data,
   __dataSource,
   src: staticSrc = '',
-  title = '音频文件',
+  mediaTitle,
+  title: legacyTitle,
+  emptyBehavior,
+  emptyText,
   autoPlay = false,
   loop = false,
   audioStyle = 'custom',
@@ -72,11 +85,12 @@ export const Audio: React.FC<AudioProps> = ({
   // 解析数据源
   const dataSource = useDataSource($data, __dataSource)
   const src = useMemo<string>(() => {
-    if (dataSource.length > 0 && typeof dataSource[0]?.src === 'string') {
-      return dataSource[0].src
+    if ($data) {
+      const boundSrc = dataSource[0]?.src
+      return typeof boundSrc === 'string' ? boundSrc : ''
     }
     return staticSrc
-  }, [dataSource, staticSrc])
+  }, [$data, dataSource, staticSrc])
 
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -122,8 +136,8 @@ export const Audio: React.FC<AudioProps> = ({
   // 更新播放速度和音量
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.playbackRate = playbackRate
-      audioRef.current.volume = volume / 100
+      audioRef.current.playbackRate = normalizeMediaPlaybackRate(playbackRate)
+      audioRef.current.volume = normalizeMediaVolume(volume) / 100
     }
   }, [playbackRate, volume])
 
@@ -137,7 +151,7 @@ export const Audio: React.FC<AudioProps> = ({
     }
   }
 
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleProgressClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (audioRef.current && duration) {
       const rect = e.currentTarget.getBoundingClientRect()
       const percent = (e.clientX - rect.left) / rect.width
@@ -146,12 +160,35 @@ export const Audio: React.FC<AudioProps> = ({
   }
 
   const progress = duration ? (currentTime / duration) * 100 : 0
+  const progressDisabled = src.length === 0 || duration <= 0
+  const displayTitle = mediaTitle ?? legacyTitle ?? '音频文件'
 
   const containerStyle: CSSProperties = {
     transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
     opacity: opacity / 100,
     backgroundColor: background,
     ...externalStyle,
+  }
+
+  const isEmpty = src.trim().length === 0
+  if (shouldHideEmptyMaterial(isEmpty, emptyBehavior, __designMode)) {
+    return null
+  }
+
+  if (isEmpty) {
+    return (
+      <div
+        className={styles.container}
+        onClick={onClick}
+        onDoubleClick={onDoubleClick}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        ref={ref}
+        style={containerStyle}
+      >
+        <MaterialEmptyState behavior={emptyBehavior} designMode={__designMode} text={emptyText} />
+      </div>
+    )
   }
 
   // 原生样式
@@ -187,6 +224,7 @@ export const Audio: React.FC<AudioProps> = ({
       <button
         aria-label={isPlaying ? 'Pause' : 'Play'}
         className={styles.playButton}
+        disabled={!src}
         onClick={togglePlay}
         type='button'
       >
@@ -201,16 +239,16 @@ export const Audio: React.FC<AudioProps> = ({
       </button>
 
       <div className={styles.info}>
-        <div className={styles.title}>{title}</div>
+        <div className={styles.title}>{displayTitle}</div>
         <div className={styles.progressContainer}>
           <button
-            aria-label='Seek to position'
+            aria-label={`Seek audio, ${formatTime(currentTime)} of ${formatTime(duration || 0)}`}
             className={styles.progressBar}
-            // @ts-expect-error
+            disabled={progressDisabled}
             onClick={handleProgressClick}
             type='button'
           >
-            <div className={styles.progressFill} style={{ width: `${progress}%` }} />
+            <div className={styles.progressFill} style={{ transform: `scaleX(${progress / 100})` }} />
           </button>
           <span className={styles.time}>
             {formatTime(currentTime)} / {formatTime(duration || 0)}

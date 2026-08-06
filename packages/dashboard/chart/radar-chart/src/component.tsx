@@ -9,8 +9,15 @@ import { RadarChart as EChartsRadarChart } from 'echarts/charts'
 import { TooltipComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { EChartsOption } from 'echarts'
-import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
-import { DEFAULT_DATA, DEFAULT_SERIES, type RadarDataPoint } from './constants'
+import {
+  MaterialEmptyState,
+  type MaterialComponet,
+  resolveMaterialChartColors,
+  resolveMaterialTheme,
+  shouldHideEmptyMaterial,
+  useDataSource,
+} from '@easy-editor/materials-shared'
+import { DEFAULT_SERIES, type RadarDataPoint } from './constants'
 import styles from './component.module.css'
 
 // 按需注册 ECharts 组件
@@ -39,6 +46,8 @@ export interface RadarChartProps extends MaterialComponet {
   showLegend?: boolean
   /** 显示提示 */
   showTooltip?: boolean
+  /** 图例位置 */
+  legendPosition?: 'top' | 'bottom' | 'left' | 'right'
   /** 点击事件 */
   onClick?: (e: React.MouseEvent) => void
   /** 双击事件 */
@@ -47,6 +56,19 @@ export interface RadarChartProps extends MaterialComponet {
   onMouseEnter?: (e: React.MouseEvent) => void
   /** 鼠标离开 */
   onMouseLeave?: (e: React.MouseEvent) => void
+}
+
+const getLegendLayout = (position: NonNullable<RadarChartProps['legendPosition']>) => {
+  switch (position) {
+    case 'bottom':
+      return { bottom: 8, left: 'center', orient: 'horizontal' as const }
+    case 'left':
+      return { left: 8, top: 'middle', orient: 'vertical' as const }
+    case 'right':
+      return { right: 8, top: 'middle', orient: 'vertical' as const }
+    default:
+      return { left: 'center', top: 8, orient: 'horizontal' as const }
+  }
 }
 
 // 构建图表配置
@@ -60,13 +82,15 @@ const buildOption = (
     glowEffect: boolean
     showLegend: boolean
     showTooltip: boolean
+    legendPosition: NonNullable<RadarChartProps['legendPosition']>
+    theme: ReturnType<typeof resolveMaterialTheme>
   },
 ): EChartsOption => {
-  const { showGrid, fillOpacity, glowEffect, showLegend, showTooltip } = options
+  const { showGrid, fillOpacity, glowEffect, showLegend, showTooltip, legendPosition, theme } = options
 
   // 提取维度名称
   const indicators = data.map(item => ({
-    name: item[dimensionKey] as string,
+    name: String(item[dimensionKey]),
     max: 100,
   }))
 
@@ -77,13 +101,13 @@ const buildOption = (
     itemStyle: {
       color: s.color,
       shadowColor: glowEffect ? s.color : 'transparent',
-      shadowBlur: glowEffect ? 10 : 0,
+      shadowBlur: glowEffect ? 6 : 0,
     },
     lineStyle: {
       color: s.color,
       width: 2,
       shadowColor: glowEffect ? s.color : 'transparent',
-      shadowBlur: glowEffect ? 10 : 0,
+      shadowBlur: glowEffect ? 6 : 0,
     },
     areaStyle: {
       color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -103,20 +127,20 @@ const buildOption = (
     tooltip: showTooltip
       ? {
           trigger: 'item',
-          backgroundColor: 'rgba(0, 20, 40, 0.9)',
-          borderColor: '#00d4ff',
+          backgroundColor: theme.tooltipBackground,
+          borderColor: theme.tooltipBorder,
           borderWidth: 1,
           textStyle: {
-            color: '#fff',
+            color: theme.tooltipForeground,
           },
         }
       : undefined,
     legend: showLegend
       ? {
           show: true,
-          bottom: 10,
+          ...getLegendLayout(legendPosition),
           textStyle: {
-            color: '#8899aa',
+            color: theme.mutedForeground,
             fontSize: 11,
           },
         }
@@ -126,14 +150,13 @@ const buildOption = (
       shape: 'polygon',
       splitNumber: 5,
       axisName: {
-        color: '#8899aa',
+        color: theme.mutedForeground,
         fontSize: 11,
       },
       splitLine: {
         show: showGrid,
         lineStyle: {
-          color: '#1a3a5c',
-          opacity: 0.6,
+          color: theme.grid,
         },
       },
       splitArea: {
@@ -142,8 +165,7 @@ const buildOption = (
       axisLine: {
         show: showGrid,
         lineStyle: {
-          color: '#1a3a5c',
-          opacity: 0.6,
+          color: theme.grid,
         },
       },
     },
@@ -167,9 +189,13 @@ export const RadarChart: React.FC<RadarChartProps> = ({
   series = DEFAULT_SERIES,
   showGrid = true,
   fillOpacity = 0.3,
-  glowEffect = true,
+  glowEffect = false,
   showLegend = true,
   showTooltip = true,
+  legendPosition = 'bottom',
+  emptyBehavior,
+  emptyText,
+  __designMode,
   rotation = 0,
   opacity = 100,
   background = 'transparent',
@@ -184,26 +210,39 @@ export const RadarChart: React.FC<RadarChartProps> = ({
 
   // 解析数据源
   const dataSource = useDataSource($data, __dataSource)
-  const data = useMemo<RadarDataPoint[]>(() => {
-    if (dataSource.length > 0) {
-      return dataSource as RadarDataPoint[]
-    }
-    return staticData ?? DEFAULT_DATA
-  }, [dataSource, staticData])
+  const data = useMemo<RadarDataPoint[]>(
+    () => ($data ? dataSource : (staticData ?? dataSource)) as RadarDataPoint[],
+    [$data, dataSource, staticData],
+  )
+
+  const validSeries = useMemo(
+    () => (Array.isArray(series) ? series.filter(item => item?.name && item.dataKey && item.color) : []),
+    [series],
+  )
+  const isEmpty = data.length === 0 || validSeries.length === 0
 
   useEffect(() => {
-    if (!chartRef.current) {
+    if (!chartRef.current || isEmpty) {
       return
     }
 
     chartInstance.current = echarts.init(chartRef.current)
 
-    const option = buildOption(data, dimensionKey, series, {
+    const theme = resolveMaterialTheme(chartRef.current)
+    const chartColors = resolveMaterialChartColors(chartRef.current)
+    const resolvedSeries =
+      series === DEFAULT_SERIES
+        ? validSeries.map((item, index) => ({ ...item, color: chartColors[index % chartColors.length] }))
+        : validSeries
+
+    const option = buildOption(data, dimensionKey, resolvedSeries, {
       showGrid,
       fillOpacity,
       glowEffect,
       showLegend,
       showTooltip,
+      legendPosition,
+      theme,
     })
 
     chartInstance.current.setOption(option)
@@ -217,7 +256,18 @@ export const RadarChart: React.FC<RadarChartProps> = ({
       resizeObserver.disconnect()
       chartInstance.current?.dispose()
     }
-  }, [data, dimensionKey, series, showGrid, fillOpacity, glowEffect, showLegend, showTooltip])
+  }, [
+    data,
+    dimensionKey,
+    validSeries,
+    showGrid,
+    fillOpacity,
+    glowEffect,
+    showLegend,
+    showTooltip,
+    legendPosition,
+    isEmpty,
+  ])
 
   const containerStyle: CSSProperties = {
     width: '100%',
@@ -226,6 +276,10 @@ export const RadarChart: React.FC<RadarChartProps> = ({
     opacity: opacity / 100,
     backgroundColor: background,
     ...externalStyle,
+  }
+
+  if (shouldHideEmptyMaterial(isEmpty, emptyBehavior, __designMode)) {
+    return null
   }
 
   return (
@@ -238,7 +292,11 @@ export const RadarChart: React.FC<RadarChartProps> = ({
       ref={ref}
       style={containerStyle}
     >
-      <div className={styles.chart} ref={chartRef} />
+      {isEmpty ? (
+        <MaterialEmptyState behavior={emptyBehavior} designMode={__designMode} text={emptyText} />
+      ) : (
+        <div className={styles.chart} ref={chartRef} />
+      )}
     </div>
   )
 }

@@ -23,7 +23,7 @@ export const snippets: Snippet[] = [
       title: '图片轮播',
       props: {
         $data: generateStaticDataSource(DEFAULT_CAROUSEL_DATA),
-        autoPlay: true,
+        autoPlay: false,
         interval: 3000,
         showNav: true,
         showIndicators: true,

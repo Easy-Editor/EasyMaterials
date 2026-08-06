@@ -15,13 +15,20 @@
 }
 
 .link {
+  color: var(--ee-material-accent, #5b8def);
   text-decoration: none;
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
 
 .link:hover {
-  opacity: 0.8;
+  opacity: 0.86;
+}
+
+.link:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid var(--ee-material-accent, #5b8def);
+  outline-offset: 2px;
 }
 
 .underline {
@@ -55,4 +62,10 @@
 
 .valignBottom {
   align-items: flex-end;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition: none;
+  }
 }

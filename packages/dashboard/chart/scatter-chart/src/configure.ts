@@ -4,7 +4,12 @@
  */
 
 import type { FieldConfig } from '@easy-editor/core'
-import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
+import {
+  advancedConfigGroup as visibilityConfigGroup,
+  createCollapseGroup,
+  createDataConfigGroup,
+  createStandardConfigure,
+} from '@easy-editor/materials-shared'
 
 /** 组件配置 - 散点图独有 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -52,6 +57,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
                 componentName: 'ArraySetter',
                 props: {
                   itemSetter: 'ColorSetter',
+                  minItems: 1,
                 },
               },
             },
@@ -74,14 +80,6 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
             {
               name: 'showGrid',
               title: '显示网格',
-              setter: 'SwitchSetter',
-              extraProps: {
-                defaultValue: true,
-              },
-            },
-            {
-              name: 'glowEffect',
-              title: '发光效果',
               setter: 'SwitchSetter',
               extraProps: {
                 defaultValue: true,
@@ -147,4 +145,25 @@ const dataConfigGroup: FieldConfig = createDataConfigGroup([
   { name: 'category', label: 'category', type: 'string', required: false, description: '分类' },
 ])
 
-export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup)
+const compatibilityDecorationConfigGroup: FieldConfig = createCollapseGroup(
+  '兼容装饰效果',
+  [
+    {
+      name: 'glowEffect',
+      title: '发光效果',
+      setter: 'SwitchSetter',
+      extraProps: { defaultValue: false },
+    },
+  ],
+  { defaultOpen: false },
+)
+
+const chartAdvancedConfigGroup: FieldConfig = createCollapseGroup(
+  '高级设置',
+  [visibilityConfigGroup, compatibilityDecorationConfigGroup],
+  { defaultOpen: false },
+)
+
+export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup, {
+  advancedConfigGroup: chartAdvancedConfigGroup,
+})

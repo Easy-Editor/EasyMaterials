@@ -4,7 +4,7 @@
  */
 
 import type { Snippet } from '@easy-editor/core'
-import { generateStaticDataSource } from '@easy-editor/materials-shared'
+import { generateStaticDataSource, MATERIAL_THEME } from '@easy-editor/materials-shared'
 import { COMPONENT_NAME } from './constants'
 
 const snippets: Snippet[] = [
@@ -19,9 +19,9 @@ const snippets: Snippet[] = [
         decimals: 0,
         separator: true,
         fontSize: 48,
-        fontFamily: 'digital',
-        color: '#00d4ff',
-        glowIntensity: 0.5,
+        fontFamily: 'default',
+        color: MATERIAL_THEME.foreground,
+        glowIntensity: 0,
         rotation: 0,
         opacity: 100,
         background: 'transparent',
@@ -46,9 +46,9 @@ const snippets: Snippet[] = [
         separator: true,
         prefix: '$',
         fontSize: 42,
-        fontFamily: 'digital',
-        color: '#00ff88',
-        glowIntensity: 0.6,
+        fontFamily: 'default',
+        color: MATERIAL_THEME.foreground,
+        glowIntensity: 0,
         rotation: 0,
         opacity: 100,
         background: 'transparent',
@@ -73,9 +73,9 @@ const snippets: Snippet[] = [
         separator: false,
         suffix: '%',
         fontSize: 56,
-        fontFamily: 'digital',
-        color: '#ff6b6b',
-        glowIntensity: 0.8,
+        fontFamily: 'default',
+        color: MATERIAL_THEME.foreground,
+        glowIntensity: 0,
         rotation: 0,
         opacity: 100,
         background: 'transparent',

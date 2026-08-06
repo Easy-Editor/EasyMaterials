@@ -4,6 +4,13 @@
  */
 export default {
   preset: 'material',
+  output: {
+    esm: true,
+    cjs: true,
+    umd: true,
+    minify: true,
+    types: false,
+  },
   dev: {
     port: 5001,
   },

@@ -3,6 +3,9 @@
  * 统一管理全局变量名等配置，确保 meta.ts 和 rollup.config.js 使用相同的值
  */
 
+import { MATERIAL_CHART_COLORS, MATERIAL_STATUS_COLORS, MATERIAL_THEME } from '@easy-editor/materials-shared'
+import type { JSONObject } from '@easy-editor/core'
+
 /**
  * UMD 全局变量基础名称
  * 用于构建：
@@ -18,7 +21,7 @@ export const COMPONENT_NAME = 'EasyEditorMaterialsFlyLine'
 export const PACKAGE_NAME = '@easy-editor/materials-dashboard-fly-line'
 
 /** 飞线数据点 */
-export interface FlyLineData {
+export interface FlyLineData extends JSONObject {
   /** 起点名称 */
   fromName: string
   /** 终点名称 */
@@ -32,7 +35,7 @@ export interface FlyLineData {
 }
 
 /** 散点数据 */
-export interface ScatterPoint {
+export interface ScatterPoint extends JSONObject {
   name: string
   coord: [number, number]
   value?: number
@@ -93,13 +96,13 @@ export const DEFAULT_SCATTER_POINTS: ScatterPoint[] = [
 /** 默认颜色配置 */
 export const DEFAULT_COLORS = {
   /** 飞线颜色 */
-  lineColor: '#00d4ff',
-  /** 飞线发光颜色 */
-  lineGlowColor: '#00d4ff',
+  lineColor: MATERIAL_CHART_COLORS[0],
+  /** 飞线动画标记颜色（保留旧属性名） */
+  lineGlowColor: MATERIAL_CHART_COLORS[0],
   /** 散点颜色 */
-  scatterColor: '#ffd700',
+  scatterColor: MATERIAL_STATUS_COLORS.warning,
   /** 地图区域颜色 */
-  areaColor: 'rgba(0, 40, 80, 0.6)',
+  areaColor: MATERIAL_THEME.surfaceRaised,
   /** 地图边框颜色 */
-  borderColor: 'rgba(0, 200, 255, 0.3)',
+  borderColor: MATERIAL_THEME.border,
 }

@@ -4,8 +4,8 @@ export interface UploadValue {
     name: string
     size: number
     type: string
-    width: number
-    height: number
+    width?: number
+    height?: number
   }
   base64: string
 }

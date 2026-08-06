@@ -4,7 +4,7 @@
  */
 
 import type { Snippet } from '@easy-editor/core'
-import { generateStaticDataSource } from '@easy-editor/materials-shared'
+import { MATERIAL_CHART_COLORS, generateStaticDataSource } from '@easy-editor/materials-shared'
 import { COMPONENT_NAME } from './constants'
 
 /** 默认雷达图数据 */
@@ -18,8 +18,8 @@ const DEFAULT_RADAR_DATA = [
 
 /** 默认系列配置 */
 const DEFAULT_RADAR_SERIES = [
-  { name: '系列1', dataKey: 'series1', color: '#00d4ff' },
-  { name: '系列2', dataKey: 'series2', color: '#00ff88' },
+  { name: '系列1', dataKey: 'series1', color: MATERIAL_CHART_COLORS[0] },
+  { name: '系列2', dataKey: 'series2', color: MATERIAL_CHART_COLORS[1] },
 ]
 
 const snippets: Snippet[] = [
@@ -35,7 +35,7 @@ const snippets: Snippet[] = [
         series: DEFAULT_RADAR_SERIES,
         showGrid: true,
         fillOpacity: 0.3,
-        glowEffect: true,
+        glowEffect: false,
         showLegend: true,
         rotation: 0,
         opacity: 100,
@@ -64,10 +64,10 @@ const snippets: Snippet[] = [
           { dimension: 'HP', value: 75 },
         ]),
         dimensionKey: 'dimension',
-        series: [{ name: 'Stats', dataKey: 'value', color: '#00d4ff' }],
+        series: [{ name: 'Stats', dataKey: 'value', color: MATERIAL_CHART_COLORS[0] }],
         showGrid: true,
         fillOpacity: 0.4,
-        glowEffect: true,
+        glowEffect: false,
         showLegend: false,
         rotation: 0,
         opacity: 100,

@@ -4,7 +4,15 @@
  */
 
 import { useMemo, type CSSProperties } from 'react'
-import { cn, type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
+import {
+  cn,
+  MaterialEmptyState,
+  MATERIAL_CHART_COLORS,
+  MATERIAL_THEME,
+  shouldHideEmptyMaterial,
+  type MaterialComponet,
+  useDataSource,
+} from '@easy-editor/materials-shared'
 import styles from './component.module.css'
 
 export type TrendType = 'up' | 'down' | 'flat'
@@ -49,7 +57,8 @@ export interface NumberFlipProps extends MaterialComponet {
 }
 
 const formatNumber = (value: number, decimals: number, separator: boolean): string => {
-  const fixed = value.toFixed(decimals)
+  const safeDecimals = Number.isFinite(decimals) ? Math.min(10, Math.max(0, Math.trunc(decimals))) : 0
+  const fixed = value.toFixed(safeDecimals)
   if (!separator) {
     return fixed
   }
@@ -83,7 +92,7 @@ const TrendIndicator: React.FC<{
           height={size * 0.3}
           role='img'
           style={{
-            transform: type === 'down' ? 'rotate(180deg)' : undefined,
+            transform: type === 'down' ? 'rotate(180deg)' : '',
           }}
           viewBox='0 0 24 24'
           width={size * 0.3}
@@ -105,20 +114,23 @@ export const NumberFlip: React.FC<NumberFlipProps> = ({
   ref,
   $data,
   __dataSource,
+  __designMode,
+  emptyBehavior,
+  emptyText,
   decimals = 0,
   separator = true,
   prefix = '',
   suffix = '',
   fontSize = 48,
-  fontFamily = 'digital',
-  color = '#00d4ff',
-  glowIntensity = 0.5,
+  fontFamily = 'default',
+  color = `var(--ee-material-foreground, ${MATERIAL_THEME.foreground})`,
+  glowIntensity = 0,
   trendEnable = false,
   trendValue = 0,
   trendType = 'up',
   trendSuffix = '%',
-  trendUpColor = '#52c41a',
-  trendDownColor = '#ff4d4f',
+  trendUpColor = `var(--ee-material-success, ${MATERIAL_CHART_COLORS[1]})`,
+  trendDownColor = `var(--ee-material-danger, ${MATERIAL_CHART_COLORS[3]})`,
   rotation = 0,
   opacity = 100,
   background = 'transparent',
@@ -130,27 +142,37 @@ export const NumberFlip: React.FC<NumberFlipProps> = ({
 }) => {
   // 解析数据源
   const dataSource = useDataSource($data, __dataSource)
-  const value = useMemo<number>(() => {
+  const value = useMemo<number | null>(() => {
     if (dataSource.length > 0 && typeof dataSource[0]?.value === 'number') {
       return dataSource[0].value
     }
-    return 0
+    return null
   }, [dataSource])
 
   const isDigital = fontFamily === 'digital'
-  const formattedValue = formatNumber(value, decimals, separator)
+  const formattedValue = value === null ? '' : formatNumber(value, decimals, separator)
 
-  // 计算发光效果的 text-shadow
-  const glowShadow =
-    glowIntensity > 0
-      ? `0 0 ${10 * glowIntensity}px ${color}, 0 0 ${20 * glowIntensity}px ${color}40, 0 0 ${30 * glowIntensity}px ${color}20`
-      : 'none'
+  // Preserve the legacy emphasis control without introducing an ambient halo.
+  const emphasizedWeight = Math.min(750, 650 + glowIntensity * 50)
 
   const containerStyle: CSSProperties = {
     transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
     opacity: opacity / 100,
     backgroundColor: background,
     ...externalStyle,
+  }
+
+  const isEmpty = value === null
+  if (shouldHideEmptyMaterial(isEmpty, emptyBehavior, __designMode)) {
+    return null
+  }
+
+  if (isEmpty) {
+    return (
+      <div className={styles.container} ref={ref} style={containerStyle}>
+        <MaterialEmptyState behavior={emptyBehavior} designMode={__designMode} text={emptyText} />
+      </div>
+    )
   }
 
   return (
@@ -166,7 +188,7 @@ export const NumberFlip: React.FC<NumberFlipProps> = ({
       <div className={styles.content}>
         {prefix ? (
           <span
-            className={cn(styles.prefix, isDigital && styles.prefixDigital)}
+            className={cn(styles.prefix, isDigital ? styles.prefixDigital : '')}
             style={{
               fontSize: `${fontSize * 0.5}px`,
               color,
@@ -176,18 +198,18 @@ export const NumberFlip: React.FC<NumberFlipProps> = ({
           </span>
         ) : null}
         <span
-          className={cn(styles.value, isDigital && styles.valueDigital)}
+          className={cn(styles.value, isDigital ? styles.valueDigital : '')}
           style={{
             fontSize: `${fontSize}px`,
             color,
-            textShadow: glowShadow,
+            fontWeight: emphasizedWeight,
           }}
         >
           {formattedValue}
         </span>
         {suffix ? (
           <span
-            className={cn(styles.suffix, isDigital && styles.suffixDigital)}
+            className={cn(styles.suffix, isDigital ? styles.suffixDigital : '')}
             style={{
               fontSize: `${fontSize * 0.4}px`,
               color,

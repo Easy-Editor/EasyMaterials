@@ -4,7 +4,14 @@
  */
 
 import type { FieldConfig } from '@easy-editor/core'
-import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
+import {
+  advancedConfigGroup,
+  createCollapseGroup,
+  createDataConfigGroup,
+  createStandardConfigure,
+  withAgentCapability,
+} from '@easy-editor/materials-shared'
+import { DEFAULT_SCATTER_DATA } from './constants'
 
 /** 组件配置 - 地理地图独有 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -44,6 +51,45 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               extraProps: {
                 defaultValue: true,
               },
+            },
+          ],
+        },
+        {
+          type: 'group',
+          key: 'secondaryData',
+          title: '散点数据',
+          items: [
+            {
+              name: 'scatterData',
+              title: '散点数据',
+              setter: 'JsonSetter',
+              extraProps: withAgentCapability(
+                { defaultValue: DEFAULT_SCATTER_DATA },
+                {
+                  fieldId: 'props.scatterData',
+                  access: 'read-write',
+                  readPath: ['props', 'scatterData'],
+                  writeTargets: [{ path: ['props', 'scatterData'] }],
+                  unsetTargets: [{ path: ['props', 'scatterData'] }],
+                  valueSchema: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      required: ['name', 'value'],
+                      properties: {
+                        name: { type: 'string', minLength: 1 },
+                        value: {
+                          type: 'array',
+                          minItems: 3,
+                          maxItems: 3,
+                          items: { type: 'number' },
+                        },
+                      },
+                    },
+                  },
+                  verifyPaths: [['props', 'scatterData']],
+                },
+              ),
             },
           ],
         },
@@ -93,14 +139,6 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
                 defaultValue: 12,
               },
             },
-            {
-              name: 'glowEffect',
-              title: '发光效果',
-              setter: 'SwitchSetter',
-              extraProps: {
-                defaultValue: true,
-              },
-            },
           ],
         },
         // 颜色 Tab
@@ -135,4 +173,26 @@ const dataConfigGroup: FieldConfig = createDataConfigGroup([
   { name: 'value', label: 'value', type: 'number', required: true, description: '数值' },
 ])
 
-export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup)
+const mapAdvancedConfigGroup: FieldConfig = createCollapseGroup(
+  '高级设置',
+  [
+    advancedConfigGroup,
+    createCollapseGroup(
+      '兼容装饰效果',
+      [
+        {
+          name: 'glowEffect',
+          title: '地图发光效果',
+          setter: 'SwitchSetter',
+          extraProps: { defaultValue: false },
+        },
+      ],
+      { defaultOpen: false },
+    ),
+  ],
+  { defaultOpen: false },
+)
+
+export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup, {
+  advancedConfigGroup: mapAdvancedConfigGroup,
+})

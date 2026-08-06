@@ -4,7 +4,15 @@
  */
 
 import type { FieldConfig } from '@easy-editor/core'
-import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
+import {
+  MATERIAL_THEME,
+  MATERIAL_STATUS_COLORS,
+  advancedConfigGroup as visibilityConfigGroup,
+  createCollapseGroup,
+  createDataConfigGroup,
+  createStandardConfigure,
+  withAgentCapability,
+} from '@easy-editor/materials-shared'
 
 /** 组件配置 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -42,6 +50,42 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '单位',
               setter: 'StringSetter',
             },
+            {
+              name: 'ranges',
+              title: '颜色区间',
+              setter: 'JsonSetter',
+              extraProps: withAgentCapability(
+                {
+                  defaultValue: [
+                    { from: 0, to: 40, color: MATERIAL_STATUS_COLORS.success },
+                    { from: 40, to: 70, color: MATERIAL_STATUS_COLORS.warning },
+                    { from: 70, to: 100, color: MATERIAL_STATUS_COLORS.danger },
+                  ],
+                },
+                {
+                  fieldId: 'gauge.ranges',
+                  access: 'read-write',
+                  readPath: ['props', 'ranges'],
+                  writeTargets: [{ path: ['props', 'ranges'] }],
+                  unsetTargets: [{ path: ['props', 'ranges'] }],
+                  verifyPaths: [['props', 'ranges']],
+                  valueSchema: {
+                    type: 'array',
+                    minItems: 1,
+                    items: {
+                      type: 'object',
+                      additionalProperties: false,
+                      required: ['from', 'to', 'color'],
+                      properties: {
+                        from: { type: 'number' },
+                        to: { type: 'number' },
+                        color: { type: 'string', minLength: 1 },
+                      },
+                    },
+                  },
+                },
+              ),
+            },
           ],
         },
         // 刻度 Tab
@@ -60,7 +104,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
             },
             {
               name: 'divisions',
-              title: '刻度数量',
+              title: '主刻度分段',
               setter: {
                 componentName: 'SliderSetter',
                 props: {
@@ -111,15 +155,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '指针颜色',
               setter: 'ColorSetter',
               extraProps: {
-                defaultValue: '#00d4ff',
-              },
-            },
-            {
-              name: 'glowEffect',
-              title: '发光效果',
-              setter: 'SwitchSetter',
-              extraProps: {
-                defaultValue: true,
+                defaultValue: MATERIAL_THEME.accent,
               },
             },
           ],
@@ -137,4 +173,25 @@ const dataConfigGroup: FieldConfig = createDataConfigGroup([
   { name: 'value', label: 'value', type: 'number', required: true, description: '当前值' },
 ])
 
-export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup)
+const compatibilityDecorationConfigGroup: FieldConfig = createCollapseGroup(
+  '兼容装饰效果',
+  [
+    {
+      name: 'glowEffect',
+      title: '发光效果',
+      setter: 'SwitchSetter',
+      extraProps: { defaultValue: false },
+    },
+  ],
+  { defaultOpen: false },
+)
+
+const chartAdvancedConfigGroup: FieldConfig = createCollapseGroup(
+  '高级设置',
+  [visibilityConfigGroup, compatibilityDecorationConfigGroup],
+  { defaultOpen: false },
+)
+
+export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup, {
+  advancedConfigGroup: chartAdvancedConfigGroup,
+})

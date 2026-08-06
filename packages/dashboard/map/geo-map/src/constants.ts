@@ -3,6 +3,9 @@
  * 统一管理全局变量名等配置，确保 meta.ts 和 rollup.config.js 使用相同的值
  */
 
+import { MATERIAL_CHART_COLORS } from '@easy-editor/materials-shared'
+import type { JSONObject } from '@easy-editor/core'
+
 /**
  * UMD 全局变量基础名称
  * 用于构建：
@@ -25,7 +28,7 @@ export type MapType = 'china' | 'world'
 /**
  * 地图数据点
  */
-export interface MapDataPoint {
+export interface MapDataPoint extends JSONObject {
   name: string
   value: number
   coord?: [number, number]
@@ -34,15 +37,15 @@ export interface MapDataPoint {
 /**
  * 散点数据
  */
-export interface ScatterPoint {
+export interface ScatterPoint extends JSONObject {
   name: string
   value: [number, number, number] // [lng, lat, value]
 }
 
 /**
- * 默认颜色 - 科技感渐变色
+ * 默认颜色 - 平衡的分类色板
  */
-export const DEFAULT_COLORS = ['#00f2fe', '#4facfe', '#00d4ff', '#a8edea']
+export const DEFAULT_COLORS = [...MATERIAL_CHART_COLORS]
 
 /**
  * 默认区域数据 - 中国主要省份

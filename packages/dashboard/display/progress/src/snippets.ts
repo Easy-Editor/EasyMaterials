@@ -4,7 +4,7 @@
  */
 
 import type { Snippet } from '@easy-editor/core'
-import { generateStaticDataSource } from '@easy-editor/materials-shared'
+import { generateStaticDataSource, MATERIAL_THEME } from '@easy-editor/materials-shared'
 import { COMPONENT_NAME } from './constants'
 
 const snippets: Snippet[] = [
@@ -22,7 +22,9 @@ const snippets: Snippet[] = [
         showLabel: false,
         valueFormat: 'percent',
         strokeWidthRatio: 0.07,
-        progressColor: '#00ffff',
+        trackColor: MATERIAL_THEME.track,
+        progressColor: MATERIAL_THEME.accent,
+        gradientEnable: false,
         rotation: 0,
         opacity: 100,
         background: 'transparent',
@@ -49,9 +51,9 @@ const snippets: Snippet[] = [
         showLabel: true,
         label: '完成率',
         valueFormat: 'percent',
-        progressColor: '#00ff88',
-        gradientEnable: true,
-        gradientColors: ['#00ff88', '#00d4ff'],
+        trackColor: MATERIAL_THEME.track,
+        progressColor: MATERIAL_THEME.accent,
+        gradientEnable: false,
         rotation: 0,
         opacity: 100,
         background: 'transparent',

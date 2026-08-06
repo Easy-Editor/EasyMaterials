@@ -3,8 +3,16 @@
  * 滚动列表组件 - 支持数据源绑定和事件交互
  */
 
-import { useMemo, type CSSProperties } from 'react'
-import { cn, useDataSource, type MaterialComponet } from '@easy-editor/materials-shared'
+import { useMemo, type CSSProperties, type HTMLAttributes } from 'react'
+import {
+  cn,
+  MaterialEmptyState,
+  MATERIAL_CHART_COLORS,
+  MATERIAL_THEME,
+  shouldHideEmptyMaterial,
+  useDataSource,
+  type MaterialComponet,
+} from '@easy-editor/materials-shared'
 import styles from './component.module.css'
 
 export interface ScrollListItem {
@@ -14,6 +22,8 @@ export interface ScrollListItem {
 }
 
 export interface ScrollListProps extends MaterialComponet {
+  /** 列表展示样式 */
+  displayStyle?: 'standard' | 'ranking-track'
   /** 最大显示条数 */
   maxItems?: number
   /** 是否显示排名 */
@@ -58,33 +68,6 @@ export interface ScrollListProps extends MaterialComponet {
   onItemClick?: (item: ScrollListItem, index: number) => void
 }
 
-const DEFAULT_DATA: ScrollListItem[] = [
-  { rank: 1, name: '北京市', value: 9800 },
-  { rank: 2, name: '上海市', value: 8500 },
-  { rank: 3, name: '广州市', value: 7200 },
-  { rank: 4, name: '深圳市', value: 6100 },
-  { rank: 5, name: '杭州市', value: 4800 },
-]
-
-const MEDAL_EMOJI: Record<number, string> = {
-  1: '🥇',
-  2: '🥈',
-  3: '🥉',
-}
-
-const getRankClass = (rank: number): string => {
-  if (rank === 1) {
-    return styles.rankGold
-  }
-  if (rank === 2) {
-    return styles.rankSilver
-  }
-  if (rank === 3) {
-    return styles.rankBronze
-  }
-  return ''
-}
-
 const formatDisplayValue = (value: number, format: string, prefix: string, suffix: string): string => {
   let formatted: string
   switch (format) {
@@ -104,21 +87,25 @@ export const ScrollList: React.FC<ScrollListProps> = ({
   ref,
   $data,
   __dataSource,
+  __designMode,
+  emptyBehavior,
+  emptyText,
+  displayStyle = 'standard',
   maxItems = 5,
   showRank = true,
-  showMedal = true,
+  showMedal = false,
   progressBarEnable = true,
-  progressBarGradient = true,
-  progressBarColors = ['#00d4ff', '#9b59b6'],
+  progressBarGradient = false,
+  progressBarColors = [MATERIAL_CHART_COLORS[0], MATERIAL_CHART_COLORS[4]],
   valueFormat = 'number',
   valuePrefix = '',
   valueSuffix = '',
-  nameColor = '#e6e6e6',
-  valueColor = '#00d4ff',
-  backgroundColor = 'rgba(10, 10, 26, 0.95)',
-  borderColor = 'rgba(26, 26, 62, 0.8)',
-  itemBackgroundColor = 'rgba(15, 15, 42, 0.9)',
-  itemBorderColor = 'rgba(26, 26, 62, 0.6)',
+  nameColor = `var(--ee-material-foreground, ${MATERIAL_THEME.foreground})`,
+  valueColor = `var(--ee-material-foreground, ${MATERIAL_THEME.foreground})`,
+  backgroundColor = `var(--ee-material-surface, ${MATERIAL_THEME.surface})`,
+  borderColor = `var(--ee-material-border, ${MATERIAL_THEME.border})`,
+  itemBackgroundColor = 'transparent',
+  itemBorderColor = `var(--ee-material-border, ${MATERIAL_THEME.border})`,
   glowEnable = false,
   rotation = 0,
   opacity = 100,
@@ -131,24 +118,35 @@ export const ScrollList: React.FC<ScrollListProps> = ({
 }) => {
   // 解析数据源
   const dataSource = useDataSource($data, __dataSource)
-  const data = useMemo<ScrollListItem[]>(() => {
-    if (dataSource.length > 0) {
-      return dataSource as ScrollListItem[]
-    }
-    return DEFAULT_DATA
-  }, [dataSource])
+  const data = useMemo<ScrollListItem[]>(
+    () =>
+      dataSource.flatMap(item => {
+        if (typeof item.rank !== 'number' || typeof item.name !== 'string' || typeof item.value !== 'number') {
+          return []
+        }
+        return [{ rank: item.rank, name: item.name, value: item.value }]
+      }),
+    [dataSource],
+  )
 
-  const displayData = data.slice(0, maxItems)
+  const safeMaxItems = Number.isFinite(maxItems) ? Math.max(1, Math.trunc(maxItems)) : 5
+  const displayData = data.slice(0, safeMaxItems)
   const maxValue = Math.max(...displayData.map(item => item.value), 1)
+  const resolvedProgressBarColors: [string, string] = [
+    progressBarColors[0] || MATERIAL_CHART_COLORS[0],
+    progressBarColors[1] || progressBarColors[0] || MATERIAL_CHART_COLORS[4],
+  ]
+
+  const getProgressPercentage = (value: number) => Math.min(100, Math.max(0, (value / maxValue) * 100))
 
   const getProgressBarStyle = (value: number): CSSProperties => {
-    const percentage = (value / maxValue) * 100
+    const percentage = getProgressPercentage(value)
     return {
-      width: `${percentage}%`,
+      transform: `scaleX(${percentage / 100})`,
       background: progressBarGradient
-        ? `linear-gradient(90deg, ${progressBarColors[0]}, ${progressBarColors[1]})`
-        : progressBarColors[0],
-      boxShadow: glowEnable ? `0 0 8px ${progressBarColors[0]}60` : undefined,
+        ? `linear-gradient(90deg, ${resolvedProgressBarColors[0]}, ${resolvedProgressBarColors[1]})`
+        : resolvedProgressBarColors[0],
+      outline: glowEnable ? `1px solid ${resolvedProgressBarColors[0]}` : undefined,
     }
   }
 
@@ -165,6 +163,19 @@ export const ScrollList: React.FC<ScrollListProps> = ({
     borderColor: itemBorderColor,
   }
 
+  const isEmpty = displayData.length === 0
+  if (shouldHideEmptyMaterial(isEmpty, emptyBehavior, __designMode)) {
+    return null
+  }
+
+  if (isEmpty) {
+    return (
+      <div className={styles.container} ref={ref} style={containerStyle}>
+        <MaterialEmptyState behavior={emptyBehavior} designMode={__designMode} text={emptyText} />
+      </div>
+    )
+  }
+
   return (
     <div
       className={styles.container}
@@ -178,19 +189,35 @@ export const ScrollList: React.FC<ScrollListProps> = ({
       <div className={styles.list}>
         {displayData.map((item, index) => {
           const isTopThree = item.rank <= 3
+          const highlightRank = showMedal ? isTopThree : false
+          const isRankingTrack = displayStyle === 'ranking-track'
+          let interactionProps: HTMLAttributes<HTMLDivElement> | undefined
+          if (onItemClick) {
+            const itemClickHandler = onItemClick
+            interactionProps = {
+              role: 'button',
+              tabIndex: 0,
+              onKeyDown: event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  itemClickHandler(item, index)
+                }
+              },
+            }
+          }
 
           return (
-            <div className={styles.item} key={item.rank} onClick={() => onItemClick?.(item, index)} style={itemStyle}>
+            <div
+              className={cn(styles.item, isRankingTrack ? styles.itemRankingTrack : '')}
+              key={item.rank}
+              onClick={() => onItemClick?.(item, index)}
+              style={itemStyle}
+              {...interactionProps}
+            >
               {/* Rank Badge */}
               {showRank ? (
-                <div
-                  className={cn(
-                    styles.rankBadge,
-                    isTopThree ? styles.rankBadgeTopThree : styles.rankBadgeNormal,
-                    getRankClass(item.rank),
-                  )}
-                >
-                  {showMedal && isTopThree ? MEDAL_EMOJI[item.rank] : item.rank}
+                <div className={cn(styles.rankBadge, highlightRank ? styles.rankBadgeTopThree : '')}>
+                  {isRankingTrack ? `No.${item.rank}` : String(item.rank).padStart(2, '0')}
                 </div>
               ) : null}
 
@@ -200,16 +227,36 @@ export const ScrollList: React.FC<ScrollListProps> = ({
               </div>
 
               {/* Value and Progress */}
-              <div className={styles.valueContainer}>
-                <span className={styles.value} style={{ color: valueColor }}>
-                  {formatDisplayValue(item.value, valueFormat, valuePrefix, valueSuffix)}
-                </span>
-                {progressBarEnable ? (
-                  <div className={styles.progressBar}>
-                    <div className={styles.progressFill} style={getProgressBarStyle(item.value)} />
-                  </div>
-                ) : null}
-              </div>
+              {isRankingTrack ? (
+                <div className={styles.rankingValueContainer}>
+                  {progressBarEnable ? (
+                    <div className={styles.rankingTrack}>
+                      <div className={styles.rankingFill} style={getProgressBarStyle(item.value)} />
+                      <span
+                        className={styles.rankingMarker}
+                        style={{
+                          left: `${getProgressPercentage(item.value)}%`,
+                          borderColor: resolvedProgressBarColors[0],
+                        }}
+                      />
+                    </div>
+                  ) : null}
+                  <span className={styles.value} style={{ color: valueColor }}>
+                    {formatDisplayValue(item.value, valueFormat, valuePrefix, valueSuffix)}
+                  </span>
+                </div>
+              ) : (
+                <div className={styles.valueContainer}>
+                  <span className={styles.value} style={{ color: valueColor }}>
+                    {formatDisplayValue(item.value, valueFormat, valuePrefix, valueSuffix)}
+                  </span>
+                  {progressBarEnable ? (
+                    <div className={styles.progressBar}>
+                      <div className={styles.progressFill} style={getProgressBarStyle(item.value)} />
+                    </div>
+                  ) : null}
+                </div>
+              )}
             </div>
           )
         })}

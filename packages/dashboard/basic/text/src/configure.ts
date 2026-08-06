@@ -4,7 +4,13 @@
  */
 
 import type { FieldConfig } from '@easy-editor/core'
-import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
+import {
+  advancedConfigGroup,
+  createCollapseGroup,
+  createDataConfigGroup,
+  createStandardConfigure,
+  MATERIAL_THEME,
+} from '@easy-editor/materials-shared'
 
 /** 组件配置 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -50,6 +56,14 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
                 defaultValue: '_blank',
               },
             },
+            {
+              name: 'underline',
+              title: '下划线',
+              setter: 'SwitchSetter',
+              extraProps: {
+                defaultValue: false,
+              },
+            },
           ],
         },
         // 字体 Tab
@@ -61,7 +75,14 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
             {
               name: 'fontSize',
               title: '字体大小',
-              setter: 'NumberSetter',
+              setter: {
+                componentName: 'NumberSetter',
+                props: {
+                  min: 8,
+                  max: 240,
+                  step: 1,
+                },
+              },
               extraProps: {
                 defaultValue: 16,
               },
@@ -73,13 +94,33 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
                 componentName: 'SelectSetter',
                 props: {
                   options: [
-                    { label: '正常', value: 'normal' },
-                    { label: '粗体', value: 'bold' },
+                    { label: '常规 400', value: 400 },
+                    { label: '中等 500', value: 500 },
+                    { label: '半粗 600', value: 600 },
+                    { label: '粗体 700', value: 700 },
                   ],
                 },
               },
               extraProps: {
-                defaultValue: 'normal',
+                defaultValue: 400,
+              },
+            },
+            {
+              name: 'fontFamily',
+              title: '字体家族',
+              setter: {
+                componentName: 'SelectSetter',
+                props: {
+                  options: [
+                    { label: '继承主题', value: 'inherit' },
+                    { label: '系统无衬线', value: 'system-ui, sans-serif' },
+                    { label: '衬线字体', value: 'serif' },
+                    { label: '等宽字体', value: 'monospace' },
+                  ],
+                },
+              },
+              extraProps: {
+                defaultValue: 'inherit',
               },
             },
             {
@@ -87,15 +128,38 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '颜色',
               setter: 'ColorSetter',
               extraProps: {
-                defaultValue: '#ffffff',
+                defaultValue: MATERIAL_THEME.foreground,
               },
             },
             {
               name: 'lineHeight',
               title: '行高',
-              setter: 'NumberSetter',
+              setter: {
+                componentName: 'NumberSetter',
+                props: {
+                  min: 0.5,
+                  max: 4,
+                  step: 0.1,
+                },
+              },
               extraProps: {
                 defaultValue: 1.5,
+              },
+            },
+            {
+              name: 'letterSpacing',
+              title: '字间距',
+              setter: {
+                componentName: 'SliderSetter',
+                props: {
+                  min: -2,
+                  max: 10,
+                  step: 0.1,
+                  suffix: 'px',
+                },
+              },
+              extraProps: {
+                defaultValue: 0,
               },
             },
           ],
@@ -142,38 +206,6 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
             },
           ],
         },
-        // 效果 Tab
-        {
-          type: 'group',
-          key: 'effect',
-          title: '效果',
-          items: [
-            {
-              name: 'underline',
-              title: '下划线',
-              setter: 'SwitchSetter',
-              extraProps: {
-                defaultValue: false,
-              },
-            },
-            {
-              name: 'glowEnable',
-              title: '发光效果',
-              setter: 'SwitchSetter',
-              extraProps: {
-                defaultValue: false,
-              },
-            },
-            {
-              name: 'glowColor',
-              title: '发光颜色',
-              setter: 'ColorSetter',
-              extraProps: {
-                defaultValue: '#00d4ff',
-              },
-            },
-          ],
-        },
       ],
     },
   ],
@@ -187,4 +219,52 @@ const dataConfigGroup: FieldConfig = createDataConfigGroup([
   { name: 'text', label: 'text', type: 'string', required: true, description: '文本内容' },
 ])
 
-export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup)
+const createAdvancedConfigGroup = (): FieldConfig =>
+  createCollapseGroup(
+    '高级设置',
+    [
+      advancedConfigGroup,
+      createCollapseGroup(
+        '兼容装饰效果',
+        [
+          {
+            name: 'glowEnable',
+            title: '启用文字辉光',
+            setter: 'SwitchSetter',
+            extraProps: {
+              defaultValue: false,
+            },
+          },
+          {
+            name: 'glowColor',
+            title: '辉光颜色',
+            setter: 'ColorSetter',
+            extraProps: {
+              defaultValue: MATERIAL_THEME.accent,
+            },
+          },
+          {
+            name: 'glowIntensity',
+            title: '辉光强度',
+            setter: {
+              componentName: 'SliderSetter',
+              props: {
+                min: 0,
+                max: 2,
+                step: 0.1,
+              },
+            },
+            extraProps: {
+              defaultValue: 0,
+            },
+          },
+        ],
+        { defaultOpen: false },
+      ),
+    ],
+    { defaultOpen: false },
+  )
+
+export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup, {
+  advancedConfigGroup: createAdvancedConfigGroup(),
+})

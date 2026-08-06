@@ -1,3 +1,5 @@
+import { MATERIAL_STATUS_COLORS } from '@easy-editor/materials-shared'
+
 /**
  * 物料常量配置
  * 统一管理全局变量名等配置，确保 meta.ts 和 rollup.config.js 使用相同的值
@@ -31,7 +33,7 @@ export interface GaugeRange {
  * 默认颜色区间
  */
 export const DEFAULT_RANGES: GaugeRange[] = [
-  { from: 0, to: 40, color: '#00ff88' },
-  { from: 40, to: 70, color: '#ffcc00' },
-  { from: 70, to: 100, color: '#ff4444' },
+  { from: 0, to: 40, color: MATERIAL_STATUS_COLORS.success },
+  { from: 40, to: 70, color: MATERIAL_STATUS_COLORS.warning },
+  { from: 70, to: 100, color: MATERIAL_STATUS_COLORS.danger },
 ]

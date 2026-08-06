@@ -3,8 +3,16 @@
  * 视频播放组件 - 支持数据源绑定和事件交互
  */
 
-import { useState, useRef, useEffect, useMemo, type MouseEventHandler } from 'react'
-import { cn, useDataSource, type MaterialComponet } from '@easy-editor/materials-shared'
+import { useState, useRef, useEffect, useMemo, type CSSProperties, type MouseEventHandler } from 'react'
+import {
+  cn,
+  MaterialEmptyState,
+  normalizeMediaPlaybackRate,
+  normalizeMediaVolume,
+  shouldHideEmptyMaterial,
+  useDataSource,
+  type MaterialComponet,
+} from '@easy-editor/materials-shared'
 import styles from './component.module.css'
 
 export type ObjectFit = 'cover' | 'contain' | 'fill'
@@ -74,6 +82,12 @@ export const Video: React.FC<VideoProps> = ({
   volume = 100,
   objectFit = 'contain',
   borderRadius = 8,
+  emptyBehavior,
+  emptyText,
+  rotation = 0,
+  opacity = 100,
+  background = 'transparent',
+  style: externalStyle,
   onClick,
   onDoubleClick,
   onMouseEnter,
@@ -85,20 +99,30 @@ export const Video: React.FC<VideoProps> = ({
   // 解析数据源
   const dataSource = useDataSource($data, __dataSource)
   const src = useMemo<string>(() => {
-    if (dataSource.length > 0 && typeof dataSource[0]?.src === 'string') {
-      return dataSource[0].src
+    if ($data) {
+      const boundSrc = dataSource[0]?.src
+      return typeof boundSrc === 'string' ? boundSrc : ''
     }
     return staticSrc
-  }, [dataSource, staticSrc])
+  }, [$data, dataSource, staticSrc])
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const [showPoster, setShowPoster] = useState(!autoPlay && poster !== '')
+  const shouldShowPoster = Boolean(showPoster && poster)
+  const videoPoster = showPoster ? '' : poster
+  const containerStyle: CSSProperties = {
+    borderRadius,
+    transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
+    opacity: opacity / 100,
+    backgroundColor: background,
+    ...externalStyle,
+  }
 
   // 更新播放速度和音量
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.playbackRate = playbackRate
-      videoRef.current.volume = volume / 100
+      videoRef.current.playbackRate = normalizeMediaPlaybackRate(playbackRate)
+      videoRef.current.volume = normalizeMediaVolume(volume) / 100
     }
   }, [playbackRate, volume])
 
@@ -131,6 +155,11 @@ export const Video: React.FC<VideoProps> = ({
     }
   }
 
+  const isEmpty = src.trim().length === 0
+  if (shouldHideEmptyMaterial(isEmpty, emptyBehavior, __designMode)) {
+    return null
+  }
+
   return (
     <div
       className={styles.container}
@@ -139,32 +168,38 @@ export const Video: React.FC<VideoProps> = ({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       ref={ref}
-      style={{ borderRadius }}
+      style={containerStyle}
     >
-      <video
-        autoPlay={autoPlay}
-        className={cn(styles.video, getObjectFitClass(objectFit))}
-        controls={controls}
-        loop={loop}
-        muted={muted}
-        playsInline
-        poster={showPoster ? undefined : poster}
-        ref={videoRef}
-        src={src}
-        style={{
-          pointerEvents: __designMode === 'design' ? 'none' : 'auto',
-        }}
-      />
-      {showPoster && poster !== '' ? (
+      {isEmpty ? (
+        <MaterialEmptyState behavior={emptyBehavior} designMode={__designMode} text={emptyText} />
+      ) : (
         <>
-          <button aria-label='Play video' className={styles.poster} onClick={handlePlay} type='button'>
-            <img alt='Video poster' className={styles.poster} height='100%' src={poster} width='100%' />
-          </button>
-          <button aria-label='Play video' className={styles.playButton} onClick={handlePlay} type='button'>
-            <div className={styles.playIcon} />
-          </button>
+          <video
+            autoPlay={autoPlay}
+            className={cn(styles.video, getObjectFitClass(objectFit))}
+            controls={controls}
+            loop={loop}
+            muted={muted}
+            playsInline
+            poster={videoPoster}
+            ref={videoRef}
+            src={src}
+            style={{
+              pointerEvents: __designMode === 'design' ? 'none' : 'auto',
+            }}
+          />
+          {shouldShowPoster ? (
+            <>
+              <button aria-label='Play video' className={styles.poster} onClick={handlePlay} type='button'>
+                <img alt='Video poster' className={styles.poster} height='100%' src={poster} width='100%' />
+              </button>
+              <button aria-label='Play video' className={styles.playButton} onClick={handlePlay} type='button'>
+                <div className={styles.playIcon} />
+              </button>
+            </>
+          ) : null}
         </>
-      ) : null}
+      )}
     </div>
   )
 }

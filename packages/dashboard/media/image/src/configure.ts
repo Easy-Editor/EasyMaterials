@@ -5,7 +5,12 @@
 
 import type { FieldConfig } from '@easy-editor/core'
 import type { UploadValue } from '@easy-editor/materials-shared'
-import { createCollapseGroup, createSimpleConfigure } from '@easy-editor/materials-shared'
+import {
+  createCollapseGroup,
+  createSimpleConfigure,
+  MATERIAL_THEME,
+  withAgentCapability,
+} from '@easy-editor/materials-shared'
 
 /** 组件配置 - 图片独有 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -29,72 +34,51 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
                 componentName: 'UploadSetter',
                 props: {
                   accept: '.jpg,.jpeg,.png,.gif,.svg',
+                  mediaKind: 'image',
                 },
               },
-              extraProps: {
-                setValue(target, value: UploadValue) {
-                  if (value) {
-                    const { base64, raw } = value
-                    if (base64) {
-                      target.parent.setPropValue('src', base64)
+              extraProps: withAgentCapability(
+                {
+                  setValue(target, value: UploadValue) {
+                    if (value) {
+                      const { base64, raw } = value
+                      if (base64) {
+                        target.parent.setPropValue('src', base64)
+                      }
+                      if (raw?.width) {
+                        target.parent.setExtraPropValue('$dashboard.rect.width', raw.width)
+                      }
+                      if (raw?.height) {
+                        target.parent.setExtraPropValue('$dashboard.rect.height', raw.height)
+                      }
+                    } else {
+                      target.parent.clearPropValue('src')
                     }
-                    if (raw?.width) {
-                      target.parent.setExtraPropValue('$dashboard.rect.width', raw.width)
-                    }
-                    if (raw?.height) {
-                      target.parent.setExtraPropValue('$dashboard.rect.height', raw.height)
-                    }
-                  } else {
-                    target.parent.clearPropValue('src')
-                  }
+                  },
                 },
-              },
+                { expose: false },
+              ),
             },
             {
               name: 'src',
               title: '图片地址',
               setter: 'StringSetter',
+              extraProps: withAgentCapability(
+                {},
+                {
+                  fieldId: 'image.source',
+                  access: 'read-write',
+                  readPath: ['props', 'src'],
+                  writeTargets: [{ path: ['props', 'src'] }],
+                  unsetTargets: [{ path: ['props', 'src'] }],
+                  valueSchema: { type: 'string', minLength: 1 },
+                  verifyPaths: [['props', 'src']],
+                },
+              ),
             },
             {
               name: 'alt',
               title: '替代文本',
-              setter: 'StringSetter',
-            },
-          ],
-        },
-        // 加载 Tab
-        {
-          type: 'group',
-          key: 'loading',
-          title: '加载',
-          items: [
-            {
-              name: 'lazyLoad',
-              title: '懒加载',
-              setter: 'SwitchSetter',
-              extraProps: {
-                defaultValue: false,
-              },
-            },
-            {
-              name: 'lazyLoadThreshold',
-              title: '懒加载阈值',
-              setter: {
-                componentName: 'SliderSetter',
-                props: {
-                  min: 0,
-                  max: 500,
-                  step: 50,
-                  suffix: 'px',
-                },
-              },
-              extraProps: {
-                defaultValue: 100,
-              },
-            },
-            {
-              name: 'placeholder',
-              title: '占位图',
               setter: 'StringSetter',
             },
           ],
@@ -139,14 +123,12 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
                 props: {
                   options: [
                     { label: '无', value: 'none' },
-                    { label: '霓虹', value: 'neon' },
-                    { label: '渐变', value: 'gradient' },
-                    { label: '科技感', value: 'tech' },
+                    { label: '实线', value: 'solid' },
                   ],
                 },
               },
               extraProps: {
-                defaultValue: 'none',
+                defaultValue: 'solid',
               },
             },
             {
@@ -154,7 +136,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '边框颜色',
               setter: 'ColorSetter',
               extraProps: {
-                defaultValue: '#00d4ff',
+                defaultValue: MATERIAL_THEME.border,
               },
             },
             {
@@ -170,7 +152,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '阴影颜色',
               setter: 'ColorSetter',
               extraProps: {
-                defaultValue: 'rgba(0, 212, 255, 0.3)',
+                defaultValue: 'rgba(15, 23, 42, 0.18)',
               },
             },
           ],
@@ -183,4 +165,4 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
   },
 )
 
-export const configure = createSimpleConfigure(componentConfigGroup)
+export const configure = createSimpleConfigure(componentConfigGroup, { showEmptyState: true })

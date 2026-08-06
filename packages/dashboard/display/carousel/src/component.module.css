@@ -8,13 +8,14 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: var(--ee-material-radius, 6px);
+  background: var(--ee-material-surface, transparent);
 }
 
 .track {
   display: flex;
   height: 100%;
-  transition: transform 0.5s ease;
+  transition: transform 160ms ease-out;
 }
 
 .slide {
@@ -37,22 +38,38 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--ee-material-border, rgba(148, 163, 184, 0.24));
+  border-radius: var(--ee-material-control-radius, 6px);
+  background: var(--ee-material-control-surface, rgba(17, 24, 39, 0.72));
+  color: var(--ee-material-control-foreground, #f8fafc);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.3s ease;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
   z-index: 10;
 }
 
 .navButton:hover {
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--ee-material-control-hover, rgba(17, 24, 39, 0.88));
+  border-color: var(
+    --ee-material-control-border-hover,
+    rgba(148, 163, 184, 0.42)
+  );
+}
+
+.navButton:active {
+  background: var(--ee-material-control-active, rgba(17, 24, 39, 0.96));
+}
+
+.navButton:focus-visible,
+.indicator:focus-visible {
+  outline: 2px solid var(--ee-material-focus, #5b8def);
+  outline-offset: 2px;
 }
 
 .navButtonPrev {
@@ -75,21 +92,28 @@
 }
 
 .indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--ee-material-indicator, rgba(248, 250, 252, 0.42));
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 140ms ease;
   padding: 0;
 }
 
 .indicatorActive {
-  background: #fff;
-  transform: scale(1.2);
+  background: var(--ee-material-indicator-active, #f8fafc);
 }
 
 .indicator:hover {
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--ee-material-indicator-hover, rgba(248, 250, 252, 0.72));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track,
+  .navButton,
+  .indicator {
+    transition: none;
+  }
 }

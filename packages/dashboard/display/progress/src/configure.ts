@@ -4,7 +4,13 @@
  */
 
 import type { FieldConfig } from '@easy-editor/core'
-import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
+import {
+  createCollapseGroup,
+  createDataConfigGroup,
+  createStandardConfigure,
+  MATERIAL_CHART_COLORS,
+  MATERIAL_THEME,
+} from '@easy-editor/materials-shared'
 
 /** 组件配置 - 进度条独有 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -24,7 +30,12 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
             {
               name: 'maxValue',
               title: '最大值',
-              setter: 'NumberSetter',
+              setter: {
+                componentName: 'NumberSetter',
+                props: {
+                  min: 1,
+                },
+              },
               extraProps: {
                 defaultValue: 100,
               },
@@ -118,7 +129,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '轨道颜色',
               setter: 'ColorSetter',
               extraProps: {
-                defaultValue: 'rgba(255, 255, 255, 0.1)',
+                defaultValue: MATERIAL_THEME.track,
               },
             },
             {
@@ -126,7 +137,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '进度颜色',
               setter: 'ColorSetter',
               extraProps: {
-                defaultValue: '#00ffff',
+                defaultValue: MATERIAL_THEME.accent,
               },
             },
             {
@@ -144,10 +155,12 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
                 componentName: 'ArraySetter',
                 props: {
                   itemSetter: 'ColorSetter',
+                  minItems: 2,
+                  maxItems: 2,
                 },
               },
               extraProps: {
-                defaultValue: ['#00d4ff', '#9b59b6'],
+                defaultValue: [MATERIAL_CHART_COLORS[0], MATERIAL_CHART_COLORS[4]],
               },
             },
           ],

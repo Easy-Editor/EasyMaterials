@@ -4,7 +4,6 @@
  */
 
 import type { Snippet } from '@easy-editor/core'
-import { generateStaticDataSource } from '@easy-editor/materials-shared'
 import { COMPONENT_NAME } from './constants'
 
 const snippets: Snippet[] = [
@@ -15,8 +14,8 @@ const snippets: Snippet[] = [
       componentName: COMPONENT_NAME,
       title: '音频播放器',
       props: {
-        $data: generateStaticDataSource({ src: '' }),
-        title: '音频文件',
+        src: '',
+        mediaTitle: '音频文件',
         autoPlay: false,
         loop: false,
         audioStyle: 'custom',
@@ -41,8 +40,8 @@ const snippets: Snippet[] = [
       componentName: COMPONENT_NAME,
       title: '原生音频',
       props: {
-        $data: generateStaticDataSource({ src: '' }),
-        title: '音频文件',
+        src: '',
+        mediaTitle: '音频文件',
         audioStyle: 'native',
         rotation: 0,
         opacity: 100,

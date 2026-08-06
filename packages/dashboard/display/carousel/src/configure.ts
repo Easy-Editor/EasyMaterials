@@ -4,7 +4,13 @@
  */
 
 import type { FieldConfig } from '@easy-editor/core'
-import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
+import {
+  createCollapseGroup,
+  createDataConfigGroup,
+  createEventConfigGroup,
+  createStandardConfigure,
+  defaultEvents,
+} from '@easy-editor/materials-shared'
 
 /** 组件配置 - 轮播独有 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -26,7 +32,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               title: '自动播放',
               setter: 'SwitchSetter',
               extraProps: {
-                defaultValue: true,
+                defaultValue: false,
               },
             },
             {
@@ -94,4 +100,12 @@ const dataConfigGroup: FieldConfig = createDataConfigGroup([
   { name: 'link', label: 'link', type: 'string', required: false, description: '点击链接' },
 ])
 
-export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup)
+const eventConfigGroup = createEventConfigGroup([
+  ...defaultEvents,
+  {
+    title: '轮播事件',
+    children: [{ label: '轮播切换', value: 'onChange', description: '当前轮播项变化时触发，参数为索引' }],
+  },
+])
+
+export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup, { eventConfigGroup })

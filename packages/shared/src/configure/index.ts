@@ -5,6 +5,39 @@
 
 import type { Configure, FieldConfig } from '@easy-editor/core'
 
+type ProjectionPath = string[]
+
+interface AgentWriteTarget {
+  path: ProjectionPath
+  valuePath?: string[]
+}
+
+/**
+ * 可由 Agent manifest 静态读取的字段能力描述。
+ * 这里只允许纯数据，不能放 callback、实例或运行时对象。
+ */
+export type AgentFieldCapability =
+  | {
+      /** 仅供人工 Inspector 使用，不进入 Agent manifest。 */
+      expose: false
+    }
+  | {
+      expose?: true
+      fieldId: string
+      access: 'read-only' | 'read-write' | 'unsupported'
+      readPath?: ProjectionPath
+      writeTargets?: AgentWriteTarget[]
+      unsetTargets?: AgentWriteTarget[]
+      verifyPaths?: ProjectionPath[]
+      valueSchema?: Record<string, unknown>
+    }
+
+type FieldExtraProps = NonNullable<FieldConfig['extraProps']>
+
+/** 将安全的 Agent 能力与 Inspector 的字段行为放在同一个 configure 源中。 */
+export const withAgentCapability = (extraProps: FieldExtraProps, agent: AgentFieldCapability): FieldExtraProps =>
+  ({ ...extraProps, agent }) as FieldExtraProps
+
 /** 期望字段配置 */
 export interface ExpectedField {
   /** 字段名 */
@@ -17,6 +50,8 @@ export interface ExpectedField {
   required?: boolean
   /** 字段描述 */
   description?: string
+  /** 供 Agent 校验复杂值（如坐标元组）的精确 schema */
+  valueSchema?: Record<string, unknown>
 }
 
 /** 事件配置项 */
@@ -53,7 +88,8 @@ export const createCollapseGroup = (
   setter: {
     componentName: 'CollapseSetter',
     props: {
-      icon: false,
+      defaultOpen: true,
+      icon: true,
       ...props,
     },
   },
@@ -65,39 +101,78 @@ export const globalConfigGroup: FieldConfig = {
   name: 'nodeInfo',
   title: '节点信息',
   setter: 'NodeInfoSetter',
-  extraProps: {
-    // @ts-expect-error label is not a valid extra prop
-    label: false,
-  },
+  extraProps: withAgentCapability(
+    {
+      // @ts-expect-error label is not a valid extra prop
+      label: false,
+    },
+    {
+      fieldId: 'shared.id',
+      access: 'read-only',
+      readPath: ['node', 'id'],
+      verifyPaths: [['node', 'id']],
+    },
+  ),
 }
 
-/** 基础配置组（所有组件通用） */
-export const basicConfigGroup: FieldConfig = createCollapseGroup('基础配置', [
+/** 布局与外观配置（所有组件通用） */
+export const basicConfigGroup: FieldConfig = createCollapseGroup('布局与外观', [
   {
     name: 'title',
-    title: '标题',
+    title: '组件名称',
     setter: 'StringSetter',
-    extraProps: {
-      getValue(target) {
-        return target.getExtraPropValue('title')
+    extraProps: withAgentCapability(
+      {
+        getValue(target) {
+          return target.getExtraPropValue('title')
+        },
+        setValue(target, value) {
+          target.setExtraPropValue('title', value)
+        },
       },
-      setValue(target, value) {
-        target.setExtraPropValue('title', value)
+      {
+        fieldId: 'shared.title',
+        access: 'read-write',
+        readPath: ['extra', 'title'],
+        writeTargets: [{ path: ['extra', 'title'] }],
+        unsetTargets: [{ path: ['extra', 'title'] }],
+        valueSchema: { type: 'string' },
+        verifyPaths: [['extra', 'title']],
       },
-    },
+    ),
   },
   {
     name: 'rect',
-    title: '位置尺寸',
+    title: '位置与尺寸',
     setter: 'RectSetter',
-    extraProps: {
-      getValue(target) {
-        return target.getExtraPropValue('$dashboard.rect')
+    extraProps: withAgentCapability(
+      {
+        getValue(target) {
+          return target.getExtraPropValue('$dashboard.rect')
+        },
+        setValue(target, value) {
+          target.setExtraPropValue('$dashboard.rect', value)
+        },
       },
-      setValue(target, value) {
-        target.setExtraPropValue('$dashboard.rect', value)
+      {
+        fieldId: 'shared.rect',
+        access: 'read-write',
+        readPath: ['extra', '$dashboard', 'rect'],
+        writeTargets: [{ path: ['extra', '$dashboard', 'rect'] }],
+        unsetTargets: [{ path: ['extra', '$dashboard', 'rect'] }],
+        valueSchema: {
+          type: 'object',
+          required: ['x', 'y', 'width', 'height'],
+          properties: {
+            x: { type: 'number' },
+            y: { type: 'number' },
+            width: { type: 'number', minimum: 0 },
+            height: { type: 'number', minimum: 0 },
+          },
+        },
+        verifyPaths: [['extra', '$dashboard', 'rect']],
       },
-    },
+    ),
   },
   {
     name: 'rotation',
@@ -162,42 +237,107 @@ export const defaultEvents: EventGroup[] = [
  * @param events 事件配置，默认使用 defaultEvents
  */
 export const createEventConfigGroup = (events: EventGroup[] = defaultEvents): FieldConfig =>
-  createCollapseGroup('事件绑定', [
-    {
-      name: 'events',
-      title: '事件',
-      setter: {
-        componentName: 'EventSetter',
-        props: {
-          events,
+  createCollapseGroup(
+    '事件绑定',
+    [
+      {
+        name: 'events',
+        title: '事件',
+        setter: {
+          componentName: 'EventSetter',
+          props: {
+            events,
+          },
         },
+        extraProps: withAgentCapability(
+          {
+            // @ts-expect-error label is not a valid extra prop
+            label: false,
+          },
+          {
+            fieldId: 'events.binding',
+            access: 'read-only',
+            readPath: ['props', 'events'],
+            verifyPaths: [['props', 'events']],
+          },
+        ),
       },
-      extraProps: {
-        // @ts-expect-error label is not a valid extra prop
-        label: false,
-      },
-    },
-  ])
+    ],
+    { defaultOpen: false },
+  )
 
 /** 事件绑定配置组（使用默认事件） */
 export const eventConfigGroup: FieldConfig = createEventConfigGroup()
 
 /** 高级配置组（条件渲染等） */
-export const advancedConfigGroup: FieldConfig = createCollapseGroup('高级配置', [
+export const advancedConfigGroup: FieldConfig = createCollapseGroup(
+  '可见性',
+  [
+    {
+      name: 'condition',
+      title: '条件渲染',
+      setter: 'SwitchSetter',
+      extraProps: withAgentCapability(
+        {
+          supportVariable: true,
+          getValue(target) {
+            return target.getNode().getExtraPropValue('condition')
+          },
+          setValue(target, value: boolean) {
+            target.getNode().setExtraProp('condition', value)
+          },
+        },
+        {
+          fieldId: 'shared.visibility',
+          access: 'read-write',
+          readPath: ['extra', 'condition'],
+          writeTargets: [{ path: ['extra', 'condition'] }],
+          unsetTargets: [{ path: ['extra', 'condition'] }],
+          valueSchema: { type: 'boolean' },
+          verifyPaths: [['extra', 'condition']],
+        },
+      ),
+    },
+  ],
+  { defaultOpen: false },
+)
+
+const createEmptyStateFields = (): FieldConfig[] => [
   {
-    title: '条件渲染',
-    setter: 'SwitchSetter',
-    extraProps: {
-      supportVariable: true,
-      getValue(target) {
-        return target.getNode().getExtraPropValue('condition')
-      },
-      setValue(target, value: boolean) {
-        target.getNode().setExtraProp('condition', value)
+    name: 'emptyBehavior',
+    title: '空数据展示',
+    setter: {
+      componentName: 'SelectSetter',
+      props: {
+        options: [
+          { label: '显示提示', value: 'message' },
+          { label: '保持空白', value: 'blank' },
+          { label: '运行时隐藏', value: 'hide' },
+        ],
       },
     },
+    extraProps: {
+      defaultValue: 'message',
+    },
   },
-])
+  {
+    name: 'emptyText',
+    title: '空数据文案',
+    setter: {
+      componentName: 'StringSetter',
+      props: {
+        maxLength: 80,
+      },
+    },
+    extraProps: {
+      defaultValue: '暂无数据',
+    },
+  },
+]
+
+export const emptyStateConfigGroup: FieldConfig = createCollapseGroup('空内容', createEmptyStateFields(), {
+  defaultOpen: false,
+})
 
 /**
  * 创建数据配置组
@@ -209,23 +349,76 @@ export const createDataConfigGroup = (
   options?: {
     showPreview?: boolean
     previewLimit?: number
+    showEmptyState?: boolean
   },
-): FieldConfig => ({
-  name: '$data',
-  title: '数据配置',
-  setter: {
-    componentName: 'DataSetter',
-    props: {
-      expectedFields,
-      showPreview: options?.showPreview ?? true,
-      previewLimit: options?.previewLimit ?? 10,
+): FieldConfig =>
+  createCollapseGroup('数据与空状态', [
+    {
+      name: '$data',
+      title: '数据配置',
+      setter: {
+        componentName: 'DataSetter',
+        props: {
+          expectedFields,
+          showPreview: options?.showPreview ?? true,
+          previewLimit: options?.previewLimit ?? 10,
+        },
+      },
+      extraProps: withAgentCapability(
+        {
+          // @ts-expect-error label is not a valid extra prop
+          label: false,
+        },
+        {
+          fieldId: 'data.config',
+          access: 'read-write',
+          readPath: ['props', '$data'],
+          writeTargets: [{ path: ['props', '$data'] }],
+          unsetTargets: [{ path: ['props', '$data'] }],
+          valueSchema: {
+            type: 'object',
+            required: ['sourceType'],
+            properties: {
+              sourceType: { type: 'string', enum: ['static', 'datasource', 'global'] },
+              staticData: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  required: expectedFields.filter(field => field.required).map(field => field.name),
+                  properties: Object.fromEntries(
+                    expectedFields.map(field => [
+                      field.name,
+                      field.valueSchema ?? {
+                        type: field.type,
+                        ...(field.description ? { description: field.description } : {}),
+                      },
+                    ]),
+                  ),
+                },
+              },
+              datasourceId: { type: 'string', minLength: 1 },
+              fieldMappings: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  required: ['componentField', 'sourceField'],
+                  properties: {
+                    componentField: {
+                      type: 'string',
+                      enum: expectedFields.map(field => field.name),
+                    },
+                    sourceField: { type: 'string', minLength: 1 },
+                  },
+                },
+              },
+            },
+          },
+          verifyPaths: [['props', '$data']],
+        },
+      ),
     },
-  },
-  extraProps: {
-    // @ts-expect-error label is not a valid extra prop
-    label: false,
-  },
-})
+    ...(options?.showEmptyState === false ? [] : createEmptyStateFields()),
+  ])
 
 /**
  * 创建标准三 Tab 配置结构
@@ -246,6 +439,7 @@ export const createStandardConfigure = (
 
   return {
     props: [
+      globalConfigGroup,
       {
         type: 'group',
         title: '属性',
@@ -255,22 +449,22 @@ export const createStandardConfigure = (
           {
             type: 'group',
             key: 'config',
-            title: '配置',
-            items: [globalConfigGroup, basicConfigGroup, componentConfigGroup],
+            title: '属性',
+            items: [basicConfigGroup, componentConfigGroup],
           },
           // 数据 Tab
           {
             type: 'group',
             key: 'data',
             title: '数据',
-            items: [globalConfigGroup, dataConfigGroup],
+            items: [dataConfigGroup],
           },
           // 高级 Tab
           {
             type: 'group',
             key: 'advanced',
             title: '高级',
-            items: [globalConfigGroup, eventGroup, advancedGroup],
+            items: [eventGroup, advancedGroup],
           },
         ],
       },
@@ -291,6 +485,7 @@ export const createSimpleConfigure = (
   options?: {
     eventConfigGroup?: FieldConfig
     advancedConfigGroup?: FieldConfig
+    showEmptyState?: boolean
   },
 ): Configure => {
   const eventGroup = options?.eventConfigGroup ?? eventConfigGroup
@@ -298,6 +493,7 @@ export const createSimpleConfigure = (
 
   return {
     props: [
+      globalConfigGroup,
       {
         type: 'group',
         title: '属性',
@@ -307,15 +503,19 @@ export const createSimpleConfigure = (
           {
             type: 'group',
             key: 'config',
-            title: '配置',
-            items: [globalConfigGroup, basicConfigGroup, componentConfigGroup],
+            title: '属性',
+            items: [
+              basicConfigGroup,
+              componentConfigGroup,
+              ...(options?.showEmptyState ? [emptyStateConfigGroup] : []),
+            ],
           },
           // 高级 Tab
           {
             type: 'group',
             key: 'advanced',
             title: '高级',
-            items: [globalConfigGroup, eventGroup, advancedGroup],
+            items: [eventGroup, advancedGroup],
           },
         ],
       },

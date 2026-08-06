@@ -1,3 +1,5 @@
+import { MATERIAL_CHART_COLORS } from '@easy-editor/materials-shared'
+
 /**
  * 物料常量配置
  * 统一管理全局变量名等配置，确保 meta.ts 和 rollup.config.js 使用相同的值
@@ -16,7 +18,7 @@ export const PACKAGE_NAME = '@easy-editor/materials-dashboard-bar-chart'
 /**
  * 默认颜色
  */
-export const DEFAULT_COLORS = ['#00d4ff', '#00ff88', '#ff6b6b', '#ffd93d', '#6bcbff', '#c56bff']
+export const DEFAULT_COLORS = [...MATERIAL_CHART_COLORS]
 
 /**
  * 数据点类型

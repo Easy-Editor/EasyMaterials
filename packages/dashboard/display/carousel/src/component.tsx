@@ -4,7 +4,13 @@
  */
 
 import { useState, useEffect, useCallback, useMemo, type CSSProperties } from 'react'
-import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
+import {
+  MaterialEmptyState,
+  normalizeSafeHref,
+  shouldHideEmptyMaterial,
+  type MaterialComponet,
+  useDataSource,
+} from '@easy-editor/materials-shared'
 import styles from './component.module.css'
 
 export interface CarouselItem {
@@ -39,12 +45,6 @@ export interface CarouselProps extends MaterialComponet {
   onChange?: (index: number) => void
 }
 
-const DEFAULT_ITEMS: CarouselItem[] = [
-  { src: 'https://picsum.photos/800/400?random=1', alt: 'Slide 1' },
-  { src: 'https://picsum.photos/800/400?random=2', alt: 'Slide 2' },
-  { src: 'https://picsum.photos/800/400?random=3', alt: 'Slide 3' },
-]
-
 const ChevronLeft = () => (
   <svg aria-hidden='true' fill='none' height='24' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24' width='24'>
     <title>Previous</title>
@@ -63,7 +63,10 @@ export const Carousel: React.FC<CarouselProps> = ({
   ref,
   $data,
   __dataSource,
-  autoPlay = true,
+  __designMode,
+  emptyBehavior,
+  emptyText,
+  autoPlay = false,
   interval = 3000,
   showNav = true,
   showIndicators = true,
@@ -82,16 +85,29 @@ export const Carousel: React.FC<CarouselProps> = ({
 
   // 解析数据源
   const dataSource = useDataSource($data, __dataSource)
-  const items = useMemo<CarouselItem[]>(() => {
-    if (dataSource.length > 0) {
-      return dataSource as CarouselItem[]
-    }
-    return DEFAULT_ITEMS
-  }, [dataSource])
+  const items = useMemo<CarouselItem[]>(
+    () =>
+      dataSource.flatMap(item => {
+        if (typeof item.src !== 'string' || item.src.length === 0) {
+          return []
+        }
+        return [
+          {
+            src: item.src,
+            alt: typeof item.alt === 'string' ? item.alt : undefined,
+            link: normalizeSafeHref(item.link) ?? undefined,
+          },
+        ]
+      }),
+    [dataSource],
+  )
 
   const goToNext = useCallback(() => {
     setCurrentIndex(prev => {
-      const nextIndex = prev >= items.length - 1 ? (loop ? 0 : prev) : prev + 1
+      let nextIndex = prev + 1
+      if (prev >= items.length - 1) {
+        nextIndex = loop ? 0 : prev
+      }
       if (nextIndex !== prev) {
         onChange?.(nextIndex)
       }
@@ -101,7 +117,10 @@ export const Carousel: React.FC<CarouselProps> = ({
 
   const goToPrev = useCallback(() => {
     setCurrentIndex(prev => {
-      const nextIndex = prev <= 0 ? (loop ? items.length - 1 : prev) : prev - 1
+      let nextIndex = prev - 1
+      if (prev <= 0) {
+        nextIndex = loop ? items.length - 1 : prev
+      }
       if (nextIndex !== prev) {
         onChange?.(nextIndex)
       }
@@ -123,13 +142,14 @@ export const Carousel: React.FC<CarouselProps> = ({
       return
     }
 
-    const timer = setInterval(goToNext, interval)
+    const safeInterval = Number.isFinite(interval) ? Math.max(1000, interval) : 3000
+    const timer = setInterval(goToNext, safeInterval)
     return () => clearInterval(timer)
   }, [autoPlay, interval, goToNext, items.length])
 
-  if (items.length === 0) {
-    return null
-  }
+  useEffect(() => {
+    setCurrentIndex(previous => Math.min(previous, Math.max(items.length - 1, 0)))
+  }, [items.length])
 
   const containerStyle: CSSProperties = {
     transform: rotation ? `rotate(${rotation}deg)` : undefined,
@@ -137,6 +157,23 @@ export const Carousel: React.FC<CarouselProps> = ({
     backgroundColor: background,
     ...externalStyle,
   }
+
+  const isEmpty = items.length === 0
+  if (shouldHideEmptyMaterial(isEmpty, emptyBehavior, __designMode)) {
+    return null
+  }
+
+  if (isEmpty) {
+    return (
+      <div className={styles.container} ref={ref} style={containerStyle}>
+        <MaterialEmptyState behavior={emptyBehavior} designMode={__designMode} text={emptyText} />
+      </div>
+    )
+  }
+
+  const canNavigate = items.length > 1
+  const renderNav = Boolean(showNav) && canNavigate
+  const renderIndicators = Boolean(showIndicators) && canNavigate
 
   return (
     <div
@@ -177,7 +214,7 @@ export const Carousel: React.FC<CarouselProps> = ({
       </div>
 
       {/* 导航按钮 */}
-      {showNav && items.length > 1 && (
+      {renderNav ? (
         <>
           <button
             aria-label='Previous slide'
@@ -196,10 +233,10 @@ export const Carousel: React.FC<CarouselProps> = ({
             <ChevronRight />
           </button>
         </>
-      )}
+      ) : null}
 
       {/* 指示器 */}
-      {showIndicators && items.length > 1 && (
+      {renderIndicators ? (
         <div className={styles.indicators}>
           {items.map((_, index) => (
             <button
@@ -211,7 +248,7 @@ export const Carousel: React.FC<CarouselProps> = ({
             />
           ))}
         </div>
-      )}
+      ) : null}
     </div>
   )
 }

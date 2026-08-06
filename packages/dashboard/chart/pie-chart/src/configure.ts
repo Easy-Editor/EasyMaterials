@@ -4,7 +4,12 @@
  */
 
 import type { FieldConfig } from '@easy-editor/core'
-import { createCollapseGroup, createDataConfigGroup, createStandardConfigure } from '@easy-editor/materials-shared'
+import {
+  advancedConfigGroup as visibilityConfigGroup,
+  createCollapseGroup,
+  createDataConfigGroup,
+  createStandardConfigure,
+} from '@easy-editor/materials-shared'
 
 /** 组件配置 */
 const componentConfigGroup: FieldConfig = createCollapseGroup(
@@ -22,35 +27,34 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
           title: '样式',
           items: [
             {
-              name: 'innerRadius',
-              title: '内半径',
+              name: 'displayStyle',
+              title: '展示样式',
               setter: {
-                componentName: 'SliderSetter',
+                componentName: 'SelectSetter',
                 props: {
-                  min: 0,
-                  max: 100,
-                  step: 5,
-                  suffix: '%',
+                  options: [
+                    { label: '标准饼图', value: 'standard' },
+                    { label: '同心进度环', value: 'concentric-rings' },
+                    { label: '倾斜层叠环', value: 'tilted-donut' },
+                  ],
                 },
               },
+              extraProps: { defaultValue: 'standard' },
+            },
+            {
+              name: 'innerRadius',
+              title: '内半径',
+              setter: 'StringSetter',
               extraProps: {
-                defaultValue: 0,
+                defaultValue: '0%',
               },
             },
             {
               name: 'outerRadius',
               title: '外半径',
-              setter: {
-                componentName: 'SliderSetter',
-                props: {
-                  min: 50,
-                  max: 100,
-                  step: 5,
-                  suffix: '%',
-                },
-              },
+              setter: 'StringSetter',
               extraProps: {
-                defaultValue: 70,
+                defaultValue: '70%',
               },
             },
             {
@@ -60,6 +64,7 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
                 componentName: 'ArraySetter',
                 props: {
                   itemSetter: 'ColorSetter',
+                  minItems: 1,
                 },
               },
             },
@@ -72,12 +77,34 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               },
             },
             {
-              name: 'glowEffect',
-              title: '发光效果',
-              setter: 'SwitchSetter',
-              extraProps: {
-                defaultValue: true,
-              },
+              name: 'trackColor',
+              title: '同心环轨道色',
+              setter: 'ColorSetter',
+              extraProps: { defaultValue: 'rgba(120, 153, 177, 0.16)' },
+            },
+            {
+              name: 'ringWidth',
+              title: '同心环宽度',
+              setter: 'NumberSetter',
+              extraProps: { defaultValue: 5 },
+            },
+            {
+              name: 'ringGap',
+              title: '同心环间距',
+              setter: 'NumberSetter',
+              extraProps: { defaultValue: 3 },
+            },
+            {
+              name: 'tiltRatio',
+              title: '倾斜压缩比例',
+              setter: 'NumberSetter',
+              extraProps: { defaultValue: 0.56 },
+            },
+            {
+              name: 'tiltedDepth',
+              title: '倾斜层叠深度',
+              setter: 'NumberSetter',
+              extraProps: { defaultValue: 12 },
             },
           ],
         },
@@ -170,4 +197,25 @@ const dataConfigGroup: FieldConfig = createDataConfigGroup([
   { name: 'value', label: 'value', type: 'number', required: true, description: '数值' },
 ])
 
-export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup)
+const compatibilityDecorationConfigGroup: FieldConfig = createCollapseGroup(
+  '兼容装饰效果',
+  [
+    {
+      name: 'glowEffect',
+      title: '发光效果',
+      setter: 'SwitchSetter',
+      extraProps: { defaultValue: false },
+    },
+  ],
+  { defaultOpen: false },
+)
+
+const chartAdvancedConfigGroup: FieldConfig = createCollapseGroup(
+  '高级设置',
+  [visibilityConfigGroup, compatibilityDecorationConfigGroup],
+  { defaultOpen: false },
+)
+
+export const configure = createStandardConfigure(componentConfigGroup, dataConfigGroup, {
+  advancedConfigGroup: chartAdvancedConfigGroup,
+})

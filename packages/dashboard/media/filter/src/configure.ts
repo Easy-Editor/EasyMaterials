@@ -15,39 +15,6 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
       title: '组件配置',
       setter: 'SubTabSetter',
       items: [
-        // 预设 Tab
-        {
-          type: 'group',
-          key: 'preset',
-          title: '预设',
-          items: [
-            {
-              name: 'preset',
-              title: '预设滤镜',
-              setter: {
-                componentName: 'SelectSetter',
-                props: {
-                  options: [
-                    { label: '无', value: 'none' },
-                    { label: '复古', value: 'vintage' },
-                    { label: '黑白', value: 'grayscale' },
-                    { label: '暖色调', value: 'warm' },
-                    { label: '冷色调', value: 'cool' },
-                    { label: '高对比', value: 'highContrast' },
-                    { label: '柔和', value: 'soft' },
-                    { label: '鲜艳', value: 'vivid' },
-                    { label: '电影感', value: 'cinematic' },
-                    { label: '梦幻', value: 'dreamy' },
-                    { label: '赛博朋克', value: 'cyberpunk' },
-                  ],
-                },
-              },
-              extraProps: {
-                defaultValue: 'none',
-              },
-            },
-          ],
-        },
         // 滤镜 Tab
         {
           type: 'group',
@@ -183,8 +150,8 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               },
             },
             {
-              name: 'opacity',
-              title: '不透明度',
+              name: 'filterOpacity',
+              title: '滤镜不透明度',
               setter: {
                 componentName: 'SliderSetter',
                 props: {
@@ -230,14 +197,6 @@ const componentConfigGroup: FieldConfig = createCollapseGroup(
               },
               extraProps: {
                 defaultValue: 'normal',
-              },
-            },
-            {
-              name: 'backgroundColor',
-              title: '叠加颜色',
-              setter: 'ColorSetter',
-              extraProps: {
-                defaultValue: 'transparent',
               },
             },
           ],

@@ -4,8 +4,16 @@
  */
 
 import { useId, useRef, useEffect, useState, useMemo, type CSSProperties } from 'react'
-import { type MaterialComponet, useDataSource } from '@easy-editor/materials-shared'
+import {
+  MaterialEmptyState,
+  MATERIAL_CHART_COLORS,
+  MATERIAL_THEME,
+  shouldHideEmptyMaterial,
+  type MaterialComponet,
+  useDataSource,
+} from '@easy-editor/materials-shared'
 import styles from './component.module.css'
+import { formatProgressValue, normalizeProgressValue, type ProgressValueFormat } from './model'
 
 export interface ProgressProps extends MaterialComponet {
   /** 最大值 */
@@ -19,7 +27,7 @@ export interface ProgressProps extends MaterialComponet {
   /** 标签文本 */
   label?: string
   /** 数值格式 */
-  valueFormat?: 'percent' | 'number'
+  valueFormat?: ProgressValueFormat
   /** 线条宽度比例（相对于尺寸的百分比） */
   strokeWidthRatio?: number
   /** 轨道颜色 */
@@ -40,16 +48,9 @@ export interface ProgressProps extends MaterialComponet {
   onMouseLeave?: (e: React.MouseEvent) => void
 }
 
-// 格式化数值
-const formatValue = (value: number, percentage: number, valueFormat: string): string => {
-  if (valueFormat === 'percent') {
-    return `${Math.round(percentage)}%`
-  }
-  return `${value}`
-}
-
 // 环形进度条组件
 const RingProgress = ({
+  value,
   percentage,
   strokeWidthRatio,
   trackColor,
@@ -63,6 +64,7 @@ const RingProgress = ({
   displayColor,
   gradientId,
 }: {
+  value: number
   percentage: number
   strokeWidthRatio: number
   trackColor: string
@@ -72,7 +74,7 @@ const RingProgress = ({
   showValue: boolean
   showLabel: boolean
   label: string
-  valueFormat: string
+  valueFormat: ProgressValueFormat
   displayColor: string
   gradientId: string
 }) => {
@@ -101,11 +103,14 @@ const RingProgress = ({
     return () => resizeObserver.disconnect()
   }, [])
 
-  const strokeWidth = Math.max(2, size * strokeWidthRatio)
+  const safeStrokeWidthRatio = Math.min(0.5, Math.max(0.01, strokeWidthRatio))
+  const strokeWidth = Math.max(2, size * safeStrokeWidthRatio)
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
   const strokeDashoffset = circumference - (percentage / 100) * circumference
   const center = size / 2
+  const progressStroke = gradientEnable ? `url(#${gradientId})` : progressColor
+  const hasLabel = showLabel ? label.length > 0 : false
 
   return (
     <div className={styles.container} ref={containerRef}>
@@ -123,27 +128,25 @@ const RingProgress = ({
         <circle cx={center} cy={center} fill='none' r={radius} stroke={trackColor} strokeWidth={strokeWidth} />
         {/* 进度 */}
         <circle
+          className={styles.ringProgress}
           cx={center}
           cy={center}
           fill='none'
           r={radius}
-          stroke={gradientEnable ? `url(#${gradientId})` : progressColor}
+          stroke={progressStroke}
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap='round'
           strokeWidth={strokeWidth}
-          style={{
-            transition: 'stroke-dashoffset 0.5s ease',
-          }}
         />
       </svg>
       <div className={styles.centerContent}>
         {showValue ? (
           <span className={styles.value} style={{ fontSize: size * 0.2, color: displayColor }}>
-            {formatValue(Math.round(percentage), percentage, valueFormat)}
+            {formatProgressValue(value, percentage, valueFormat)}
           </span>
         ) : null}
-        {showLabel && label ? (
+        {hasLabel ? (
           <span className={styles.label} style={{ fontSize: size * 0.1 }}>
             {label}
           </span>
@@ -155,6 +158,7 @@ const RingProgress = ({
 
 // 线性进度条组件
 const BarProgress = ({
+  value,
   percentage,
   trackColor,
   progressColor,
@@ -166,6 +170,7 @@ const BarProgress = ({
   valueFormat,
   displayColor,
 }: {
+  value: number
   percentage: number
   trackColor: string
   progressColor: string
@@ -174,38 +179,45 @@ const BarProgress = ({
   showValue: boolean
   showLabel: boolean
   label: string
-  valueFormat: string
+  valueFormat: ProgressValueFormat
   displayColor: string
-}) => (
-  <div className={styles.barContainer}>
-    {showLabel || showValue ? (
-      <div className={styles.barLabels}>
-        {showLabel ? <span className={styles.barLabel}>{label}</span> : null}
-        {showValue ? (
-          <span className={styles.barValue} style={{ color: displayColor }}>
-            {formatValue(Math.round(percentage), percentage, valueFormat)}
-          </span>
-        ) : null}
+}) => {
+  const fillBackground = gradientEnable
+    ? `linear-gradient(90deg, ${gradientColors[0]}, ${gradientColors[1]})`
+    : progressColor
+
+  return (
+    <div className={styles.barContainer}>
+      {showLabel || showValue ? (
+        <div className={styles.barLabels}>
+          {showLabel ? <span className={styles.barLabel}>{label}</span> : null}
+          {showValue ? (
+            <span className={styles.barValue} style={{ color: displayColor }}>
+              {formatProgressValue(value, percentage, valueFormat)}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+      <div className={styles.barWrapper} style={{ background: trackColor }}>
+        <div
+          className={styles.barFill}
+          style={{
+            transform: `scaleX(${percentage / 100})`,
+            background: fillBackground,
+          }}
+        />
       </div>
-    ) : null}
-    <div className={styles.barWrapper} style={{ background: trackColor }}>
-      <div
-        className={styles.barFill}
-        style={{
-          width: `${percentage}%`,
-          background: gradientEnable
-            ? `linear-gradient(90deg, ${gradientColors[0]}, ${gradientColors[1]})`
-            : progressColor,
-        }}
-      />
     </div>
-  </div>
-)
+  )
+}
 
 export const Progress: React.FC<ProgressProps> = ({
   ref,
   $data,
   __dataSource,
+  __designMode,
+  emptyBehavior,
+  emptyText,
   rotation = 0,
   opacity = 100,
   background = 'transparent',
@@ -217,10 +229,10 @@ export const Progress: React.FC<ProgressProps> = ({
   label = '',
   valueFormat = 'percent',
   strokeWidthRatio = 0.07,
-  trackColor = 'rgba(26, 26, 62, 0.8)',
-  progressColor = '#00d4ff',
+  trackColor = `var(--ee-material-track, ${MATERIAL_THEME.track})`,
+  progressColor = `var(--ee-material-accent, ${MATERIAL_THEME.accent})`,
   gradientEnable = false,
-  gradientColors = ['#00d4ff', '#9b59b6'],
+  gradientColors = [MATERIAL_CHART_COLORS[0], MATERIAL_CHART_COLORS[4]],
   onClick,
   onDoubleClick,
   onMouseEnter,
@@ -230,22 +242,38 @@ export const Progress: React.FC<ProgressProps> = ({
 
   // 解析数据源
   const dataSource = useDataSource($data, __dataSource)
-  const value = useMemo<number>(() => {
+  const value = useMemo<number | null>(() => {
     if (dataSource.length > 0 && typeof dataSource[0]?.value === 'number') {
       return dataSource[0].value
     }
-    return 0
+    return null
   }, [dataSource])
-
-  const normalizedValue = Math.min(Math.max(value, 0), maxValue)
-  const percentage = (normalizedValue / maxValue) * 100
-  const displayColor = gradientEnable ? gradientColors[0] : progressColor
+  const isEmpty = value === null
+  const normalized = normalizeProgressValue(value ?? 0, maxValue)
+  const { value: normalizedValue, percentage } = normalized
+  const resolvedGradientColors: [string, string] = [
+    gradientColors[0] || MATERIAL_CHART_COLORS[0],
+    gradientColors[1] || gradientColors[0] || MATERIAL_CHART_COLORS[4],
+  ]
+  const displayColor = gradientEnable ? resolvedGradientColors[0] : progressColor
 
   const wrapperStyle: CSSProperties = {
     transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
     opacity: opacity / 100,
     backgroundColor: background,
     ...externalStyle,
+  }
+
+  if (shouldHideEmptyMaterial(isEmpty, emptyBehavior, __designMode)) {
+    return null
+  }
+
+  if (isEmpty) {
+    return (
+      <div className={styles.wrapper} ref={ref} style={wrapperStyle}>
+        <MaterialEmptyState behavior={emptyBehavior} designMode={__designMode} text={emptyText} />
+      </div>
+    )
   }
 
   if (type === 'ring') {
@@ -261,7 +289,7 @@ export const Progress: React.FC<ProgressProps> = ({
       >
         <RingProgress
           displayColor={displayColor}
-          gradientColors={gradientColors}
+          gradientColors={resolvedGradientColors}
           gradientEnable={gradientEnable}
           gradientId={gradientId}
           label={label}
@@ -271,6 +299,7 @@ export const Progress: React.FC<ProgressProps> = ({
           showValue={showValue}
           strokeWidthRatio={strokeWidthRatio}
           trackColor={trackColor}
+          value={normalizedValue}
           valueFormat={valueFormat}
         />
       </div>
@@ -289,7 +318,7 @@ export const Progress: React.FC<ProgressProps> = ({
     >
       <BarProgress
         displayColor={displayColor}
-        gradientColors={gradientColors}
+        gradientColors={resolvedGradientColors}
         gradientEnable={gradientEnable}
         label={label}
         percentage={percentage}
@@ -297,6 +326,7 @@ export const Progress: React.FC<ProgressProps> = ({
         showLabel={showLabel}
         showValue={showValue}
         trackColor={trackColor}
+        value={normalizedValue}
         valueFormat={valueFormat}
       />
     </div>

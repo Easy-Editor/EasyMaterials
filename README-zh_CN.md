@@ -26,6 +26,22 @@ EasyMaterials 是 EasyEditor 的官方物料库，提供丰富的开箱即用物
 - **♿ 无障碍**：遵循 WCAG 2.1 AA 标准
 - **📊 数据绑定**：与 EasyEditor 的数据源管理无缝集成
 
+## 设计与 Agent 配置契约
+
+EasyMaterials 的物料是可组合的内容与交互原语，不是自带完整皮肤的仪表盘卡片：
+
+- 默认背景保持透明或中性，不把玻璃、霓虹、发光和渐变当作产品身份。
+- 颜色承担数据分类和状态含义；阴影只表达真实浮层，视觉特效必须由用户显式开启。
+- 画布可以通过 `--ee-material-*` 变量和物料 props 统一接管主题。
+- `configure` 同时服务属性面板与 Agent 能力编译，是配置项的唯一事实源，不维护第二套字段注册表。
+
+为了让配置可被人和 Agent 同时理解，新增或修改字段时应保持：
+
+- 稳定且语义明确的 `name`、`title` 与 setter；
+- JSON 可序列化的默认值，以及静态的范围、步长和选项约束；
+- 数据字段使用 `ExpectedField.description` 写明业务含义，而不是只写类型；
+- 回调映射字段必须显式声明绑定关系，不能让 Agent 从 `getValue` / `setValue` 实现中猜路径。
+
 ## 🏗️ 开发
 
 ### 环境要求
@@ -48,16 +64,16 @@ pnpm install
 pnpm dev
 
 # 构建所有包
-pnpm build
+pnpm -r --if-present build
 
 # 运行测试
 pnpm test
 
 # 代码检查
-pnpm lint
+pnpm check
 
 # 预览特定物料
-pnpm dev:dashboard-bar-chart
+pnpm --filter @easy-editor/materials-dashboard-bar-chart dev
 ```
 
 ### 创建新物料
